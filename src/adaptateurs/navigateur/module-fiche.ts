@@ -254,22 +254,122 @@ function bouton(
     connaît pas, et elle lui montre ce qu'elle insère. */
 const BALISEES = new Set(["histoire", "m-texte", "s-rencontre"]);
 
-//  EN TOUTES LETTRES, PAS EN PICTOGRAMMES : un « G » gras et un « I »
-//  penché sont une convention de traitement de texte, pas de forum, et
-//  la barre sert justement à ceux qui ne la connaissent pas.
-const BALISES: readonly {
+/*  ── LA BARRE REPREND CELLE DE FORUMACTIF ──────────────────────────
+
+    « Dans le bloc d'édition, affiche la même chose que les options
+    possibles dans le bloc d'édition de l'éditeur forumactif. »
+    — 24 novembre.
+
+    Les trente-huit boutons de sceditor ont été relevés sur la vraie
+    page d'écriture. Vingt se reposent ici, avec LEURS MOTS, parce que
+    c'est ce que les joueurs reconnaissent.
+
+    LES DIX-HUIT AUTRES NE SE REPOSENT PAS, et pour une seule raison :
+    ce ne sont pas des balises, ce sont des services de Forumactif.
+    Spoiler, Caché, Défilement, Aléatoire sont du BBCode que seul leur
+    serveur sait rendre ; Servimg, Giphy, Imgur, Youtube, Mentionner
+    ouvrent leurs propres fenêtres ; Date, Heure, Texte sans
+    formatage, Mode d'édition agissent sur l'éditeur qu'on a remplacé.
+    Les imiter donnerait des boutons qui ne feraient rien, ou pire,
+    qui écriraient un code mort dans la fiche.
+
+    EN TOUTES LETTRES, PAS EN PICTOGRAMMES : un « G » gras et un « I »
+    penché sont une convention de traitement de texte, pas de forum,
+    et la barre sert justement à ceux qui ne la connaissent pas. */
+type Balise = {
   readonly mot: string;
+  readonly titre?: string;
   readonly ouvre: string;
   readonly ferme: string;
   /** Le bouton demande une adresse avant d'insérer. */
-  readonly demande?: boolean;
-}[] = [
+  readonly demande?: "lien" | "image";
+  /** Une barre verticale se pose avant ce bouton. */
+  readonly groupe?: true;
+};
+
+const BALISES: readonly Balise[] = [
   { mot: "Gras", ouvre: "<b>", ferme: "</b>" },
-  { mot: "Italique", ouvre: "<i>", ferme: "</i>" },
-  { mot: "Souligné", ouvre: "<u>", ferme: "</u>" },
-  { mot: "Centré", ouvre: "<center>", ferme: "</center>" },
-  { mot: "Lien", ouvre: `<a href="">`, ferme: "</a>", demande: true },
+  { mot: "Ital.", titre: "Italique", ouvre: "<i>", ferme: "</i>" },
+  { mot: "Soulig.", titre: "Souligné", ouvre: "<u>", ferme: "</u>" },
+  { mot: "Barré", ouvre: "<s>", ferme: "</s>" },
+  { mot: "Indice", ouvre: "<sub>", ferme: "</sub>", groupe: true },
+  { mot: "Exposant", ouvre: "<sup>", ferme: "</sup>" },
+  {
+    mot: "Gauche",
+    titre: "Aligné à gauche",
+    ouvre: `<div style="text-align:left">`,
+    ferme: "</div>",
+    groupe: true,
+  },
+  {
+    mot: "Centré",
+    ouvre: `<div style="text-align:center">`,
+    ferme: "</div>",
+  },
+  {
+    mot: "Droite",
+    titre: "Aligné à droite",
+    ouvre: `<div style="text-align:right">`,
+    ferme: "</div>",
+  },
+  {
+    mot: "Justifié",
+    ouvre: `<div style="text-align:justify">`,
+    ferme: "</div>",
+  },
+  { mot: "Liste", ouvre: "<ul><li>", ferme: "</li></ul>", groupe: true },
+  { mot: "Liste n°", titre: "Liste ordonnée", ouvre: "<ol><li>", ferme: "</li></ol>" },
+  {
+    mot: "Citation",
+    titre: "Citer",
+    ouvre: "<blockquote>",
+    ferme: "</blockquote>",
+    groupe: true,
+  },
+  { mot: "Code", ouvre: "<code>", ferme: "</code>" },
+  { mot: "Ligne", titre: "Insérer une ligne", ouvre: "<hr />", ferme: "" },
+  {
+    mot: "Tableau",
+    titre: "Insérer un tableau",
+    ouvre: "<table><tr><td>",
+    ferme: "</td><td></td></tr><tr><td></td><td></td></tr></table>",
+  },
+  {
+    mot: "Lien",
+    titre: "Insérer un lien",
+    ouvre: `<a href="">`,
+    ferme: "</a>",
+    demande: "lien",
+    groupe: true,
+  },
+  {
+    mot: "Image",
+    titre: "Insérer une image",
+    ouvre: `<img src="`,
+    ferme: `" />`,
+    demande: "image",
+  },
 ];
+
+/*  LES TROIS MENUS DE FORUMACTIF — taille, couleur, police. Ce sont
+    des listes là-bas, donc des listes ici : un bouton qui demande
+    « quelle taille ? » dans une boîte ferait trois clics au lieu
+    d'un.
+
+    LES VALEURS SONT CELLES DE SCEDITOR, relevées sur la vraie page.
+    Les inventer donnerait des fiches qui ne ressemblent pas aux
+    messages du reste du forum. */
+const TAILLES = ["9", "10", "12", "14", "18", "24"] as const;
+const POLICES = [
+  "Arial",
+  "Comic Sans MS",
+  "Courier New",
+  "Georgia",
+  "Impact",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+] as const;
 
 /** L'adresse telle qu'elle peut entrer dans un `href`.
  *
@@ -714,19 +814,124 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     barre.setAttribute("role", "group");
     barre.setAttribute("aria-label", "Mettre en forme le texte");
     for (const b of BALISES) {
+      if (b.groupe === true) {
+        const trait = el(doc, "span", "wmf-form__balises-trait");
+        trait.setAttribute("aria-hidden", "true");
+        barre.appendChild(trait);
+      }
       const bouton = el<HTMLButtonElement>(doc, "button", "wmf-form__balise", b.mot);
       bouton.type = "button";
-      bouton.title = `${b.ouvre}…${b.ferme}`;
+      bouton.title = b.titre ?? `${b.ouvre}…${b.ferme}`;
       bouton.addEventListener("mousedown", (e) => e.preventDefault());
       bouton.addEventListener(
         "click",
-        b.demande === true
-          ? () => ouvrirLeLien(z, barre)
-          : () => entourer(doc, z, b.ouvre, b.ferme),
+        b.demande === undefined
+          ? () => entourer(doc, z, b.ouvre, b.ferme)
+          : () => ouvrirLAdresse(z, barre, b),
       );
       barre.appendChild(bouton);
     }
+
+    //  ── LES TROIS MENUS, ET LE NETTOYAGE ───────────────────────────
+    barre.appendChild(menu(z, "Taille", TAILLES, (v) => [
+      `<span style="font-size:${v}px">`,
+      "</span>",
+    ], true));
+    barre.appendChild(menu(z, "Police", POLICES, (v) => [
+      `<span style="font-family:${v}">`,
+      "</span>",
+    ]));
+
+    //  LA COULEUR EST LE SEUL ENDROIT OÙ UNE LISTE NE SUFFIT PAS :
+    //  Forumactif y ouvre une palette, et nous n'avons pas à deviner
+    //  quelles couleurs un joueur voudra. Le sélecteur du navigateur
+    //  les a toutes, et il est natif, donc accessible au clavier.
+    const couleur = el<HTMLInputElement>(doc, "input", "wmf-form__couleur");
+    couleur.type = "color";
+    couleur.value = "#275e7a";
+    couleur.title = "Couleur";
+    couleur.setAttribute("aria-label", "Couleur du texte");
+    couleur.addEventListener("mousedown", () => garderLaSelection(z));
+    couleur.addEventListener("change", () => {
+      rendreLaSelection(z);
+      entourer(doc, z, `<span style="color:${couleur.value}">`, "</span>");
+    });
+    barre.appendChild(couleur);
+
+    const trait = el(doc, "span", "wmf-form__balises-trait");
+    trait.setAttribute("aria-hidden", "true");
+    barre.appendChild(trait);
+
+    //  « SUPPRIMER LE FORMATAGE » RETIRE LES BALISES ÉCRITES, parce
+    //  qu'ici elles SONT du texte : la zone est en texte brut, et
+    //  « <b>mardi</b> » y est une suite de caractères comme une
+    //  autre. Rien à démêler dans un arbre, une expression suffit.
+    const propre = el<HTMLButtonElement>(doc, "button", "wmf-form__balise", "Effacer");
+    propre.type = "button";
+    propre.title = "Supprimer le formatage du texte";
+    propre.addEventListener("mousedown", (e) => e.preventDefault());
+    propre.addEventListener("click", () => {
+      z.focus();
+      const sel = doc.getSelection();
+      if (sel === null || sel.rangeCount === 0 || !z.contains(sel.anchorNode)) return;
+      const choisi = sel.toString();
+      if (choisi === "") return;
+      doc.execCommand("insertText", false, choisi.replace(/<\/?[a-z][^>]*>/gi, ""));
+    });
+    barre.appendChild(propre);
+
     return barre;
+  };
+
+  /*  LA SÉLECTION SE GARDE AVANT D'OUVRIR LE SÉLECTEUR DE COULEUR.
+      Il prend le focus, donc la sélection disparaît avant le
+      `change` : sans cette copie, la couleur se poserait autour de
+      rien. Même piège que le champ du lien. */
+  let gardee: Range | null = null;
+  const garderLaSelection = (z: HTMLElement): void => {
+    const sel = doc.getSelection();
+    gardee = sel !== null && sel.rangeCount > 0 && sel.anchorNode !== null &&
+        z.contains(sel.anchorNode)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+  };
+  const rendreLaSelection = (z: HTMLElement): void => {
+    z.focus();
+    if (gardee === null) return;
+    const sel = doc.getSelection();
+    if (sel === null) return;
+    sel.removeAllRanges();
+    sel.addRange(gardee);
+  };
+
+  /*  UN MENU DE LA BARRE. Il revient à son intitulé après usage :
+      sinon il afficherait « 18 » alors que la sélection suivante
+      n'est pas en 18, et dirait donc quelque chose de faux. */
+  const menu = (
+    z: HTMLElement,
+    intitule: string,
+    valeurs: readonly string[],
+    balises: (v: string) => readonly [string, string],
+    suffixePx = false,
+  ): HTMLElement => {
+    const m = el<HTMLSelectElement>(doc, "select", "wmf-form__menu");
+    m.title = intitule;
+    m.setAttribute("aria-label", intitule);
+    m.appendChild(el<HTMLOptionElement>(doc, "option", "", intitule));
+    for (const v of valeurs) {
+      const o = el<HTMLOptionElement>(doc, "option", "", suffixePx ? `${v} px` : v);
+      o.value = v;
+      m.appendChild(o);
+    }
+    m.addEventListener("mousedown", () => garderLaSelection(z));
+    m.addEventListener("change", () => {
+      if (m.value === "") return;
+      rendreLaSelection(z);
+      const [ouvre, ferme] = balises(m.value);
+      entourer(doc, z, ouvre, ferme);
+      m.selectedIndex = 0;
+    });
+    return m;
   };
 
   //  ── LE LIEN DEMANDE SON ADRESSE ────────────────────────────────
@@ -738,7 +943,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  LA SÉLECTION EST GARDÉE AVANT D'OUVRIR LE CHAMP. Dès qu'on y
   //  tape, le curseur a quitté la zone et la sélection n'existe plus :
   //  sans cette copie, le lien se poserait autour de rien.
-  const ouvrirLeLien = (z: HTMLElement, barre: HTMLElement): void => {
+  const ouvrirLAdresse = (z: HTMLElement, barre: HTMLElement, b: Balise): void => {
     const existant = barre.nextElementSibling;
     if (existant !== null && existant.classList.contains("wmf-form__lien")) {
       existant.remove();
@@ -754,7 +959,11 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     const champ = el<HTMLInputElement>(doc, "input", "inputbox");
     champ.type = "url";
     champ.placeholder = "https://…";
-    champ.setAttribute("aria-label", "L'adresse du lien");
+    const pourLImage = b.demande === "image";
+    champ.setAttribute(
+      "aria-label",
+      pourLImage ? "L'adresse de l'image" : "L'adresse du lien",
+    );
 
     const fermer = (): void => {
       boite.remove();
@@ -774,7 +983,11 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         sel.removeAllRanges();
         sel.addRange(gardee);
       }
-      entourer(doc, z, `<a href="${ou}">`, "</a>");
+      //  L'IMAGE N'ENTOURE RIEN : elle se pose. On écrit donc la
+      //  balise entière d'un coup, là où le lien enveloppe le texte
+      //  choisi.
+      if (pourLImage) entourer(doc, z, `<img src="${ou}" />`, "");
+      else entourer(doc, z, `<a href="${ou}">`, "</a>");
     };
 
     champ.addEventListener("keydown", (e) => {
@@ -788,7 +1001,12 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     });
     boite.append(
       champ,
-      bouton(doc, "Poser le lien", poser, "button2 wmf-form__poser"),
+      bouton(
+        doc,
+        pourLImage ? "Poser l'image" : "Poser le lien",
+        poser,
+        "button2 wmf-form__poser",
+      ),
       bouton(doc, "Annuler", fermer, "button2 wmf-form__annuler"),
     );
     barre.after(boite);
@@ -822,16 +1040,36 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     const bloc = laFiche.querySelector<HTMLElement>(".wmf__histoire");
     if (bloc === null) return;
     const barre = el(doc, "div", "wmf-form__barre");
-    //  LES DEUX MOTS DISENT LA FAÇON DE RACONTER, pas le format du
-    //  texte. « Un grand pavé » nommait l'objet technique ; « moment
-    //  par moment » reprend en plus le mot du bouton qui suit,
-    //  « Ajouter un moment ».
+    //  « LES DEUX BOUTONS : "BLOC" OU "CHRONOLOGIE". AJOUTE UNE
+    //  ICÔNE. » — 24 novembre. Ce sont ses mots, et ce sont les deux
+    //  seuls choix : un bouton qui dit la forme vaut mieux qu'un
+    //  bouton qui la décrit.
+    //
+    //  L'ICÔNE EST DESSINÉE, PAS ÉCRITE. Un caractère pris dans une
+    //  police — un carré, une puce — change de dessin d'un système à
+    //  l'autre et disparaît là où la police manque. Deux traits de
+    //  SVG tiennent partout, et ils disent la même chose : un bloc
+    //  plein d'un côté, des jalons reliés de l'autre.
     const formes = [
-      ["pave", "D'un seul tenant"],
-      ["chronologie", "Moment par moment"],
+      [
+        "pave",
+        "Bloc",
+        `<rect x="2" y="3" width="12" height="2.2" rx="1"/>` +
+        `<rect x="2" y="6.9" width="12" height="2.2" rx="1"/>` +
+        `<rect x="2" y="10.8" width="8" height="2.2" rx="1"/>`,
+      ],
+      [
+        "chronologie",
+        "Chronologie",
+        `<path d="M4 2.5v11" stroke="currentColor" stroke-width="1.4" ` +
+        `stroke-linecap="round" fill="none"/>` +
+        `<circle cx="4" cy="4.5" r="2"/><circle cx="4" cy="11.5" r="2"/>` +
+        `<rect x="8" y="3.4" width="6" height="2" rx="1"/>` +
+        `<rect x="8" y="10.4" width="6" height="2" rx="1"/>`,
+      ],
     ] as const;
     for (const forme of formes) {
-      const [mode, mot] = forme;
+      const [mode, mot, dessin] = forme;
       const b = bouton(doc, mot, () => {
         if (vue.histoire.mode === mode) return;
         vue = {
@@ -844,28 +1082,28 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         ecrire();
       }, "button2 wmf-form__forme");
       b.setAttribute("aria-pressed", String(vue.histoire.mode === mode));
+      //  L'ICÔNE EST DÉCORATIVE : le mot est à côté, donc une lectrice
+      //  d'écran qui l'annoncerait dirait deux fois la même chose.
+      const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 16 16");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("focusable", "false");
+      svg.innerHTML = dessin;
+      b.prepend(svg);
       barre.appendChild(b);
     }
-    //  ── ON DIT CE QU'ON PEUT Y METTRE ───────────────────────────
+    //  ── LES BOUTONS VIENNENT APRÈS LA CONSIGNE ──────────────────
     //
-    //  « Préciser aussi dans "raconte-nous ton histoire" que la
-    //  personne peut rajouter des balises, des images, ce qu'elle
-    //  veut. » — 23 novembre.
+    //  « Raconte-nous ton histoire :: Tu es libre d'écrire avec la
+    //  forme qu'il te plaît […] Ensuite, tu mets un padding et tu
+    //  mets les deux boutons. » — 24 novembre. L'ordre est dans la
+    //  phrase : on lit ce qu'on peut faire, puis on choisit.
     //
-    //  La barre de balises ne montre que cinq boutons, et un joueur
-    //  qui n'a que ça sous les yeux croit que la liste s'arrête là.
-    //  Elle ne s'arrête pas : le message part en HTML, et tout ce que
-    //  Forumactif accepte dans un message passe.
-    const dit = el(
-      doc,
-      "p",
-      "wmf-form__note",
-      "Écris comme tu veux : les cinq boutons ne sont qu'un raccourci. " +
-        "Tu peux taper tes propres balises, coller une image, une bannière, " +
-        "un tableau — tout ce qui marche dans un message marche ici.",
-    );
-    bloc.querySelector(".wmf__bandeau")?.after(barre);
-    barre.before(dit);
+    //  LA NOTE QUI PARLAIT DES CINQ BOUTONS EST PARTIE AVEC EUX : la
+    //  barre en porte vingt depuis ce matin, et la sienne dit déjà
+    //  qu'on peut écrire ses propres balises.
+    const apres = bloc.querySelector(".wmf__note") ?? bloc.querySelector(".wmf__bandeau");
+    apres?.after(barre);
 
     const chrono = bloc.querySelector<HTMLElement>(".wmf__chrono");
     if (chrono === null) return;

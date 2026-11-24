@@ -38807,11 +38807,64 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     mots sont écrits en toutes lettres : un « G » gras et un « I »
     penché sont une convention de traitement de texte, et la barre
     sert justement à ceux qui ne l'ont pas. */
+/*  ── LA BARRE, VINGT OPTIONS ET TROIS MENUS ────────────────────────
+
+    « Affiche la même chose que les options possibles dans le bloc
+    d'édition de l'éditeur forumactif » — 24 novembre.
+
+    Elle porte maintenant ce que porte sceditor, donc elle est longue.
+    Elle est posée sur une bande à elle, plus claire que la zone qu'elle
+    sert, pour qu'on voie d'un coup d'œil où finit la barre et où
+    commence le texte. */
 #modernbb .wmf-form__balises {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-4, 4px);
+  align-items: center;
+  box-sizing: border-box;
   margin-bottom: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LE TRAIT SÉPARE LES FAMILLES — le gras de l'alignement, les listes
+    des insertions. Sans lui, vingt boutons de même taille font un mur
+    où l'on cherche. */
+#modernbb .wmf-form__balises-trait {
+  width: 1px;
+  height: 16px;
+  margin: 0 var(--wm-espace-2, 2px);
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wmf-form__menu {
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE SÉLECTEUR DE COULEUR EST NATIF : il ouvre la palette du
+    système, donc toutes les couleurs, et il se manie au clavier. On
+    lui donne la taille d'un bouton, pas celle que les navigateurs
+    lui donnent par défaut. */
+#modernbb .wmf-form__couleur {
+  box-sizing: border-box;
+  width: 28px;
+  height: 22px;
+  padding: 1px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  cursor: pointer;
 }
 
 #modernbb .wmf-form__balise {
@@ -38853,23 +38906,41 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   min-width: 0;
 }
 
-/*  ET LA COLONNE DIT CE QU'ELLE ATTEND tant qu'aucune image n'y est.
+/*  ET LE CADRE DIT CE QU'IL ATTEND tant qu'aucune image n'y est.
     Sans ça, une fiche neuve n'a là qu'une adresse vide, et rien ne
-    laisse deviner que c'est la place du visage. */
-#modernbb .wmf-form__fiche .wmf__avatar:not(:has(img))::before {
+    laisse deviner que c'est la place du visage.
+
+    C'EST LE CADRE, ET PLUS LA COLONNE. La règle visait
+    `.wmf__avatar` du temps où la colonne portait l'image elle-même ;
+    depuis que l'image, son crédit et son adresse vivent dans un
+    cadre, elle en dessinait un SECOND, autour du premier. */
+#modernbb .wmf-form__fiche .wmf__cadre:not(:has(img))::before {
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  /*  LA BOÎTE EST RÉÉCRITE EN ENTIER, et pas héritée de la règle
+      générale : celle-ci est moins spécifique, donc chaque propriété
+      qu'on oublie ici retombe sur elle — et il suffit d'en oublier
+      une pour que le cadre perde son trait sans qu'on sache
+      pourquoi. */
+  width: 100%;
+  height: 320px;
+  padding: var(--wm-espace-16, 16px);
   border: 1px dashed var(--wm-bord-net, #d9c3b1);
-  aspect-ratio: 3 / 4;
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-texte-doux, #6e5749);
   content: "l'image de ton personnage";
   font-size: var(--wm-taille-petit, 11.5px);
   font-style: italic;
   text-align: center;
+}
+
+#modernbb .wmf-form__fiche .wmf__cadre--carre:not(:has(img))::before {
+  height: auto;
+  aspect-ratio: 1;
+  content: "une image carrée — un avatar, un gif, ce que tu veux";
 }
 
 /*  ── LES QUATRE COMMANDES ──────────────────────────────────────────
@@ -38880,16 +38951,54 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     menus à la place des valeurs qu'ils choisissent. Un panneau de
     réglages à part obligerait à faire l'aller-retour des yeux. */
 
+/*  ── LE CHOIX DE LA FORME ──────────────────────────────────────────
+
+    « Ensuite, tu mets un padding et tu mets les deux boutons : "Bloc"
+    ou "Chronologie". Ajoute une icône. Et rends-les plus jolis ou
+    mieux placés d'un point de vue UI. » — 24 novembre.
+
+    Les deux boutons sont un CHOIX ENTRE DEUX, pas deux actions : ils
+    vivent donc dans une même gouttière, collés, et c'est le fond
+    plein qui dit lequel est pris. Deux boutons séparés se liraient
+    comme « faire ceci » et « faire cela ». */
 #modernbb .wmf-form__barre {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-8, 8px);
-  margin: 0 0 var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-4, 4px);
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wmf-form__forme {
+  display: inline-flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wmf-form__forme svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  fill: currentcolor;
+}
+
+#modernbb .wmf-form__forme:hover,
+#modernbb .wmf-form__forme:focus-visible {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
 }
 
 #modernbb .wmf-form__forme[aria-pressed="true"] {
   background: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
 #modernbb .wmf-form__bascule {
@@ -39880,5 +39989,55 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf-form__fiche .wmf__credit-tag [data-wmf-zone]:empty::before {
   color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 72%, transparent);
+}
+
+/*  ── ON ÉCRIT DES PAVÉS, DONC LES BLOCS SONT HAUTS ─────────────────
+
+    « Tous les blocs d'édition (les gros) doivent avoir une hauteur
+    minimum. On est sur un forum RPG, donc on écrit énormément. On
+    adore écrire. Donc on fait souvent des pavés, ça nécessite des
+    gros blocs d'édition où on va pas scroller à l'infini parce qu'il
+    n'est pas assez haut. » — 24 novembre.
+
+    Ces hauteurs ne valent QUE dans l'éditeur. La fiche publiée garde
+    ses plafonds : un lecteur qui parcourt un sujet n'a pas à faire
+    quatre écrans par présentation, et c'est la demande du
+    23 novembre. Écrire et lire ne demandent pas la même place. */
+#modernbb .wmf-form__fiche .wmf__histoire-corps > [data-wmf-zone] {
+  min-height: 420px;
+}
+
+/*  `[data-wmf-zone]` ET PAS LE NOM DE LA BALISE : une règle plus haut
+    donne 3,4 em à ces mêmes zones par cet attribut, et un sélecteur
+    par nom de balise pèse moins qu'un sélecteur par attribut. La
+    hauteur retombait donc à 54 px sans que la règle ait l'air fausse.
+    Mesuré, pas relu. */
+#modernbb .wmf-form__fiche .wmf__rencontre > [data-wmf-zone],
+#modernbb .wmf-form__fiche .wmf__ancienne > [data-wmf-zone] {
+  min-height: 260px;
+}
+
+#modernbb .wmf-form__fiche .wmf__moment-texte > [data-wmf-zone] {
+  min-height: 160px;
+}
+
+/*  ── LE BLOC DE DROITE SUIT LA CARTE DE GAUCHE ─────────────────────
+
+    « La hauteur du bloc doit être la même que le bloc du starter à
+    gauche. » La rangée s'étire déjà sur la plus haute des deux ; ce
+    qui manquait, c'est que la ZONE prenne la hauteur qu'on lui
+    donne — sans ça, elle gardait sa taille de texte et laissait du
+    vide sous elle. */
+#modernbb .wmf__starter {
+  align-items: stretch;
+}
+
+#modernbb .wmf__rencontre {
+  display: flex;
+  flex-direction: column;
+}
+
+#modernbb .wmf__rencontre > wmf-s-rencontre {
+  flex: 1 1 auto;
 }
 

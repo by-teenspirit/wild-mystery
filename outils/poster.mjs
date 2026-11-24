@@ -664,10 +664,19 @@ const OUTILS = () => {
         !!f.querySelector(".wmf__haut .wmf__infos"),
       bandeaux: [...f.querySelectorAll(".wmf__bandeau")].map((b) => b.textContent),
       tableaux: f.querySelectorAll("table").length,
-      //  AUCUN CHAMP DE FORMULAIRE SAUF LES QUATRE COMMANDES — le titre
-      //  du sujet, les deux menus, la case de l'organisation. S'il en
-      //  revenait un, c'est que le vieux dessin serait revenu avec.
-      champs: [...f.querySelectorAll("input, textarea, select")].map((e) => e.id || e.type),
+      //  AUCUN CHAMP DE FORMULAIRE SAUF LES COMMANDES — le titre du
+      //  sujet, les deux menus du starter, la case de l'organisation.
+      //  S'il en revenait un, c'est que le vieux dessin serait revenu
+      //  avec : des champs à remplir au lieu d'une fiche à écrire.
+      //
+      //  LES COMMANDES DES BARRES DE BALISES NE COMPTENT PAS : les
+      //  menus de taille et de police et le sélecteur de couleur sont
+      //  des OUTILS posés sur une zone, pas des champs de la fiche.
+      //  Ils sont dans `.wmf-form__balises`, et c'est à ça qu'on les
+      //  reconnaît.
+      champs: [...f.querySelectorAll("input, textarea, select")]
+        .filter((e) => e.closest(".wmf-form__balises") === null)
+        .map((e) => e.id || e.type),
     };
   });
   dire(
@@ -1128,7 +1137,7 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("Moment").click();
+    vers("Chronologie").click();
     await globalThis.wmPause(200);
     //  UNE CHRONOLOGIE VIDE OFFRE DÉJÀ UN MOMENT : sans lui, choisir
     //  la chronologie n'afficherait rien, et il faudrait deviner
@@ -1164,7 +1173,7 @@ const OUTILS = () => {
     sel.removeAllRanges();
     sel.addRange(r);
     [...barre.querySelectorAll(".wmf-form__balise")]
-      .find((b) => b.textContent === "Italique")
+      .find((b) => b.textContent === "Ital.")
       .click();
     await globalThis.wmPause(250);
     return {
@@ -1225,12 +1234,12 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("tenant").click();
+    vers("Bloc").click();
     await globalThis.wmPause(220);
     return {
       pave: globalThis.wmTexte("histoire"),
       //  ET LA FORME CHOISIE SE VOIT SUR LE BOUTON.
-      marque: vers("tenant").getAttribute("aria-pressed"),
+      marque: vers("Bloc").getAttribute("aria-pressed"),
     };
   });
   dire(
@@ -1330,9 +1339,9 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("Moment").click();
+    vers("Chronologie").click();
     await globalThis.wmPause(200);
-    vers("tenant").click();
+    vers("Bloc").click();
     await globalThis.wmPause(300);
     const f = document.querySelector(".wmf-form__fiche");
     return {
@@ -1458,7 +1467,7 @@ const OUTILS = () => {
   );
   dire(
     "   la chronologie revient en chronologie, avec ses moments",
-    (relu.forme ?? "").includes("Moment") &&
+    (relu.forme ?? "").includes("Chronologie") &&
       JSON.stringify(relu.moments) === JSON.stringify([["2012", "L'incendie."]]),
     JSON.stringify({ forme: relu.forme, moments: relu.moments }),
   );
@@ -1966,6 +1975,130 @@ const OUTILS = () => {
     vu.memeLigne === false,
     JSON.stringify({ deuxSurUneLigne: vu.memeLigne }),
   );
+  await q.close();
+}
+
+{
+  //  ── LA BARRE PORTE CE QUE PORTE FORUMACTIF ─────────────────────
+  //
+  //  « Affiche la même chose que les options possibles dans le bloc
+  //  d'édition de l'éditeur forumactif » — 24 novembre.
+  //
+  //  LA LISTE EST CELLE RELEVÉE SUR LA VRAIE PAGE, le 24 novembre :
+  //  trente-huit boutons de sceditor. Vingt se reposent ici ; les
+  //  dix-huit autres sont des services de Forumactif — du BBCode que
+  //  seul son serveur rend, ou des fenêtres qui lui appartiennent.
+  //  La mesure fige ce partage, pour qu'un bouton ne disparaisse pas
+  //  sans qu'on s'en aperçoive.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(() => {
+    const barre = document.querySelector(".wmf__histoire-corps .wmf-form__balises");
+    const mots = [...barre.querySelectorAll(".wmf-form__balise")].map((b) => b.textContent);
+    const menus = [...barre.querySelectorAll(".wmf-form__menu")].map((m) =>
+      m.options[0].textContent
+    );
+    return {
+      mots,
+      menus,
+      couleur: barre.querySelector('input[type="color"]') !== null,
+      traits: barre.querySelectorAll(".wmf-form__balises-trait").length,
+    };
+  });
+  const ATTENDUS = [
+    "Gras",
+    "Ital.",
+    "Soulig.",
+    "Barré",
+    "Indice",
+    "Exposant",
+    "Gauche",
+    "Centré",
+    "Droite",
+    "Justifié",
+    "Liste",
+    "Liste n°",
+    "Citation",
+    "Code",
+    "Ligne",
+    "Tableau",
+    "Lien",
+    "Image",
+    "Effacer",
+  ];
+  dire(
+    "LA BARRE PORTE LES OPTIONS DE FORUMACTIF",
+    JSON.stringify(vu.mots) === JSON.stringify(ATTENDUS),
+    JSON.stringify(vu.mots),
+  );
+  dire(
+    "   avec ses trois menus — taille, police, couleur",
+    JSON.stringify(vu.menus) === JSON.stringify(["Taille", "Police"]) &&
+      vu.couleur === true,
+    JSON.stringify({ menus: vu.menus, couleur: vu.couleur }),
+  );
+  dire(
+    "   et les familles sont séparées, sinon vingt boutons font un mur",
+    vu.traits >= 5,
+    JSON.stringify(vu.traits),
+  );
+  await q.close();
+}
+
+{
+  //  ── LES GROS BLOCS SONT GROS, ET LES DEUX COLONNES ÉGALES ──────
+  //
+  //  « Tous les blocs d'édition (les gros) doivent avoir une hauteur
+  //  minimum. On est sur un forum RPG, donc on écrit énormément. »
+  //  Et « la hauteur du bloc doit être la même que le bloc du starter
+  //  à gauche. » — 24 novembre.
+  //
+  //  LA MESURE EXISTE PARCE QUE LA RÈGLE AVAIT L'AIR JUSTE ET NE
+  //  L'ÉTAIT PAS : une règle plus haut dans la feuille donnait 3,4 em
+  //  à ces zones par `[data-wmf-zone]`, et un sélecteur par nom de
+  //  balise pèse moins qu'un sélecteur par attribut. La hauteur
+  //  retombait à 54 px. Relire la feuille ne le disait pas ; mesurer,
+  //  si.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(() => {
+    const h = (s) =>
+      Math.round(document.querySelector(s)?.getBoundingClientRect().height ?? -1);
+    return {
+      histoire: h(".wmf__histoire-corps > [data-wmf-zone]"),
+      rencontre: h(".wmf__rencontre > [data-wmf-zone]"),
+      ancienne: h(".wmf__ancienne > [data-wmf-zone]"),
+      carte: h(".wmf__pokemon"),
+      droite: h(".wmf__rencontre"),
+    };
+  });
+  dire(
+    "LES GROS BLOCS D'ÉDITION SONT HAUTS — on écrit des pavés",
+    vu.histoire >= 420 && vu.rencontre >= 260 && vu.ancienne >= 260,
+    JSON.stringify(vu),
+  );
+  dire(
+    "   et le bloc de droite fait la hauteur de la carte de gauche",
+    vu.carte === vu.droite && vu.carte > 0,
+    JSON.stringify({ carte: vu.carte, droite: vu.droite }),
+  );
+  await q.close();
+}
+
+//  ── LA PHOTO ───────────────────────────────────────────────────────
+//
+//      deno task poster -- --photo
+//
+//  Les mesures disent que la barre porte vingt boutons ; elles ne
+//  disent pas s'ils sont regardables. La photo est pour ça, et pour
+//  montrer un changement sans avoir à poster sur le forum.
+if (Deno.args.includes("--photo")) {
+  const q = await monterLaFiche("");
+  await q.evaluate(() => document.fonts.ready);
+  for (const [nom, large] of [["editeur", 1200], ["editeur-mobile", 390]]) {
+    await q.setViewportSize({ width: large, height: 1200 });
+    await q.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+    await q.screenshot({ path: `${R}apercu-fiche-${nom}.png`, fullPage: true });
+    console.log(`  apercu-fiche-${nom}.png`);
+  }
   await q.close();
 }
 
