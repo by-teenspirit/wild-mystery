@@ -1938,8 +1938,14 @@ const OUTILS = () => {
       tete: cote(".wmf__avatar", ".wmf__infos"),
       starter: cote(".wmf__pokemon", ".wmf__rencontre"),
       joueur: cote(".wmf__tcard", ".wmf__joueur-infos"),
-      colonnes: getComputedStyle(document.querySelector(".wmf__joueur-infos"))
-        .gridTemplateColumns.split(" ").length,
+      //  « DERRIÈRE L'ÉCRAN » N'EST PLUS UNE GRILLE. On mesure donc
+      //  ce qui compte maintenant : sur un téléphone, deux
+      //  informations ne se partagent pas une ligne.
+      memeLigne: (() => {
+        const c = [...document.querySelectorAll(".wmf__joueur-infos > .wmf__champ")];
+        return c.length > 1 &&
+          c[0].getBoundingClientRect().bottom > c[1].getBoundingClientRect().top + 1;
+      })(),
       debordement: document.querySelector(".wmf").scrollWidth -
         document.querySelector(".wmf").clientWidth,
       sprite: large(".wmf__pokemon") >= 96,
@@ -1956,9 +1962,9 @@ const OUTILS = () => {
     JSON.stringify({ debordement: vu.debordement, carte: vu.sprite }),
   );
   dire(
-    "   « derrière l'écran » passe à une colonne, la seule chose qui change",
-    vu.colonnes === 1,
-    JSON.stringify(vu.colonnes),
+    "   « derrière l'écran » met une information par ligne",
+    vu.memeLigne === false,
+    JSON.stringify({ deuxSurUneLigne: vu.memeLigne }),
   );
   await q.close();
 }

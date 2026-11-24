@@ -972,22 +972,74 @@
   object-fit: cover;
 }
 
-/*  LES CHAMPS DU JOUEUR SE RANGENT EN DEUX, eux : « pseudo », « âge »,
-    « pronoms » tiennent en trois mots, et une seule colonne leur
-    ferait une page de blanc à droite. Ceux qui ne s'y rangent pas sont
-    marqués, et prennent la largeur. */
+/*  ── « DERRIÈRE L'ÉCRAN » N'EST PLUS UNE GRILLE ────────────────────
+
+    « Éviter de mettre les informations derrière l'écran sur deux
+    colonnes. Peut-être qu'on pourrait les afficher côte à côte, avec
+    un petit quelque chose pour séparer chaque information. »
+    — 24 novembre.
+
+    Deux colonnes de largeur fixe donnaient des trous : « âge » tient
+    en deux caractères et occupait la même place que « d'où nous
+    connais-tu ». Côte à côte, chaque information prend la largeur de
+    ce qu'elle dit, et la ligne se remplit.
+
+    LE PETIT QUELQUE CHOSE EST UN POINT, et pas un filet : un trait
+    entre deux informations se lit comme une bordure de cadre, et il y
+    en a déjà cinq à l'écran. */
 #modernbb .wmf__joueur-infos {
-  display: grid;
+  display: flex;
   flex: 1 1 300px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /*  `row`, EXPLICITEMENT : une règle plus haut dans la feuille met ce
+      bloc en colonne pour l'éditeur, et `wrap` sur une colonne range
+      les champs en deux colonnes — soit exactement ce qu'on retire. */
+  flex-direction: row;
+  flex-wrap: wrap;
   align-content: start;
-  gap: var(--wm-espace-12, 12px) var(--wm-espace-20, 20px);
+  align-items: baseline;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
   min-width: 0;
   max-height: 200px;
 }
 
-#modernbb .wmf__joueur-infos .wmf__champ[data-long="oui"] {
-  grid-column: 1 / -1;
+/*  Chaque information tient sur une ligne : l'étiquette, puis la
+    valeur. L'une au-dessus de l'autre, elles feraient une rangée de
+    petites colonnes — c'est la grille qu'on vient d'enlever. */
+#modernbb .wmf__joueur-infos > .wmf__champ {
+  display: flex;
+  flex: 0 1 auto;
+  gap: var(--wm-espace-6, 6px);
+  align-items: baseline;
+  min-width: 0;
+}
+
+#modernbb .wmf__joueur-infos > .wmf__champ > y + * {
+  display: inline;
+  min-height: 0;
+  margin-top: 0;
+}
+
+#modernbb .wmf__joueur-infos > .wmf__champ + .wmf__champ::before {
+  content: "·";
+  margin-right: var(--wm-espace-6, 6px);
+  color: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  Une réponse longue ne se range pas en file : elle prend la ligne,
+    et retrouve son étiquette au-dessus. */
+#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"] {
+  display: block;
+  flex: 1 1 100%;
+}
+
+#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"]::before {
+  content: none;
+}
+
+#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"] > y + * {
+  display: block;
+  min-height: 3.3em;
+  margin-top: var(--wm-espace-2, 2px);
 }
 
 /*  ── SOUS 760 PX ────────────────────────────────────────────────── */
@@ -1085,13 +1137,15 @@
     max-height: none;
   }
 
-  /*  LA SEULE CHOSE QUI CHANGE DE FORME, et parce qu'elle ne peut
-      pas faire autrement : « derrière l'écran » range ses champs sur
-      deux colonnes. Dans les 250 px qui lui restent sur un
-      téléphone, ça fait deux colonnes de 120 — « PSEUDO/PRÉNOM » et
-      « ÂGE » se chevauchaient, lettres sur lettres. Une colonne. */
-  #modernbb .wmf__joueur-infos {
-    grid-template-columns: minmax(0, 1fr);
+  /*  SUR UN TÉLÉPHONE, CHAQUE INFORMATION PREND SA LIGNE. Côte à
+      côte, dans les 250 px qui restent, deux informations se
+      coupaient en plein milieu d'un mot. */
+  #modernbb .wmf__joueur-infos > .wmf__champ {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wmf__joueur-infos > .wmf__champ + .wmf__champ::before {
+    content: none;
   }
 
   #modernbb .wmf__moment-date {
