@@ -39,6 +39,7 @@ templates/*.a-publier.html
 /profil-*.png
 /repertoire-*.png
 /apercu-repertoire-*.png
+/apercu-fiche-*.png
 /recherche-*.png
 /messagerie-*.png
 /barre.png

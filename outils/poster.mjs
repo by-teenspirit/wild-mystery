@@ -1944,6 +1944,69 @@ const OUTILS = () => {
   await q.close();
 }
 
+{
+  //  ── LES RÉGLAGES AGISSENT VRAIMENT ─────────────────────────────
+  //
+  //  « Permets-moi d'éditer les blocs pour que je puisse régler la
+  //  taille des éléments les uns vis-à-vis des autres » — 24
+  //  novembre. Les mesures de la fiche passent toutes par le bloc de
+  //  réglages en haut de sa feuille, et cette mesure est ce qui
+  //  l'empêche de se défaire : le jour où quelqu'un réécrit un pixel
+  //  en dur, le réglage cesse d'agir sans que rien ne le dise.
+  //
+  //  ON POUSSE UNE VALEUR ET ON MESURE CE QUI BOUGE, plutôt que de
+  //  relire la feuille : c'est la seule preuve que la chaîne tient
+  //  d'un bout à l'autre.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(() => {
+    const f = document.querySelector(".wmf");
+    const large = (s) =>
+      Math.round(document.querySelector(s)?.getBoundingClientRect().width ?? -1);
+    const haut = (s) =>
+      Math.round(document.querySelector(s)?.getBoundingClientRect().height ?? -1);
+    const avant = {
+      avatar: large(".wmf__avatar"),
+      pokemon: large(".wmf__pokemon"),
+      vignette: large(".wmf__credit-vignette"),
+      rangee: haut(".wmf__haut"),
+    };
+    f.style.setProperty("--wmf-col-avatar", "120px");
+    f.style.setProperty("--wmf-col-pokemon", "100px");
+    f.style.setProperty("--wmf-vignette", "32px");
+    f.style.setProperty("--wmf-haut-avatar", "200px");
+    const apres = {
+      avatar: large(".wmf__avatar"),
+      pokemon: large(".wmf__pokemon"),
+      vignette: large(".wmf__credit-vignette"),
+      rangee: haut(".wmf__haut"),
+    };
+    return { avant, apres };
+  });
+  dire(
+    "LES RÉGLAGES DE LA FEUILLE CHANGENT VRAIMENT LA FICHE",
+    vu.apres.avatar === 120 && vu.apres.vignette === 32,
+    JSON.stringify(vu),
+  );
+  dire(
+    "   et la hauteur de la rangée se recalcule au lieu d'être écrite",
+    vu.apres.rangee < vu.avant.rangee && vu.apres.rangee > 0,
+    JSON.stringify({ avant: vu.avant.rangee, apres: vu.apres.rangee }),
+  );
+  //  LE PLANCHER DE LA CARTE DU POKÉMON, écrit plutôt que tu. Dans
+  //  l'ÉDITEUR, elle contient le menu des 436 espèces, et un menu ne
+  //  se laisse pas réduire sous le plus long de ses noms : la carte
+  //  garde sa largeur quoi qu'on règle. Dans le message publié il n'y
+  //  a plus de menu, et `--wmf-col-pokemon` décide seule. Ce n'est
+  //  donc pas un réglage qui ne marche pas, c'est un réglage qui ne
+  //  s'applique pas au même endroit.
+  dire(
+    "   sauf la carte du Pokémon, que son menu d'espèces tient au large",
+    vu.apres.pokemon === vu.avant.pokemon,
+    JSON.stringify({ avant: vu.avant.pokemon, apres: vu.apres.pokemon }),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));
