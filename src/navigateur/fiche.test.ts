@@ -480,6 +480,36 @@ Deno.test("UNE FICHE SANS SOUS-TITRE SE RELIT SANS SOUS-TITRE", () => {
   assertEquals(lireUneFiche(publier(f)).nom, COMPLETE.nom);
 });
 
+Deno.test("LES CONSIGNES RESTENT À L'ÉCRAN, ELLES NE SE PUBLIENT PAS", () => {
+  //  Les trois notes du 24 novembre — ce qu'on peut mettre dans son
+  //  histoire, quel Pokémon de départ est permis, ce qui se récupère
+  //  aux paliers — sont des consignes pour qui remplit sa fiche. Les
+  //  laisser partir ferait paraître le règlement en double sous
+  //  chaque présentation publiée.
+  const ecran = publier(ficheVide(), { pourEcrire: true });
+  const message = publier(COMPLETE);
+  for (const bout of ["tant qu'il est au stade 1", "jusqu'à 2 pokémons", "une chronologie"]) {
+    assertEquals(ecran.includes(bout), true, bout);
+    assertEquals(message.includes(bout), false, bout);
+  }
+  assertEquals(message.includes("wmf__note"), false);
+});
+
+Deno.test("LES TROIS LIGNES DU COMPAGNON PORTENT LEUR ÉTIQUETTE", () => {
+  //  « Ajoute le label, d'ailleurs. » Sans elles, un surnom et un
+  //  talent se lisaient l'un sous l'autre sans qu'on sache lequel
+  //  était lequel.
+  const html = publier(COMPLETE);
+  assertEquals(html.includes("<y>CHOISIS TON COMPAGNON</y>"), true);
+  assertEquals(html.includes("<y>SON SURNOM</y>"), true);
+  assertEquals(html.includes("<y>SON TALENT</y>"), true);
+  //  Et le bloc d'informations dit ce qu'il rassemble.
+  assertEquals(html.includes(`<div class="wmf__bandeau">INFORMATIONS</div>`), true);
+  //  « Avatar joué par » s'appelle Faceclaim.
+  assertEquals(html.includes("<y>FACECLAIM</y>"), true);
+  assertEquals(html.includes("AVATAR JOUÉ PAR"), false);
+});
+
 Deno.test("UNE CHRONOLOGIE VIDE OFFRE UN MOMENT À REMPLIR", () => {
   const f: Fiche = { ...ficheVide(), histoire: { mode: "chronologie", moments: [] } };
   assertEquals(publier(f).includes("<wmf-m-date>"), false);

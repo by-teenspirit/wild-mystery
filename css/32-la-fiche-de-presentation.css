@@ -554,11 +554,19 @@
     pour le sous-titre ». Collés l'un à l'autre, on lisait les deux
     comme une seule phrase, et l'avertissement passait pour une
     citation. */
+/*  LE CHAMP EST AUSSI HAUT QUE SON ÉTIQUETTE. « Le champ doit être
+    aussi haut que le label. Sinon, le label doit passer au-dessus du
+    champ » — 24 novembre. En `baseline`, les deux reposaient sur la
+    même ligne mais le champ vide ne faisait que sa propre hauteur de
+    texte : l'étiquette dépassait, et le cadre penchait.
+
+    `stretch` les étire à la même hauteur, et le champ centre son
+    contenu dedans. L'étiquette ne passe donc jamais au-dessus. */
 #modernbb .wmf__tw {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
-  align-items: baseline;
+  align-items: stretch;
   padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-md, 8px);
@@ -570,6 +578,13 @@
 
 /*  La valeur prend toute la place restante : une liste de TW tient
     rarement sur la même ligne que son étiquette. */
+#modernbb .wmf__tw > y,
+#modernbb .wmf__tw > x {
+  display: flex;
+  align-items: center;
+  min-height: 1.5em;
+}
+
 #modernbb .wmf__tw > x {
   flex: 1 1 320px;
   min-width: 0;
@@ -687,7 +702,12 @@
     un champ long — la place qu'occuperait une réponse brève. */
 #modernbb .wmf__champ > y + * {
   display: block;
-  min-height: 1.65em;
+  /*  DEUX LIGNES PAR CHAMP, pas une. « Les champs à l'intérieur
+      doivent prendre toute la hauteur et être sur 2 lignes. Ils
+      s'agrandissent si la personne écrit davantage. » — 24 novembre.
+      `min-height` donne le plancher, rien ne donne de plafond :
+      écrire plus pousse le bloc, écrire moins ne le creuse pas. */
+  min-height: 3.3em;
   margin-top: var(--wm-espace-2, 2px);
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-normal, 1.65);
@@ -1211,4 +1231,65 @@
 #modernbb .wmf__credits > br,
 #modernbb .wmf__chrono > br {
   display: none;
+}
+
+/*  ── LES TROIS NOTES ───────────────────────────────────────────────
+
+    Elles n'apparaissent que dans l'éditeur, sous le bandeau de leur
+    section : ce sont des consignes pour qui remplit, pas du contenu
+    de fiche. Grises et serrées, pour qu'on les lise une fois sans
+    qu'elles pèsent autant que ce qu'on va écrire dessous. */
+#modernbb .wmf__note {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LES TROIS LIGNES DU COMPAGNON ─────────────────────────────────
+
+    « Qu'ils soient bien alignés et fassent la même largeur. »
+
+    Elles portent chacune leur étiquette depuis le 24 novembre, et ce
+    sont des blocs, pas des lignes centrées : trois étiquettes
+    centrées au-dessus de trois valeurs centrées donnent six axes
+    différents dès qu'un mot est plus long que l'autre. */
+#modernbb .wmf__espece,
+#modernbb .wmf__surnom,
+#modernbb .wmf__talent {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--wm-espace-8, 8px);
+  text-align: left;
+}
+
+#modernbb .wmf__espece > y,
+#modernbb .wmf__surnom > y,
+#modernbb .wmf__talent > y {
+  display: block;
+  margin-bottom: 2px;
+}
+
+#modernbb .wmf__espece > wmf-s-espece,
+#modernbb .wmf__surnom > ifn,
+#modernbb .wmf__talent > ifi {
+  display: block;
+  min-height: 1.65em;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  ── LE BANDEAU DU BLOC D'INFORMATIONS ─────────────────────────────
+
+    Il est DANS la carte, qui défile : sans ça, le titre partirait
+    vers le haut dès qu'on fait défiler les champs, et on ne saurait
+    plus ce qu'on lit. */
+#modernbb .wmf__infos > .wmf__bandeau {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: calc(-1 * var(--wm-espace-14, 14px)) calc(-1 * var(--wm-espace-14, 14px))
+    var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px) var(--wm-espace-6, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
 }

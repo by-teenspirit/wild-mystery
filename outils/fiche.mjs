@@ -3,14 +3,8 @@
 //
 //      deno task fiche
 //
-//  « Permets-moi d'éditer les blocs pour que je puisse régler la
-//  taille des éléments les uns vis-à-vis des autres plutôt que je te
-//  le dise à chaque fois. » — 24 novembre.
-//
-//  Les réglages sont en haut de `css/32-la-fiche-de-presentation.css`,
-//  dans un bloc nommé. Cette commande est l'autre moitié : elle dessine
-//  la fiche telle qu'elle sortira, avec la VRAIE feuille et le VRAI
-//  rendu de `publier`, dans les quatre cas qui comptent.
+//  Elle dessine la fiche telle qu'elle sortira, avec la VRAIE feuille
+//  et le VRAI rendu de `publier`, dans les quatre cas qui comptent.
 //
 //      apercu-fiche-remplie.png          une fiche écrite, sur un écran
 //      apercu-fiche-vide.png             rien de rempli, sur un écran
@@ -139,6 +133,6 @@ for (const [nom, fiche, large] of CAS) {
 await nav.close();
 
 console.log(
-  "\n  Les réglages sont en haut de css/32-la-fiche-de-presentation.css.\n" +
-    "  Après un changement : bash outils/css.sh, puis deno task fiche.",
+  "\n  Après un changement dans css/32-la-fiche-de-presentation.css :\n" +
+    "  bash outils/css.sh, puis deno task fiche.",
 );

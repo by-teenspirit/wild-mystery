@@ -685,6 +685,7 @@ const OUTILS = () => {
   dire(
     "   et ses sections sont celles de la fiche publiée",
     JSON.stringify(pose.bandeaux) === JSON.stringify([
+      "INFORMATIONS",
       "RACONTE-NOUS TON HISTOIRE",
       "COMPAGNON D'UNE VIE",
       "L'ÉQUIPE D'AVANT",

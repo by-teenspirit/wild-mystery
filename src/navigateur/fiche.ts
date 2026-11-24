@@ -316,9 +316,13 @@ function echappe(texte: string): string {
  *  l'écrit en attribut. Deux tables auraient divergé au premier mot
  *  changé. */
 export const INVITES: Readonly<Record<string, string>> = Object.fromEntries([
-  ["nom", "le nom de ton personnage"],
+  ["nom", "Nom de ton personnage"],
   ["soustitre", "une phrase, une réplique, un titre de chanson"],
-  ["tw", "ce que ta fiche contient, et qu'on préfère annoncer"],
+  [
+    "tw",
+    "sujets présents dans ta présentation pouvant heurter la sensibilité de " +
+    "certains lecteurs.",
+  ],
   ["avatar", "l'adresse de l'image à afficher à gauche"],
   ["histoire", "son histoire, aussi longue que tu veux"],
   ["m-date", "2015, ou « l'hiver d'après »"],
@@ -410,7 +414,7 @@ function bloc(
     d'image, et les laisser en texte afficherait une URL de deux cents
     caractères au milieu de la fiche.
 
-    L'AVATAR JOUÉ PAR LA PERSONNE monte en tête, dans un encadré sous
+    LE FACECLAIM MONTE EN TÊTE, dans un encadré sous
     l'image du personnage — « le mieux, mettre ça sous l'avatar, dans
     un encadré », 23 novembre. C'est là qu'on le cherche : à côté du
     visage, pas trente écrans plus bas.
@@ -508,6 +512,50 @@ const STARTER_VIDE: Starter = {
  *  LES DEUX COLONNES SONT UN FLEX, pas un tableau — « je veux pas de
  *  tableau, que du flexbox ». Le CSS vit dans la feuille du forum ;
  *  ici on ne pose que la structure et les classes. */
+/*  ── LES TROIS NOTES, MOT POUR MOT ─────────────────────────────────
+
+    Ce sont SES phrases, du 24 novembre, et elles ne se réécrivent
+    pas : elles disent des règles du forum — quel Pokémon de départ
+    est permis, ce qui se récupère à quel palier — et une reformulation
+    changerait la règle.
+
+    ELLES NE PARTENT PAS DANS LE MESSAGE. Ce sont des consignes pour
+    qui remplit sa fiche, pas du contenu de fiche : les laisser
+    partir ferait apparaître le règlement en double sous chaque
+    présentation publiée. */
+const HISTOIRE_NOTE = "Tu es libre d'écrire avec la forme qu'il te plaît : soit " +
+  "d'un seul tenant, soit sous la forme d'une chronologie. Plusieurs balises " +
+  "semblables au bloc d'édition ont été ajoutées pour faciliter la " +
+  "personnalisation. Tu es libre de rajouter d'autres balises, de mettre une " +
+  "image, un tableau ou tout ce qui pourrait te sembler intéressant pour " +
+  "l'histoire de ton personnage.";
+
+const COMPAGNON_NOTE = "Nous avons conscience que votre personnage a eu une vie " +
+  "avant d'écrire cette présentation. Dans un soucis de cohérence, nous avons " +
+  "décidé qu'il serait possible d'avoir n'importe quel pokémon de départ, tant " +
+  "qu'il est au stade 1. (hors légendaires, fabuleux, fossiles et formes " +
+  "uniques) Vous êtes libre de choisir son talent. Lors de votre validation, " +
+  "nous lui attribuerons un niveau en fonction de l'âge de votre personnage, de " +
+  "son métier et du passé du personnage et du pokémon. Les formes d'Hisui, de " +
+  "Galar et d'Alola sont possibles à condition de bien justifier la raison.";
+
+const EQUIPE_NOTE = "Toujours dans un soucis de cohérence, nous avons estimé que " +
+  "votre personnage ne débarque pas forcément avec 1 seul pokémon. C'est " +
+  "pourquoi vous avez la possibilité de décrire jusqu'à 2 pokémons dans cette " +
+  "section qui font partie de votre vie. Quand vous passerez le palier 2, vous " +
+  "en récupérez un pokémon (possibilité de choisir un pokémon de stade 2). Quand " +
+  "vous passez au palier 3, vous récupérez le 2e (possibilité de choisir un " +
+  "pokémon de stade 3). Les conditions ici sont les mêmes : pas de légendaires, " +
+  "fabuleux, formes uniques ou fossiles. Le niveau de votre pokémon sera adapté " +
+  "à votre palier et au niveau de vos autres pokémons. Concrètement, cela " +
+  "signifie que ces deux pokémons pourront être cités en RP mais ne pourront " +
+  "pas faire partie de votre équipe tout de suite et ne vous aideront pas à " +
+  "combattre avant que vous ayez obtenu le palier en question.";
+
+function note(ecrire: boolean, texte: string): string {
+  return ecrire ? `<p class="wmf__note">${texte}</p>` : "";
+}
+
 /** Le bloc des crédits : chaque image avec sa ligne, et une ligne
  *  pour le reste.
  *
@@ -586,10 +634,18 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       //  permanent, donc il disparaissait des fiches vides : « tu as
       //  enlevé l'avatar utilisé sous l'avatar du coup, remets »,
       //  24 novembre.
-      `<div class="wmf__fc"><y>AVATAR JOUÉ PAR</y> ${b("j-avatar", fc)}</div>` +
+      `<div class="wmf__fc"><y>FACECLAIM</y> ${b("j-avatar", fc)}</div>` +
       `</div>`,
   );
-  morceaux.push(`<div class="wmf__infos">${bloc(IDENTITE, f.identite, ecrire)}</div>`);
+  //  LE BLOC PORTE SON TITRE, comme les autres. « Ajouter le titre
+  //  "informations" » — 24 novembre : c'était la seule carte de la
+  //  fiche dont on ne savait pas ce qu'elle rassemblait.
+  morceaux.push(
+    `<div class="wmf__infos">` +
+      `<div class="wmf__bandeau">INFORMATIONS</div>` +
+      bloc(IDENTITE, f.identite, ecrire) +
+      `</div>`,
+  );
   morceaux.push(`</div>`);
 
   //  ── L'HISTOIRE, DANS LA FORME CHOISIE ──────────────────────────
@@ -624,6 +680,7 @@ export function publier(f: Fiche, r: Rendu = {}): string {
   morceaux.push(
     `<div class="wmf__histoire" data-mode="${f.histoire.mode}">` +
       `<div class="wmf__bandeau">RACONTE-NOUS TON HISTOIRE</div>` +
+      note(ecrire, HISTOIRE_NOTE) +
       `<div class="wmf__histoire-corps">${corps}</div>` +
       `</div>`,
   );
@@ -644,14 +701,26 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       `<div class="wmf__pokemon">` +
         (sprite === null ? "" : `<img class="wmf__sprite" src="${sprite}" alt="" />`) +
         `<wmf-s-id>${s.especeId}</wmf-s-id>` +
-        `<div class="wmf__espece">${b("s-espece", s.espece)}</div>` +
-        `<div class="wmf__surnom"><ifn>${b("s-surnom", s.surnom)}</ifn></div>` +
-        `<div class="wmf__talent"><ifi>${b("s-talent", s.talent)}</ifi></div>` +
+        //  LES TROIS LIGNES PORTENT LEUR ÉTIQUETTE, et elles sont de
+        //  même largeur : « qu'ils soient bien alignés et fassent la
+        //  même largeur ». Sans étiquette, un surnom et un talent se
+        //  lisaient l'un sous l'autre sans qu'on sache lequel était
+        //  lequel.
+        `<div class="wmf__espece"><y>CHOISIS TON COMPAGNON</y> ${
+          b("s-espece", s.espece)
+        }</div>` +
+        `<div class="wmf__surnom"><y>SON SURNOM</y> <ifn>${
+          b("s-surnom", s.surnom)
+        }</ifn></div>` +
+        `<div class="wmf__talent"><y>SON TALENT</y> <ifi>${
+          b("s-talent", s.talent)
+        }</ifi></div>` +
         `</div>`,
     );
     morceaux.push(
       `<div class="wmf__rencontre">` +
         `<div class="wmf__bandeau">COMPAGNON D'UNE VIE</div>` +
+        note(ecrire, COMPAGNON_NOTE) +
         b("s-rencontre", s.rencontre) +
         `</div>`,
     );
@@ -661,6 +730,7 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     morceaux.push(
       `<div class="wmf__ancienne">` +
         `<div class="wmf__bandeau">L'ÉQUIPE D'AVANT</div>` +
+        note(ecrire, EQUIPE_NOTE) +
         b("ancienne", f.ancienneEquipe) +
         `</div>`,
     );
