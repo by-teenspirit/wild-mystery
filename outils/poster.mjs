@@ -1711,6 +1711,53 @@ const OUTILS = () => {
   await r.close();
 }
 
+{
+  //  ── LE SOUS-TITRE ET LES TW SONT DEUX CHOSES ───────────────────
+  //
+  //  « Avoir une section différente pour les triggers warnings et
+  //  pour le sous-titre » — 24 novembre. Les deux zones existent, on
+  //  peut écrire dans chacune, et ce qu'on tape dans l'une ne part
+  //  pas dans l'autre.
+  const q = await monterLaFiche("");
+  await q.evaluate(OUTILS);
+  const vu = await q.evaluate(async () => {
+    globalThis.wmTaper("nom", "Erin Kavanagh");
+    globalThis.wmTaper("soustitre", "elle court encore");
+    globalThis.wmTaper("tw", "incendie, brûlures");
+    await globalThis.wmPause(250);
+    const m = globalThis.wmMessage();
+    const tete = /<div class="wmf__tete">([\s\S]*?)<\/div>\s*<div class="wmf__tw"/.exec(m);
+    return {
+      sousTitre: /<wmf-soustitre>([\s\S]*?)<\/wmf-soustitre>/.exec(m)?.[1] ?? "",
+      tw: /<wmf-tw>([\s\S]*?)<\/wmf-tw>/.exec(m)?.[1] ?? "",
+      sousTitreDansLaTete: tete?.[1].includes("<wmf-soustitre>") ?? false,
+      twHorsDeLaTete: !(tete?.[1].includes("<wmf-tw>") ?? true),
+      etiquette: m.includes("<y>TRIGGER WARNINGS</y>"),
+      //  LE CADRE, ET LE SEUL ENDROIT OÙ ON PEUT LE MESURER : à
+      //  l'écran, avec la vraie feuille. « Mettre un contour, là ça
+      //  fait vide. »
+      cadre: getComputedStyle(document.querySelector(".wmf")).borderTopWidth,
+    };
+  });
+  dire(
+    "LE SOUS-TITRE ET LES TW SE TAPENT CHACUN DE SON CÔTÉ",
+    vu.sousTitre === "elle court encore" && vu.tw === "incendie, brûlures" &&
+      vu.sousTitreDansLaTete && vu.twHorsDeLaTete,
+    JSON.stringify(vu),
+  );
+  dire(
+    "   et les TW s'annoncent : un avertissement sans étiquette passe pour une citation",
+    vu.etiquette,
+    "",
+  );
+  dire(
+    "   et la fiche porte un contour, pour ne plus flotter dans le message",
+    vu.cadre !== "0px",
+    JSON.stringify(vu.cadre),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));

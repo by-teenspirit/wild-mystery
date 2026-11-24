@@ -33,6 +33,7 @@ function remplir(
 
 const COMPLETE: Fiche = {
   nom: "Jak A. Fering",
+  sousTitre: "tout ce qui brûle finit par éclairer",
   tw: "violence, deuil",
   avatar: "https://exemple.test/avatar.png",
   identite: remplir(IDENTITE, "du personnage"),
@@ -319,6 +320,7 @@ Deno.test("AUCUNE CLÉ N'EST LE PRÉFIXE D'UNE AUTRE", () => {
   //  où quelqu'un passerait à une lecture plus lâche.
   const clefs = [
     "nom",
+    "soustitre",
     "tw",
     "avatar",
     "histoire",
@@ -354,6 +356,7 @@ Deno.test("POUR L'ÉDITEUR, CHAQUE CHAMP A SA ZONE", () => {
   const html = publier(ficheVide(), { pourEcrire: true });
   const manquants = [
     "nom",
+    "soustitre",
     "tw",
     "avatar",
     "ancienne",
@@ -375,7 +378,61 @@ Deno.test("POUR L'ÉDITEUR, LES BLOCS OPTIONNELS SONT LÀ AUSSI", () => {
   assertEquals(html.includes(`class="wmf__starter"`), true);
   assertEquals(html.includes(`class="wmf__ombre"`), true);
   assertEquals(html.includes(`class="wmf__tw"`), true);
+  assertEquals(html.includes(`class="wmf__soustitre"`), true);
   assertEquals(html.includes(`class="wmf__ancienne"`), true);
+});
+
+Deno.test("UNE FICHE CITÉE N'EST PAS UNE FICHE À ROUVRIR", () => {
+  //  « Quand je fais prévisualiser, ou si je publie et que je
+  //  modifie, ça doit rester le formulaire. » Ces deux pages ne
+  //  disent pas dans quel forum on est : le seul indice est le
+  //  message. Mais quelqu'un qui RÉPOND à une présentation en citant
+  //  son auteur a `<wmf-nom>` dans son message — s'il suffisait, le
+  //  formulaire se poserait sur sa réponse et la remplacerait par la
+  //  fiche de l'autre à la première frappe.
+  const fiche = publier(COMPLETE);
+  assertEquals(estUneFicheEntiere(fiche), true);
+  assertEquals(estUneFicheEntiere(`\n  ${fiche}\n`), true);
+  assertEquals(estUneFicheEntiere(`<blockquote>${fiche}</blockquote>`), false);
+  assertEquals(estUneFicheEntiere("Bienvenue à toi !"), false);
+  //  Et un message qui OUVRE sur la fiche mais continue après en est
+  //  toujours une : c'est le cas de la fiche signée en bas.
+  assertEquals(estUneFicheEntiere(`${fiche}<p>— écrit en 2026</p>`), true);
+});
+
+Deno.test("LE SOUS-TITRE ET LES TW SONT DEUX SECTIONS, PAS UNE", () => {
+  //  « Avoir une section différente pour les triggers warnings et
+  //  pour le sous-titre » — 24 novembre. Les deux se suivaient sous
+  //  le nom, sans étiquette ni cadre, et se lisaient comme une seule
+  //  ligne : on ne savait plus lequel des deux on était en train de
+  //  lire.
+  const html = publier(COMPLETE);
+  //  Le sous-titre est DANS la tête, avec le nom. Les TW sont
+  //  DEHORS, après elle.
+  const tete = /<div class="wmf__tete">([\s\S]*?)<\/div>\s*<div class="wmf__tw"/.exec(html);
+  assertEquals(tete !== null, true);
+  assertEquals(tete?.[1].includes("<wmf-soustitre>") ?? false, true);
+  assertEquals(tete?.[1].includes("<wmf-tw>") ?? false, false);
+  //  Et les TW s'annoncent : un avertissement sans étiquette passe
+  //  pour une citation.
+  assertEquals(html.includes("<y>TRIGGER WARNINGS</y>"), true);
+});
+
+Deno.test("UN SOUS-TITRE VIDE NE PUBLIE PAS DE BLOC VIDE", () => {
+  //  Même règle que les TW : ce qu'on n'a pas écrit ne laisse pas de
+  //  trou dans le message. À l'écran, en revanche, il faut la zone
+  //  pour pouvoir l'écrire — c'est l'objet du test des zones.
+  const f: Fiche = { ...COMPLETE, sousTitre: "   " };
+  assertEquals(publier(f).includes(`class="wmf__soustitre"`), false);
+  assertEquals(publier(f).includes(`class="wmf__tete"`), true);
+});
+
+Deno.test("UNE FICHE SANS SOUS-TITRE SE RELIT SANS SOUS-TITRE", () => {
+  //  Les fiches déjà en ligne n'en portent pas. Les rouvrir ne doit
+  //  pas échouer : la lecture rend la chaîne vide, pas une erreur.
+  const f: Fiche = { ...COMPLETE, sousTitre: "" };
+  assertEquals(lireUneFiche(publier(f)).sousTitre, "");
+  assertEquals(lireUneFiche(publier(f)).nom, COMPLETE.nom);
 });
 
 Deno.test("UNE CHRONOLOGIE VIDE OFFRE UN MOMENT À REMPLIR", () => {

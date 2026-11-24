@@ -38740,7 +38740,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  LE NOM EST LE TITRE : sa zone garde la taille du titre, et elle
     tient toute la largeur pour qu'on la trouve en arrivant. */
-#modernbb .wmf-form__fiche .wmf__titre [data-wmf-zone] {
+#modernbb .wmf-form__fiche .wmf__titre [data-wmf-zone],
+#modernbb .wmf-form__fiche .wmf__soustitre [data-wmf-zone] {
   display: block;
   min-width: 0;
 }
@@ -38940,7 +38941,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-danger-interdite, #a64430);
 }
 
-
 /*  ── LA FICHE PUBLIÉE ──────────────────────────────────────────────
 
     Elle vit dans un message, donc elle ne peut compter sur rien : tout
@@ -38979,11 +38979,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     gonflent — l'état civil et l'histoire — défilent donc sur place.
     La fiche retombe à 2 400. */
 
+/*  LA FICHE PUBLIÉE EST UN BLOC, PAS DES CARTES POSÉES EN VRAC.
+
+    « Quand une fiche est postée, mettre un contour, là ça fait
+    vide » — 24 novembre, en regardant la fiche de Xaden en ligne.
+
+    Le cadre est un TRAIT, sans fond. Le message est déjà
+    `fond-surface` et les cartes intérieures `fond-surface-haute` :
+    remplir le cadre, c'est faire disparaître les cartes. Le trait
+    seul suffit à dire où la fiche commence et où elle finit. */
 #modernbb .wmf {
   display: flex;
   flex-direction: column;
   gap: var(--wm-espace-20, 20px);
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
   line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LE NOM ET SA PHRASE SONT UNE SEULE TÊTE : le gap de 20px de la
+    fiche les séparerait, et le sous-titre n'aurait plus l'air d'en
+    être un. */
+#modernbb .wmf__tete {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-2, 2px);
 }
 
 /*  « LE NOM DU PERSONNAGE EN HAUT, EN TITRE, COLLÉ À GAUCHE. » C'est
@@ -38996,11 +39018,38 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-encre, #2e2018);
 }
 
-#modernbb .wmf__tw {
-  margin-top: calc(-1 * var(--wm-espace-14, 14px));
+#modernbb .wmf__soustitre {
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
+  font-size: var(--wm-taille-chapo, 21px);
+  font-style: italic;
+  line-height: var(--wm-interligne-titre, 1.1);
   color: var(--wm-texte-doux, #6e5749);
+}
+
+/*  LES TRIGGER WARNINGS ONT LEUR ENCADRÉ, pas une ligne grise sous le
+    nom : « avoir une section différente pour les triggers warnings et
+    pour le sous-titre ». Collés l'un à l'autre, on lisait les deux
+    comme une seule phrase, et l'avertissement passait pour une
+    citation. */
+#modernbb .wmf__tw {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
+  align-items: baseline;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  La valeur prend toute la place restante : une liste de TW tient
+    rarement sur la même ligne que son étiquette. */
+#modernbb .wmf__tw > x {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 /*  ── LA TÊTE : DEUX COLONNES DE MÊME HAUTEUR ───────────────────────

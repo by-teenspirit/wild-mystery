@@ -189,7 +189,15 @@ export type Starter = {
 export type Fiche = {
   /** Le nom du personnage, en titre, collé à gauche. */
   readonly nom: string;
-  /** Les trigger warnings, en tête, comme dans l'ancienne fiche. */
+  /** La phrase sous le nom — une réplique, un titre de chanson, ce
+   *  que le joueur veut. C'est un CHAMP À PART des trigger warnings :
+   *  « avoir une section différente pour les triggers warnings et
+   *  pour le sous-titre », 24 novembre. Les deux se suivaient sous le
+   *  nom et se lisaient comme une seule ligne. */
+  readonly sousTitre: string;
+  /** Les trigger warnings, en tête, comme dans l'ancienne fiche —
+   *  mais dans leur propre encadré, étiquette comprise : un
+   *  avertissement qui ressemble à un sous-titre n'avertit personne. */
   readonly tw: string;
   /** L'adresse de l'image de la colonne de gauche. « On peut rajouter
    *  le lien de l'avatar pour afficher l'avatar qu'on souhaite dans sa
@@ -213,6 +221,7 @@ export function ficheVide(): Fiche {
     Object.fromEntries(champs.map((c) => [c.clef, ""]));
   return {
     nom: "",
+    sousTitre: "",
     tw: "",
     avatar: "",
     identite: vides(IDENTITE),
@@ -424,9 +433,22 @@ export function publier(f: Fiche, r: Rendu = {}): string {
   const b = (clef: string, v: string): string => balise(clef, v, ecrire);
   const morceaux: string[] = [];
   morceaux.push(`<div class="wmf">`);
+  //  ── LA TÊTE DU MESSAGE : DEUX SECTIONS, PAS UNE ────────────────
+  //
+  //  Le nom et sa phrase vont ensemble, collés. Les trigger warnings
+  //  sont autre chose : ils ont leur encadré et leur étiquette, en
+  //  dessous. « Avoir une section différente pour les triggers
+  //  warnings et pour le sous-titre » — 24 novembre.
+  morceaux.push(`<div class="wmf__tete">`);
   morceaux.push(`<div class="wmf__titre">${b("nom", f.nom)}</div>`);
+  if (ecrire || f.sousTitre.trim() !== "") {
+    morceaux.push(`<div class="wmf__soustitre">${b("soustitre", f.sousTitre)}</div>`);
+  }
+  morceaux.push(`</div>`);
   if (ecrire || f.tw.trim() !== "") {
-    morceaux.push(`<div class="wmf__tw"><x>${b("tw", f.tw)}</x></div>`);
+    morceaux.push(
+      `<div class="wmf__tw"><y>TRIGGER WARNINGS</y> <x>${b("tw", f.tw)}</x></div>`,
+    );
   }
 
   //  ── LA TÊTE : DEUX COLONNES DE MÊME HAUTEUR ────────────────────
@@ -677,6 +699,7 @@ export function lireUneFiche(html: string): Fiche {
   return {
     ...vide,
     nom: dedans(html, "nom"),
+    sousTitre: dedans(html, "soustitre"),
     tw: dedans(html, "tw"),
     avatar: dedans(html, "avatar"),
     identite: lesChamps(html, IDENTITE),

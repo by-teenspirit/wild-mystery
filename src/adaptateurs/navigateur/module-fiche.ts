@@ -238,6 +238,7 @@ function bouton(
     pas, ils se choisissent : leur zone est remplacée par le menu. */
 const INVITES: readonly { readonly clef: string; readonly invite: string }[] = [
   { clef: "nom", invite: "le nom de ton personnage" },
+  { clef: "soustitre", invite: "une phrase, une réplique, un titre de chanson" },
   { clef: "tw", invite: "ce que ta fiche contient, et qu'on préfère annoncer" },
   { clef: "avatar", invite: "l'adresse de l'image à afficher à gauche" },
   ...IDENTITE.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
@@ -628,6 +629,10 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (clef === "nom") {
       vue = { ...vue, nom: v };
       suivreLeTitre(v);
+      return;
+    }
+    if (clef === "soustitre") {
+      vue = { ...vue, sousTitre: v };
       return;
     }
     if (clef === "tw") {
