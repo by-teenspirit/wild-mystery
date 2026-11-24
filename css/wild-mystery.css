@@ -38519,86 +38519,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    formulaire entier de Forumactif avec.
    ════════════════════════════════════════════════════════════════ */
 
-/*  ════════════════════════════════════════════════════════════════
-    LES RÉGLAGES DE LA FICHE — TOUT SE CHANGE ICI
-    ════════════════════════════════════════════════════════════════
-
-    « Permets-moi d'éditer les blocs pour que je puisse régler la
-    taille des éléments les uns vis-à-vis des autres plutôt que je te
-    le dise à chaque fois. » — 24 novembre.
-
-    Chaque mesure de la fiche passe par une de ces valeurs, et par une
-    seule. Changer un nombre ici suffit : rien d'autre dans la feuille
-    ne porte de pixels sur ces éléments. Après un changement, une
-    commande pour reconstruire la feuille servie, une pour voir le
-    résultat :
-
-        bash outils/css.sh
-        deno task fiche
-
-    `deno task fiche` dessine quatre images dans `apercu/` — la fiche
-    remplie et la fiche vide, sur un écran et sur un téléphone. Pas
-    besoin de poster pour voir.
-
-    ── CE QUI DÉPEND DE QUOI ────────────────────────────────────────
-
-    La hauteur de la rangée du haut est CALCULÉE : l'avatar, plus
-    l'écart, plus l'encadré du faceclaim. Ne pas la fixer à la main —
-    changer la hauteur de l'avatar suffit, la rangée suit.
-
-    Les largeurs de bureau sont en pixels, les largeurs de téléphone
-    en pourcentage de la même chose : 200 sur 714 font 28 %. Si tu
-    changes l'une, regarde l'autre — c'est le seul endroit où deux
-    valeurs se parlent.
-
-    ── LES MINIMUMS SONT EN `em`, ET C'EST VOULU ───────────────────
-
-    Une hauteur minimum en pixels ne suit pas la taille du texte : à
-    la première fois où la police grossit, le champ vide devient plus
-    petit que sa propre ligne. En `em`, « une ligne » reste une
-    ligne. */
-/*  UNE SEULE DÉCLARATION, SUR LA FICHE ELLE-MÊME. Les poser aussi
-    sur l'encart de l'éditeur semblait plus sûr ; c'était l'inverse —
-    la fiche redéclarait tout, donc rien posé au-dessus d'elle ne
-    pouvait plus agir. Mesuré au banc, qui pousse une valeur et
-    regarde si la colonne bouge. */
-#modernbb .wmf {
-  /*  LA BOÎTE */
-  --wmf-cadre: var(--wm-espace-24, 24px); /*  marge intérieure de la fiche  */
-  --wmf-ecart: var(--wm-espace-20, 20px); /*  entre deux blocs              */
-
-  /*  LES TROIS COLONNES D'IMAGE, sur un écran */
-  --wmf-col-avatar: 200px; /*  la colonne de gauche, en tête        */
-  --wmf-haut-avatar: 320px; /*  et la hauteur de l'image dedans      */
-  --wmf-col-pokemon: 160px; /*  la carte du premier Pokémon          */
-  --wmf-col-tcard: 200px; /*  l'image carrée, « derrière l'écran » */
-
-  /*  LES MÊMES, sur un téléphone — en part de la largeur */
-  --wmf-part-avatar: 28%;
-  --wmf-part-pokemon: 22%;
-
-  /*  LES PETITES PIÈCES */
-  --wmf-fc-haut: 60px; /*  l'encadré « avatar joué par »     */
-  --wmf-sprite: 96px; /*  le sprite du premier Pokémon      */
-  --wmf-vignette: 56px; /*  les deux vignettes de crédit      */
-
-  /*  CE QUI DÉFILE PLUTÔT QUE DE S'ÉTIRER — hauteurs maximales */
-  --wmf-haut-infos: calc(var(--wmf-haut-avatar) + 8px + var(--wmf-fc-haut));
-  --wmf-haut-histoire: 520px;
-  --wmf-haut-rencontre: 260px;
-  --wmf-haut-ancienne: 200px;
-  --wmf-haut-joueur: 200px;
-
-  /*  LA PLACE D'UN CHAMP VIDE */
-  --wmf-min-champ: 1.65em;
-  --wmf-min-champ-long: 4.95em;
-
-  /*  LA BASE DES COLONNES DE TEXTE. En dessous, la rangée passe à la
-      ligne : c'est ce nombre, et pas la largeur de l'image, qui
-      décide quand la fiche se déplie. */
-  --wmf-base-texte: 320px;
-}
-
 /*  ── LE FORMULAIRE ───────────────────────────────────────────────── */
 
 /*  ── DEUX SURFACES, ET CHACUNE DIT CE QU'ELLE EST ─────────────────
@@ -38717,7 +38637,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf-form__titre dd {
-  flex: 1 1 var(--wmf-base-texte, 320px);
+  flex: 1 1 320px;
   min-width: 0;
   margin: 0;
 }
@@ -39088,9 +39008,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf {
   display: flex;
   flex-direction: column;
-  gap: var(--wmf-ecart, 20px);
+  gap: var(--wm-espace-20, 20px);
   box-sizing: border-box;
-  padding: var(--wmf-cadre, 24px);
+  padding: var(--wm-espace-24, 24px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -39146,7 +39066,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  La valeur prend toute la place restante : une liste de TW tient
     rarement sur la même ligne que son étiquette. */
 #modernbb .wmf__tw > x {
-  flex: 1 1 var(--wmf-base-texte, 320px);
+  flex: 1 1 320px;
   min-width: 0;
 }
 
@@ -39160,7 +39080,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     plus haute que l'image seule. Aligner sur l'image laisserait
     l'encadré dépasser tout seul en bas à gauche. */
 #modernbb .wmf__haut {
-  --wmf-haut: var(--wmf-haut-infos);
+  --wmf-haut: 388px;
 
   display: flex;
   flex-wrap: wrap;
@@ -39174,12 +39094,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     DROITE qui a une hauteur sans fin — elle étirerait la rangée au
     lieu de s'y plier. Sans encadré, la colonne s'arrête à l'image. */
 #modernbb .wmf__haut:not(:has(.wmf__fc)) {
-  --wmf-haut: var(--wmf-haut-avatar);
+  --wmf-haut: 320px;
 }
 
 #modernbb .wmf__avatar {
   display: flex;
-  flex: 0 0 var(--wmf-col-avatar, 200px);
+  flex: 0 0 200px;
   flex-direction: column;
   gap: var(--wm-espace-8, 8px);
   max-width: 100%;
@@ -39187,8 +39107,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf__avatar img {
   display: block;
-  width: var(--wmf-col-avatar, 200px);
-  height: var(--wmf-haut-avatar, 320px);
+  width: 200px;
+  height: 320px;
   border-radius: var(--wm-rayon-md, 8px);
   object-fit: cover;
 }
@@ -39210,7 +39130,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   justify-content: center;
   overflow: hidden;
   box-sizing: border-box;
-  height: var(--wmf-fc-haut, 60px);
+  height: 60px;
   padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -39230,9 +39150,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     de large, et se contente de moins sans se casser. */
 #modernbb .wmf__infos {
   box-sizing: border-box;
-  flex: 1 1 var(--wmf-base-texte, 320px);
+  flex: 1 1 320px;
   min-width: 0;
-  max-height: var(--wmf-haut);
+  max-height: var(--wmf-haut, 388px);
 }
 
 /*  ── UN CHAMP, ÉTIQUETTE AU-DESSUS ─────────────────────────────────
@@ -39262,14 +39182,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     un champ long — la place qu'occuperait une réponse brève. */
 #modernbb .wmf__champ > y + * {
   display: block;
-  min-height: var(--wmf-min-champ, 1.65em);
+  min-height: 1.65em;
   margin-top: var(--wm-espace-2, 2px);
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
 #modernbb .wmf__champ[data-long="oui"] > y + * {
-  min-height: var(--wmf-min-champ-long, 4.95em);
+  min-height: 4.95em;
 }
 
 /*  LES ÉTIQUETTES DE LA FICHE PUBLIÉE : `<y>` est la balise de
@@ -39356,7 +39276,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__histoire-corps {
-  max-height: var(--wmf-haut-histoire, 520px);
+  max-height: 520px;
   font-size: var(--wm-taille-message, 16px);
   line-height: var(--wm-interligne-message, 1.75);
 }
@@ -39403,7 +39323,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf__pokemon {
   box-sizing: border-box;
-  flex: 0 0 var(--wmf-col-pokemon, 160px);
+  flex: 0 0 160px;
   padding: var(--wm-espace-14, 14px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
@@ -39428,8 +39348,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     sur `/t1001` pour la carte dresseur, même cause ici. */
 #modernbb .wmf__sprite {
   display: block;
-  width: var(--wmf-sprite, 96px);
-  height: var(--wmf-sprite, 96px) !important;
+  width: 96px;
+  height: 96px !important;
   margin: 0 auto var(--wm-espace-6, 6px);
   image-rendering: pixelated;
   object-fit: scale-down;
@@ -39463,7 +39383,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__rencontre {
-  flex: 1 1 var(--wmf-base-texte, 320px);
+  flex: 1 1 320px;
   min-width: 0;
   font-size: var(--wm-taille-message, 16px);
 }
@@ -39473,12 +39393,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     défilerait avec le texte et on ne saurait plus ce qu'on lit. */
 #modernbb .wmf__rencontre > wmf-s-rencontre {
   display: block;
-  max-height: var(--wmf-haut-rencontre, 260px);
+  max-height: 260px;
 }
 
 #modernbb .wmf__ancienne > wmf-ancienne {
   display: block;
-  max-height: var(--wmf-haut-ancienne, 200px);
+  max-height: 200px;
 }
 
 /*  LES SAUTS DE LIGNE DU JOUEUR SE GARDENT. On les pose sur les
@@ -39515,14 +39435,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__tcard {
-  flex: 0 0 var(--wmf-col-tcard, 200px);
+  flex: 0 0 200px;
   max-width: 100%;
 }
 
 #modernbb .wmf__tcard img {
   display: block;
-  width: var(--wmf-col-tcard, 200px);
-  height: var(--wmf-col-tcard, 200px);
+  width: 200px;
+  height: 200px;
   border-radius: var(--wm-rayon-md, 8px);
   object-fit: cover;
 }
@@ -39538,7 +39458,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-content: start;
   gap: var(--wm-espace-12, 12px) var(--wm-espace-20, 20px);
   min-width: 0;
-  max-height: var(--wmf-haut-joueur, 200px);
+  max-height: 200px;
 }
 
 #modernbb .wmf__joueur-infos .wmf__champ[data-long="oui"] {
@@ -39579,12 +39499,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       160 pour la carte du Pokémon en font 22. La proportion ne change
       pas, seule l'unité. */
   #modernbb .wmf {
-    --wmf-cadre: var(--wm-espace-14, 14px);
+    padding: var(--wm-espace-14, 14px);
   }
 
   #modernbb .wmf__avatar,
   #modernbb .wmf__tcard {
-    flex: 0 0 var(--wmf-part-avatar, 28%);
+    flex: 0 0 28%;
     width: auto;
     min-width: 0;
   }
@@ -39592,9 +39512,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   /*  La carte du Pokémon ne descend pas sous la largeur de son
       sprite : 96 px, sinon l'image déborde de sa propre carte. */
   #modernbb .wmf__pokemon {
-    flex: 0 0 var(--wmf-part-pokemon, 22%);
+    flex: 0 0 22%;
     width: auto;
-    min-width: var(--wmf-sprite, 96px);
+    min-width: 96px;
   }
 
   #modernbb .wmf__sprite {
@@ -39608,7 +39528,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb .wmf__avatar:not(:has(img))::before {
     width: 100%;
     height: auto;
-    aspect-ratio: var(--wmf-col-avatar) / var(--wmf-haut-avatar);
+    aspect-ratio: 200 / 320;
   }
 
   #modernbb .wmf__tcard img,
@@ -39696,11 +39616,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__credit-vignette {
-  flex: 0 0 var(--wmf-vignette, 56px);
+  flex: 0 0 56px;
   overflow: hidden;
   box-sizing: border-box;
-  width: var(--wmf-vignette, 56px);
-  height: var(--wmf-vignette, 56px);
+  width: 56px;
+  height: 56px;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
@@ -39712,7 +39632,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__credit-vignette img {
   display: block;
   width: 100%;
-  height: var(--wmf-vignette, 56px) !important;
+  height: 56px !important;
   object-fit: cover;
   /*  L'avatar est un portrait de 200 × 320 : centré, la vignette
       cadrerait le torse. `top` garde le visage. */
@@ -39745,13 +39665,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__avatar:not(:has(img))::before {
-  width: var(--wmf-col-avatar, 200px);
+  width: 200px;
   max-width: 100%;
-  height: var(--wmf-haut-avatar, 320px);
+  height: 320px;
 }
 
 #modernbb .wmf__tcard:not(:has(img))::before {
-  width: var(--wmf-col-tcard, 200px);
+  width: 200px;
   max-width: 100%;
   aspect-ratio: 1;
 }
@@ -39763,7 +39683,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border: 0;
   border-radius: 0;
   background: none;
-  height: var(--wmf-vignette, 56px);
+  height: 56px;
 }
 
 /*  ── LES SAUTS DE LIGNE DES FICHES DÉJÀ PUBLIÉES ───────────────────
