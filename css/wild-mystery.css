@@ -39447,50 +39447,81 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__moment {
   position: relative;
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) auto;
-  gap: var(--wm-espace-4, 4px) var(--wm-espace-18, 18px);
-  padding-left: 26px;
+  /*  QUATRE COLONNES, ET LA PREMIÈRE EST LE RAIL. Le point y vit
+      comme un élément de grille et non en position absolue : c'est
+      ce qui le met EN FACE DE LA DATE sans qu'on ait à deviner la
+      hauteur de la barre d'outils au-dessus. « Affiche le point face
+      à la date » — 24 novembre. */
+  grid-template-columns: 14px 120px minmax(0, 1fr) auto;
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-14, 14px);
 }
 
+/*  La barre tient toute la première rangée, et se réserve la place de
+    la croix à droite. Lui retirer une colonne de grille marchait
+    aussi, mais lui coûtait les 140 px de la colonne d'image : elle
+    passait alors sur deux rangées pour un seul bouton. */
 #modernbb .wmf__moment > .wmf-form__balises {
+  grid-row: 1;
   grid-column: 1 / -1;
+  padding-right: 34px;
 }
 
-/*  LE POINT, SUR LA LIGNE DE LA DATE. Il se cale sur la hauteur
-    d'une étiquette, pas sur le haut du moment : posé plus haut, il
-    flotterait au-dessus du texte qu'il désigne. */
+/*  LA CROIX EST EN HAUT À DROITE, dans le coin de la barre d'outils.
+    « Affiche mieux la croix, elle apparaît bizarrement où elle
+    est. » — 24 novembre : ajoutée en dernier enfant, elle se rangeait
+    toute seule dans la grille et tombait sous la date. Hors flux,
+    elle ne décale plus rien. */
+#modernbb .wmf__moment > .wmf-form__croix {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 1;
+}
+
+/*  LE POINT ET LE TRAIT SONT UN SEUL DESSIN, posé dans la colonne du
+    rail, sur la rangée de la date.
+
+    ── POURQUOI UN SEUL ÉLÉMENT ──────────────────────────────────────
+
+    Parce qu'ils doivent commencer au même endroit. Séparés et placés
+    en absolu, il fallait leur donner à chacun une distance depuis le
+    haut du moment — or ce haut, c'est la barre d'outils dans
+    l'éditeur et la date dans la fiche publiée. Deux hauteurs à
+    deviner, qui changeaient dès qu'un bouton passait à la ligne.
+
+    En élément de grille, le dessin se cale tout seul sur la rangée de
+    la date, à l'écran comme dans le message : le point à sept pixels
+    du haut, le trait sous lui, et le tout qui dépasse par le bas pour
+    rejoindre le point suivant. */
 #modernbb .wmf__moment::before {
-  position: absolute;
-  top: 7px;
-  left: 2px;
+  grid-column: 1;
+  align-self: stretch;
+  justify-self: center;
   width: 9px;
-  height: 9px;
-  border: 2px solid var(--wm-fond-surface-haute, #fcf4ec);
-  border-radius: 50%;
-  background: var(--wm-accent-primaire, #275e7a);
+  margin-bottom: calc(-1 * var(--wm-espace-18, 18px) - 2px);
+  background:
+    radial-gradient(
+    circle 4.5px at 50% 7px,
+    var(--wm-accent-primaire, #275e7a) 99%,
+    transparent 100%
+  )
+    no-repeat,
+    linear-gradient(var(--wm-bord-net, #d9c3b1), var(--wm-bord-net, #d9c3b1)) no-repeat;
+  background-size: 9px 16px, 2px calc(100% - 16px);
+  background-position: 0 0, 3.5px 16px;
   content: "";
 }
 
-/*  LE TRAIT FAIT DEUX PIXELS, et il est centré sous le point. À un
-    seul pixel du ton des filets, il existait — mesuré — mais ne se
-    voyait pas : un trait qu'on ne voit pas ne relie rien. */
-#modernbb .wmf__moment::after {
-  position: absolute;
-  top: 20px;
-  bottom: calc(-1 * var(--wm-espace-18, 18px) - 4px);
-  left: 5.5px;
-  width: 2px;
-  border-radius: 1px;
-  background: var(--wm-bord-net, #d9c3b1);
-  content: "";
-}
-
-#modernbb .wmf__moment:last-of-type::after {
-  content: none;
+/*  LE DERNIER NE TIRE PAS DE TRAIT : il n'a personne à relier. */
+#modernbb .wmf__moment:last-of-type::before {
+  align-self: start;
+  height: 16px;
+  margin-bottom: 0;
+  background-size: 9px 16px, 0 0;
 }
 
 #modernbb .wmf__moment-date {
-  grid-column: 1;
+  grid-column: 2;
   padding-top: var(--wm-espace-4, 4px);
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-surtitre, 10.5px);
@@ -39501,7 +39532,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__moment-texte {
-  grid-column: 2;
+  grid-column: 3;
   min-width: 0;
 }
 
@@ -39510,7 +39541,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     est écrit à côté. Elle n'existe que s'il y en a une — la colonne
     `auto` ne coûte rien quand elle est vide. */
 #modernbb .wmf__moment-image {
-  grid-column: 3;
+  grid-column: 4;
   width: 140px;
 }
 
@@ -39518,13 +39549,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     date plus 140 d'image ne laissent rien au texte. */
 @media (max-width: 760px) {
   #modernbb .wmf__moment {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 14px minmax(0, 1fr);
   }
 
   #modernbb .wmf__moment-date,
   #modernbb .wmf__moment-texte,
   #modernbb .wmf__moment-image {
-    grid-column: 1;
+    grid-column: 2;
   }
 
   #modernbb .wmf__moment-image {
@@ -39668,74 +39699,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   object-fit: cover;
 }
 
-/*  ── « DERRIÈRE L'ÉCRAN » N'EST PLUS UNE GRILLE ────────────────────
+/*  ── « DERRIÈRE L'ÉCRAN » SE RANGE COMME « INFORMATIONS » ──────────
 
-    « Éviter de mettre les informations derrière l'écran sur deux
-    colonnes. Peut-être qu'on pourrait les afficher côte à côte, avec
-    un petit quelque chose pour séparer chaque information. »
-    — 24 novembre.
+    « Affiche les informations derrière l'écran comme dans
+    informations. » — 24 novembre.
 
-    Deux colonnes de largeur fixe donnaient des trous : « âge » tient
-    en deux caractères et occupait la même place que « d'où nous
-    connais-tu ». Côte à côte, chaque information prend la largeur de
-    ce qu'elle dit, et la ligne se remplit.
+    Ce bloc a eu trois formes dans la journée : deux colonnes, puis
+    côte à côte avec un point entre chaque, maintenant une colonne
+    comme son voisin du haut. C'est la bonne : les deux blocs posent
+    des questions de même nature, et deux façons de ranger les mêmes
+    réponses obligent à réapprendre la lecture au milieu de la fiche.
 
-    LE PETIT QUELQUE CHOSE EST UN POINT, et pas un filet : un trait
-    entre deux informations se lit comme une bordure de cadre, et il y
-    en a déjà cinq à l'écran. */
+    La règle qui suit ne fait donc plus que donner la largeur ; la
+    colonne et l'écart viennent de la règle partagée avec
+    `.wmf__infos`, plus haut. */
 #modernbb .wmf__joueur-infos {
-  display: flex;
   flex: 1 1 300px;
-  /*  `row`, EXPLICITEMENT : une règle plus haut dans la feuille met ce
-      bloc en colonne pour l'éditeur, et `wrap` sur une colonne range
-      les champs en deux colonnes — soit exactement ce qu'on retire. */
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-content: start;
-  align-items: baseline;
-  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
   min-width: 0;
   max-height: 200px;
 }
 
-/*  Chaque information tient sur une ligne : l'étiquette, puis la
-    valeur. L'une au-dessus de l'autre, elles feraient une rangée de
-    petites colonnes — c'est la grille qu'on vient d'enlever. */
-#modernbb .wmf__joueur-infos > .wmf__champ {
-  display: flex;
-  flex: 0 1 auto;
-  gap: var(--wm-espace-6, 6px);
-  align-items: baseline;
-  min-width: 0;
-}
-
+#modernbb .wmf__joueur-infos > .wmf__champ,
 #modernbb .wmf__joueur-infos > .wmf__champ > y + * {
-  display: inline;
-  min-height: 0;
-  margin-top: 0;
-}
-
-#modernbb .wmf__joueur-infos > .wmf__champ + .wmf__champ::before {
-  content: "·";
-  margin-right: var(--wm-espace-6, 6px);
-  color: var(--wm-bord-net, #d9c3b1);
-}
-
-/*  Une réponse longue ne se range pas en file : elle prend la ligne,
-    et retrouve son étiquette au-dessus. */
-#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"] {
   display: block;
-  flex: 1 1 100%;
-}
-
-#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"]::before {
-  content: none;
-}
-
-#modernbb .wmf__joueur-infos > .wmf__champ[data-long="oui"] > y + * {
-  display: block;
-  min-height: 3.3em;
-  margin-top: var(--wm-espace-2, 2px);
+  width: 100%;
 }
 
 /*  ── SOUS 760 PX ────────────────────────────────────────────────── */
@@ -39831,17 +39818,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb .wmf__infos,
   #modernbb .wmf__joueur-infos {
     max-height: none;
-  }
-
-  /*  SUR UN TÉLÉPHONE, CHAQUE INFORMATION PREND SA LIGNE. Côte à
-      côte, dans les 250 px qui restent, deux informations se
-      coupaient en plein milieu d'un mot. */
-  #modernbb .wmf__joueur-infos > .wmf__champ {
-    flex: 1 1 100%;
-  }
-
-  #modernbb .wmf__joueur-infos > .wmf__champ + .wmf__champ::before {
-    content: none;
   }
 
   #modernbb .wmf__moment-date {

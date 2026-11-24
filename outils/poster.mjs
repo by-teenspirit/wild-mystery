@@ -2141,8 +2141,10 @@ const OUTILS = () => {
     const date = un.querySelector(".wmf__moment-date").getBoundingClientRect();
     const texte = un.querySelector(".wmf__moment-texte").getBoundingClientRect();
     const barre = un.querySelector(".wmf-form__balises").getBoundingClientRect();
-    const trait = getComputedStyle(un, "::after");
-    const dernier = getComputedStyle(moments[moments.length - 1], "::after");
+    const rail = getComputedStyle(un, "::before");
+    const dernier = getComputedStyle(moments[moments.length - 1], "::before");
+    const croix = un.querySelector(".wmf-form__croix").getBoundingClientRect();
+    const cadre = un.getBoundingClientRect();
     return {
       motDuPlus,
       icone,
@@ -2155,10 +2157,18 @@ const OUTILS = () => {
       //  au-dessus des deux.
       dateEnFaceDuTexte: date.top < texte.bottom && texte.top < date.bottom,
       barreAuDessus: barre.bottom <= date.top + 1,
-      point: getComputedStyle(un, "::before").backgroundColor,
-      trait: { l: trait.width, fond: trait.backgroundColor },
+      //  LE POINT ET LE TRAIT SONT UN SEUL DESSIN, dans la colonne du
+      //  rail, sur la rangée de la date : c'est ce qui le met en face
+      //  d'elle sans qu'on ait à deviner la hauteur de la barre.
+      pointEtTrait: rail.backgroundImage.includes("radial-gradient") &&
+        rail.backgroundImage.includes("linear-gradient"),
       //  LE DERNIER NE TIRE PAS DE TRAIT : il n'a personne à relier.
-      traitDuDernier: dernier.content,
+      //  Le dessin reste, le trait est réduit à rien.
+      traitDuDernier: dernier.backgroundSize.split(",").pop().trim(),
+      //  LE RAIL EST UNE COLONNE À PART, à gauche de la date.
+      railAGauche: date.left > cadre.left + 8,
+      //  LA CROIX EST EN HAUT À DROITE, sur la rangée des outils.
+      croixEnHaut: croix.top < date.top && croix.right > texte.right,
     };
   });
   dire(
@@ -2177,10 +2187,19 @@ const OUTILS = () => {
     JSON.stringify({ enFace: vu.dateEnFaceDuTexte, barre: vu.barreAuDessus }),
   );
   dire(
-    "   un point par moment, un trait jusqu'au suivant, rien après le dernier",
-    vu.point !== "rgba(0, 0, 0, 0)" && vu.trait.l === "2px" &&
-      vu.traitDuDernier === "none",
-    JSON.stringify(vu.trait) + " dernier: " + vu.traitDuDernier,
+    "   un point face à la date, un trait jusqu'au suivant, rien après le dernier",
+    vu.pointEtTrait === true && vu.railAGauche === true &&
+      vu.traitDuDernier === "0px 0px",
+    JSON.stringify({
+      dessin: vu.pointEtTrait,
+      rail: vu.railAGauche,
+      dernier: vu.traitDuDernier,
+    }),
+  );
+  dire(
+    "   et la croix est en haut à droite, pas sous la date",
+    vu.croixEnHaut === true,
+    JSON.stringify(vu.croixEnHaut),
   );
 
   //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────
