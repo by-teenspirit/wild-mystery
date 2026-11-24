@@ -671,10 +671,25 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     //  LE MOMENT PEUT NE PAS EXISTER ENCORE : une chronologie vide
     //  affiche une ligne à remplir, et c'est la première frappe qui la
     //  fait exister.
-    while (moments.length <= rang) moments.push({ date: "", texte: "" });
+    while (moments.length <= rang) {
+      moments.push({ date: "", texte: "", image: "", credit: "" });
+    }
     moments[rang] = clef === "m-date"
       ? { ...moments[rang], date: v }
+      : clef === "m-image"
+      ? { ...moments[rang], image: v }
+      : clef === "m-credit"
+      ? { ...moments[rang], credit: v }
       : { ...moments[rang], texte: v };
+    //  L'IMAGE DU MOMENT SE MONTRE À LA FRAPPE, comme l'avatar : son
+    //  cadre est le n-ième de la chronologie, pas le premier venu.
+    if (clef === "m-image") {
+      const cadres = laFiche.querySelectorAll<HTMLElement>(
+        ".wmf__moment-image .wmf__cadre",
+      );
+      const ou = cadres[rang];
+      if (ou !== undefined) majDansCeCadre(ou, v);
+    }
     garde = { ...garde, moments };
     vue = { ...vue, histoire: { mode: "chronologie", moments } };
   };
@@ -740,7 +755,12 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       vue = { ...vue, histoire: { mode: "pave", texte: v } };
       return;
     }
-    if (clef === "m-date" || clef === "m-texte") return poserUnMoment(clef, rang, v);
+    if (
+      clef === "m-date" || clef === "m-texte" || clef === "m-image" ||
+      clef === "m-credit"
+    ) {
+      return poserUnMoment(clef, rang, v);
+    }
     if (clef.startsWith("s-")) return poserLeStarter(clef, v);
     if (DES_IDENTITES.has(clef)) {
       vue = { ...vue, identite: { ...vue.identite, [clef]: v } };
@@ -764,6 +784,13 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const majImage = (ou: string, adresse: string, classe = ""): void => {
     const colonne = laFiche.querySelector<HTMLElement>(ou);
     if (colonne === null) return;
+    majDansCeCadre(colonne, adresse, classe);
+  };
+
+  /*  LE MÊME TRAVAIL, SUR UN ÉLÉMENT DÉJÀ TROUVÉ. La chronologie a
+      autant de cadres que de moments : un sélecteur ne suffit plus à
+      dire lequel, il faut le rang. */
+  const majDansCeCadre = (colonne: HTMLElement, adresse: string, classe = ""): void => {
     const img = colonne.querySelector("img");
     const propre = adresse.trim();
     if (propre === "") {
@@ -1025,7 +1052,17 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (!modifiable) return;
     z.setAttribute("role", "textbox");
     z.setAttribute("aria-label", invite);
-    if (BALISEES.has(clef)) z.before(laBarre(z));
+    if (BALISEES.has(clef)) {
+      //  LA BARRE D'UN MOMENT MONTE EN TÊTE DU MOMENT, pas au-dessus
+      //  de sa seule colonne de texte. « Affiche bien la date en face
+      //  du bloc et pas en face des outils d'édition. Il faut que ça
+      //  ait l'air d'aller ensemble. » — 24 novembre : posée dans la
+      //  colonne, la barre poussait le texte vers le bas et la date
+      //  se retrouvait en face d'elle.
+      const moment = clef === "m-texte" ? z.closest(".wmf__moment") : null;
+      if (moment !== null) moment.prepend(laBarre(z));
+      else z.before(laBarre(z));
+    }
     z.addEventListener("input", () => {
       //  UNE ZONE VIDÉE GARDE UN `<br>` dans Chrome, et `:empty` ne la
       //  reconnaît plus : l'invite disparaîtrait pour de bon dès la
@@ -1126,8 +1163,18 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         `Retirer le moment ${i + 1}`,
       ));
     });
-    chrono.appendChild(bouton(doc, "Ajouter un moment", () => {
-      const moments = [...garde.moments, { date: "", texte: "" }];
+    //  « METS UNE ICÔNE "+" ET CHANGE LE TEXTE POUR "AJOUTER UNE
+    //  DATE" » — 24 novembre. Le mot suit la colonne qu'on remplit :
+    //  c'est une date qu'on ajoute, et le reste vient avec.
+    const plus = bouton(doc, "Ajouter une date", () => {
+      const vide = { date: "", texte: "", image: "", credit: "" };
+      //  UNE CHRONOLOGIE VIDE MONTRE DÉJÀ UN MOMENT, mais il n'existe
+      //  que dans le rendu : `garde.moments` est vide tant que
+      //  personne n'a tapé. Y ajouter un moment donnait donc UN
+      //  moment là où l'écran en montrait déjà un — le bouton avait
+      //  l'air cassé. On garde celui qu'on voit, et on en ajoute un.
+      const avant = garde.moments.length === 0 ? [vide] : garde.moments;
+      const moments = [...avant, vide];
       garde = { ...garde, moments };
       vue = { ...vue, histoire: { mode: "chronologie", moments } };
       peindre();
@@ -1135,7 +1182,15 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       laFiche
         .querySelector<HTMLElement>(".wmf__moment:last-of-type [data-wmf-zone]")
         ?.focus();
-    }, "button2 wmf-form__plus"));
+    }, "button2 wmf-form__plus");
+    const croix = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    croix.setAttribute("viewBox", "0 0 16 16");
+    croix.setAttribute("aria-hidden", "true");
+    croix.setAttribute("focusable", "false");
+    croix.innerHTML = `<path d="M8 3v10M3 8h10" stroke="currentColor" ` +
+      `stroke-width="1.6" stroke-linecap="round" fill="none"/>`;
+    plus.prepend(croix);
+    chrono.appendChild(plus);
   };
 
   const equiperLOmbre = (): void => {

@@ -61,9 +61,9 @@ Deno.test("une chronologie se relit à l'identique, moments compris", () => {
     histoire: {
       mode: "chronologie",
       moments: [
-        { date: "2004", texte: "Naissance à Port-Amarée." },
-        { date: "2015", texte: "Le départ.\nEt ce qui a suivi." },
-        { date: "aujourd'hui", texte: "Il revient." },
+        { date: "2004", texte: "Naissance à Port-Amarée.", image: "", credit: "" },
+        { date: "2015", texte: "Le départ.\nEt ce qui a suivi.", image: "", credit: "" },
+        { date: "aujourd'hui", texte: "Il revient.", image: "", credit: "" },
       ],
     },
   };
@@ -513,6 +513,50 @@ Deno.test("LES TROIS LIGNES DU COMPAGNON PORTENT LEUR ÉTIQUETTE", () => {
   //  « Avatar joué par » s'appelle Faceclaim.
   assertEquals(html.includes("<y>FACECLAIM</y>"), true);
   assertEquals(html.includes("AVATAR JOUÉ PAR"), false);
+});
+
+Deno.test("UN MOMENT PORTE SON IMAGE ET SON CRÉDIT, ET SE RELIT", () => {
+  //  « Faudrait permettre de rajouter un gif ou une image pour chaque
+  //  moment de la chronologie […] à permettre de noter le crédit de
+  //  l'image aussi. » — 24 novembre.
+  const f: Fiche = {
+    ...COMPLETE,
+    histoire: {
+      mode: "chronologie",
+      moments: [
+        { date: "2012", texte: "L'incendie.", image: "", credit: "" },
+        {
+          date: "2015",
+          texte: "Le départ.",
+          image: "https://exemple.test/gare.gif",
+          credit: "@quelquun",
+        },
+      ],
+    },
+  };
+  const relu = lireUneFiche(publier(f));
+  assertEquals(relu.histoire, f.histoire);
+  //  LE CADRE PART TOUJOURS, MÊME VIDE : c'est le rang qui relie un
+  //  moment à son image, donc en sauter un les décale tous. C'est la
+  //  feuille qui cache le cadre vide sur la fiche publiée.
+  assertEquals(publier(f).split("wmf__moment-image").length - 1, 2);
+});
+
+Deno.test("UNE CHRONOLOGIE D'AVANT LE 24 NOVEMBRE SE RELIT ENCORE", () => {
+  //  Les moments écrits avant ce jour ne portent ni image ni crédit.
+  //  Une fiche qui ne se relit plus est une fiche perdue : on rend la
+  //  chaîne vide, pas une erreur.
+  const vieux = `<div class="wmf"><wmf-nom>X</wmf-nom>` +
+    `<div class="wmf__histoire" data-mode="chronologie"><div class="wmf__chrono">` +
+    `<div class="wmf__moment"><div class="wmf__moment-date"><wmf-m-date>2012` +
+    `</wmf-m-date></div><div class="wmf__moment-texte"><wmf-m-texte>L'incendie.` +
+    `</wmf-m-texte></div></div></div></div></div>`;
+  const relu = lireUneFiche(vieux);
+  assertEquals(relu.histoire.mode, "chronologie");
+  assertEquals(
+    relu.histoire.mode === "chronologie" ? relu.histoire.moments : [],
+    [{ date: "2012", texte: "L'incendie.", image: "", credit: "" }],
+  );
 });
 
 Deno.test("UNE CHRONOLOGIE VIDE OFFRE UN MOMENT À REMPLIR", () => {

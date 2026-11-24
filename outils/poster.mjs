@@ -1162,7 +1162,10 @@ const OUTILS = () => {
   //  exactement le genre de chose qui marche une fois et plus jamais.
   const barresDesMoments = await q.evaluate(async () => {
     const z = globalThis.wmZone("m-texte");
-    const barre = z?.previousElementSibling;
+    //  LA BARRE D'UN MOMENT EST EN TÊTE DU MOMENT depuis le 24
+    //  novembre, pour que la date tombe en face du texte et pas en
+    //  face des outils. Elle n'est donc plus la voisine de la zone.
+    const barre = z?.closest(".wmf__moment")?.querySelector(".wmf-form__balises");
     const noeud = z.firstChild;
     const texte = noeud.textContent;
     const debut = texte.indexOf("départ");
@@ -1432,7 +1435,10 @@ const OUTILS = () => {
     ...ficheVide(),
     nom: "Erin Kavanagh",
     identite: { ...ficheVide().identite, metier: "Infirmière", surnom: "Rin" },
-    histoire: { mode: "chronologie", moments: [{ date: "2012", texte: "L'incendie." }] },
+    histoire: {
+      mode: "chronologie",
+      moments: [{ date: "2012", texte: "L'incendie.", image: "", credit: "" }],
+    },
     starter: {
       especeId: 133,
       espece: "Évoli",
@@ -2090,9 +2096,165 @@ const OUTILS = () => {
 //  Les mesures disent que la barre porte vingt boutons ; elles ne
 //  disent pas s'ils sont regardables. La photo est pour ça, et pour
 //  montrer un changement sans avoir à poster sur le forum.
+{
+  //  ── LA CHRONOLOGIE : LE POINT, LE TRAIT, L'IMAGE ───────────────
+  //
+  //  « Mets une icône "+" et change le texte pour "Ajouter une
+  //  date". Affiche bien la date en face du bloc et pas en face des
+  //  outils d'édition […] ce serait bien de faire comme la
+  //  chronologie du forum avec un point et un trait qui relie la
+  //  chronologie. Faudrait permettre de rajouter un gif ou une image
+  //  pour chaque moment. » — 24 novembre.
+  const q = await monterLaFiche("");
+  await q.evaluate(OUTILS);
+  const vu = await q.evaluate(async () => {
+    const vers = (mot) =>
+      [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
+        b.textContent.includes(mot)
+      );
+    vers("Chronologie").click();
+    await globalThis.wmPause(220);
+    const plus = document.querySelector(".wmf-form__plus");
+    const motDuPlus = plus.textContent.trim();
+    const icone = plus.querySelector("svg") !== null;
+    plus.click();
+    await globalThis.wmPause(220);
+
+    const moments = [...document.querySelectorAll(".wmf__moment")];
+    const un = moments[0];
+    const date = un.querySelector(".wmf__moment-date").getBoundingClientRect();
+    const texte = un.querySelector(".wmf__moment-texte").getBoundingClientRect();
+    const barre = un.querySelector(".wmf-form__balises").getBoundingClientRect();
+    const trait = getComputedStyle(un, "::after");
+    const dernier = getComputedStyle(moments[moments.length - 1], "::after");
+    return {
+      motDuPlus,
+      icone,
+      //  DEUX MOMENTS APRÈS UN CLIC : une chronologie vide en montre
+      //  déjà un, donc n'en ajouter qu'un ne changeait rien à
+      //  l'écran.
+      combien: moments.length,
+      //  « EN FACE DU BLOC ET PAS EN FACE DES OUTILS » : la date
+      //  partage sa bande horizontale avec le texte, et la barre est
+      //  au-dessus des deux.
+      dateEnFaceDuTexte: date.top < texte.bottom && texte.top < date.bottom,
+      barreAuDessus: barre.bottom <= date.top + 1,
+      point: getComputedStyle(un, "::before").backgroundColor,
+      trait: { l: trait.width, fond: trait.backgroundColor },
+      //  LE DERNIER NE TIRE PAS DE TRAIT : il n'a personne à relier.
+      traitDuDernier: dernier.content,
+    };
+  });
+  dire(
+    "LE BOUTON DIT « AJOUTER UNE DATE », AVEC SON ICÔNE",
+    vu.motDuPlus === "Ajouter une date" && vu.icone === true,
+    JSON.stringify({ mot: vu.motDuPlus, icone: vu.icone }),
+  );
+  dire(
+    "   et un clic ajoute un moment DE PLUS que ce qu'on voyait",
+    vu.combien === 2,
+    JSON.stringify(vu.combien),
+  );
+  dire(
+    "   la date est en face du texte, les outils au-dessus des deux",
+    vu.dateEnFaceDuTexte === true && vu.barreAuDessus === true,
+    JSON.stringify({ enFace: vu.dateEnFaceDuTexte, barre: vu.barreAuDessus }),
+  );
+  dire(
+    "   un point par moment, un trait jusqu'au suivant, rien après le dernier",
+    vu.point !== "rgba(0, 0, 0, 0)" && vu.trait.l === "2px" &&
+      vu.traitDuDernier === "none",
+    JSON.stringify(vu.trait) + " dernier: " + vu.traitDuDernier,
+  );
+
+  //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────
+  const img = await q.evaluate(async () => {
+    const zones = [...document.querySelectorAll('[data-wmf-zone="m-image"]')];
+    const credits = [...document.querySelectorAll('[data-wmf-zone="m-credit"]')];
+    //  ON ÉCRIT DANS LE SECOND, pas le premier : c'est le rang qui
+    //  doit suivre, et un code qui prendrait toujours le premier
+    //  cadre passerait quand même sur le premier moment.
+    zones[1].textContent = "https://exemple.test/souvenir.gif";
+    zones[1].dispatchEvent(new InputEvent("input", { bubbles: true }));
+    credits[1].textContent = "@quelquun";
+    credits[1].dispatchEvent(new InputEvent("input", { bubbles: true }));
+    await globalThis.wmPause(250);
+    const cadres = [...document.querySelectorAll(".wmf__moment-image .wmf__cadre")];
+    const m = globalThis.wmMessage();
+    return {
+      surLeBon: cadres[1]?.querySelector("img")?.getAttribute("src") ?? null,
+      pasSurLAutre: cadres[0]?.querySelector("img") === null ||
+        cadres[0]?.querySelector("img") === undefined,
+      dansLeMessage: m.includes("<wmf-m-image>https://exemple.test/souvenir.gif"),
+      creditDansLeMessage: m.includes("<wmf-m-credit>@quelquun"),
+    };
+  });
+  dire(
+    "CHAQUE MOMENT A SON IMAGE, ET C'EST LA SIENNE",
+    img.surLeBon === "https://exemple.test/souvenir.gif" && img.pasSurLAutre === true,
+    JSON.stringify(img),
+  );
+  dire(
+    "   et elle part dans le message avec son crédit",
+    img.dansLeMessage && img.creditDansLeMessage,
+    JSON.stringify({ image: img.dansLeMessage, credit: img.creditDansLeMessage }),
+  );
+  await q.close();
+}
+
+//  ── LA PHOTO ───────────────────────────────────────────────────────
+//
+//      deno task poster -- --photo
+//
+//  Les mesures disent que la barre porte vingt boutons ; elles ne
+//  disent pas s'ils sont regardables. La photo est pour ça, et pour
+//  montrer un changement sans avoir à poster sur le forum.
+if (Deno.args.includes("--mesure")) {
+  const q = await monterLaFiche("");
+  await q.evaluate(async () => {
+    [...document.querySelectorAll(".wmf-form__forme")]
+      .find((b) => b.textContent.includes("Chronologie")).click();
+    await new Promise((r) => setTimeout(r, 200));
+    document.querySelector(".wmf-form__plus").click();
+    await new Promise((r) => setTimeout(r, 200));
+  });
+  console.log(JSON.stringify(
+    await q.evaluate(() => {
+      const m = document.querySelector(".wmf__moment");
+      const a = getComputedStyle(m, "::after");
+      return {
+        h: Math.round(m.getBoundingClientRect().height),
+        after: {
+          content: a.content,
+          top: a.top,
+          bottom: a.bottom,
+          w: a.width,
+          bg: a.backgroundColor,
+          pos: a.position,
+        },
+        overflowChrono: getComputedStyle(document.querySelector(".wmf__chrono")).overflow,
+        overflowMoment: getComputedStyle(m).overflow,
+      };
+    }),
+    null,
+    1,
+  ));
+  await q.close();
+}
+
 if (Deno.args.includes("--photo")) {
   const q = await monterLaFiche("");
   await q.evaluate(() => document.fonts.ready);
+  //  LA CHRONOLOGIE EST OUVERTE SUR LA PHOTO, avec deux moments : à
+  //  un seul, ni le trait ni le point ne se voient, et c'est
+  //  justement eux qu'on vient regarder.
+  await q.evaluate(async () => {
+    [...document.querySelectorAll(".wmf-form__forme")]
+      .find((b) => b.textContent.includes("Chronologie")).click();
+    await new Promise((r) => setTimeout(r, 200));
+    document.querySelector(".wmf-form__plus").click();
+    await new Promise((r) => setTimeout(r, 200));
+  });
   for (const [nom, large] of [["editeur", 1200], ["editeur-mobile", 390]]) {
     await q.setViewportSize({ width: large, height: 1200 });
     await q.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));

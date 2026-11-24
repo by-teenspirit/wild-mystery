@@ -146,7 +146,10 @@ Deno.test("UN MOMENT AJOUTÉ À LA CHRONOLOGIE SE VOIT", () => {
   const a: Fiche = { ...UNE, histoire: { mode: "chronologie", moments: [] } };
   const b: Fiche = {
     ...UNE,
-    histoire: { mode: "chronologie", moments: [{ date: "2015", texte: "le départ" }] },
+    histoire: {
+      mode: "chronologie",
+      moments: [{ date: "2015", texte: "le départ", image: "", credit: "" }],
+    },
   };
   assertEquals(memeFiche(a, b), false);
 });

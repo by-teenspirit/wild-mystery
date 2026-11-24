@@ -158,6 +158,13 @@ export const OMBRE: readonly Champ[] = [
 export type Moment = {
   readonly date: string;
   readonly texte: string;
+  /** Une image ou un gif pour ce moment-là. « Faudrait permettre de
+   *  rajouter un gif ou une image pour chaque moment de la
+   *  chronologie » — 24 novembre. */
+  readonly image: string;
+  /** Qui l'a faite. Une image qu'on pose se crédite, comme l'avatar
+   *  et la carte. */
+  readonly credit: string;
 };
 
 /** L'histoire, dans la forme que le joueur a choisie.
@@ -327,6 +334,8 @@ export const INVITES: Readonly<Record<string, string>> = Object.fromEntries([
   ["histoire", "son histoire, aussi longue que tu veux"],
   ["m-date", "2015, ou « l'hiver d'après »"],
   ["m-texte", "ce qui s'est passé"],
+  ["m-image", "l'adresse d'une image ou d'un gif, si tu veux"],
+  ["m-credit", "qui a fait cette image"],
   ["s-surnom", "son surnom, si tu lui en donnes un"],
   ["s-espece", "l'espèce de ton premier Pokémon"],
   ["s-talent", "son talent"],
@@ -348,7 +357,7 @@ export const INVITES: Readonly<Record<string, string>> = Object.fromEntries([
     d'image et un numéro d'espèce. Le message les porte mais ne les
     montre pas, donc un texte par défaut n'y serait lu par personne —
     et s'afficherait si une feuille de style venait à manquer. */
-const MUETTES = new Set(["avatar", "j-tcard", "s-id"]);
+const MUETTES = new Set(["avatar", "j-tcard", "s-id", "m-image"]);
 
 function balise(clef: string, valeur: string, brut = false): string {
   const dedans = brut ? echappe(valeur) : sur(valeur);
@@ -582,9 +591,12 @@ function cadreImage(
 ): string {
   const propre = adresse.trim();
   const img = propre === "" ? "" : `<img src="${ecrire ? echappe(propre) : propre}" alt="" />`;
-  const tag = ecrire || credit.trim() !== ""
-    ? `<div class="wmf__credit-tag">${balise(clefCredit, credit, ecrire)}</div>`
-    : "";
+  //  LE TAG PART TOUJOURS, LUI AUSSI, pour la même raison que le
+  //  cadre : les crédits des moments se relisent par rang, et en
+  //  sauter un donne le crédit du second au premier. La feuille cache
+  //  un tag vide sur la fiche publiée — elle le reconnaît à son
+  //  `data-vide`, que seul le rendu du message pose.
+  const tag = `<div class="wmf__credit-tag">${balise(clefCredit, credit, ecrire)}</div>`;
   const sous = `<div class="wmf__adresse">${balise(clefAdresse, adresse, ecrire)}</div>`;
   return `<div class="wmf__cadre${carre ? " wmf__cadre--carre" : ""}">` +
     img + tag + sous + `</div>`;
@@ -667,12 +679,29 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     ? b("histoire", f.histoire.texte)
     : `<div class="wmf__chrono">` +
       (ecrire && f.histoire.moments.length === 0
-        ? [{ date: "", texte: "" } as Moment]
+        ? [{ date: "", texte: "", image: "", credit: "" } as Moment]
         : f.histoire.moments)
         .map((m) =>
           `<div class="wmf__moment">` +
           `<div class="wmf__moment-date">${b("m-date", m.date)}</div>` +
           `<div class="wmf__moment-texte">${b("m-texte", m.texte)}</div>` +
+          //  L'IMAGE DU MOMENT PASSE PAR LE MÊME CADRE que l'avatar
+          //  et la carte : l'adresse dessous, le crédit en tag. Trois
+          //  images dans la fiche, une seule façon de les poser.
+          //
+          //  LE CADRE PART TOUJOURS, MÊME VIDE, et c'est la feuille
+          //  qui le cache sur la fiche publiée.
+          //
+          //  ── POURQUOI PAS LE SAUTER ────────────────────────────
+          //
+          //  Parce que les moments se relisent PAR RANG. Sauter le
+          //  cadre d'un moment sans image décale tous les suivants :
+          //  une chronologie dont seul le second moment est illustré
+          //  rendait cette image au PREMIER à la réouverture.
+          //  Attrapé par un test, pas sur le forum.
+          `<div class="wmf__moment-image">` +
+          cadreImage(m.image, "m-image", "m-credit", m.credit, ecrire, false) +
+          `</div>` +
           `</div>`
         )
         .join("") +
@@ -805,14 +834,28 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     de la V1, ne porte aucune de ces balises : on rend alors une fiche
     vide, et c'est à l'appelant de ne pas écraser ce qu'il n'a pas
     compris — voir `ressembleAUneFiche`. */
+/*  L'OUVERTURE PEUT PORTER DES ATTRIBUTS, et c'est arrivé le
+    24 novembre : une balise vide reçoit son `data-vide`, et le motif
+    qui exigeait `<wmf-clef>` tout court ne la voyait plus. Sur une
+    chronologie dont seul le second moment était crédité, le crédit
+    remontait donc au PREMIER — les moments se relisent par rang, et
+    un rang sauté les décale tous.
+
+    `(?:\s[^>]*)?` EXIGE UNE ESPACE AVANT L'ATTRIBUT, donc la garde
+    des préfixes tient toujours : `<wmf-nom` ne peut pas attraper
+    `<wmf-nombre>`. */
+function ouverture(clef: string): string {
+  return `<wmf-${clef}(?:\\s[^>]*)?>`;
+}
+
 function dedans(html: string, clef: string): string {
-  const re = new RegExp(`<wmf-${clef}>([\\s\\S]*?)</wmf-${clef}>`, "i");
+  const re = new RegExp(`${ouverture(clef)}([\\s\\S]*?)</wmf-${clef}>`, "i");
   const t = re.exec(html);
   return t === null ? "" : rendu(t[1]);
 }
 
 function tous(html: string, clef: string): string[] {
-  const re = new RegExp(`<wmf-${clef}>([\\s\\S]*?)</wmf-${clef}>`, "gi");
+  const re = new RegExp(`${ouverture(clef)}([\\s\\S]*?)</wmf-${clef}>`, "gi");
   return [...html.matchAll(re)].map((m) => rendu(m[1]));
 }
 
@@ -879,13 +922,23 @@ export function lireUneFiche(html: string): Fiche {
     : "pave";
   const dates = tous(html, "m-date");
   const textes = tous(html, "m-texte");
+  //  LES DEUX ARRIVÉES DU 24 NOVEMBRE SONT FACULTATIVES À LA
+  //  LECTURE : les chronologies écrites avant ce jour n'en portent
+  //  pas, et une fiche qui ne se relit plus est une fiche perdue.
+  const images = tous(html, "m-image");
+  const credits = tous(html, "m-credit");
   const histoire: Histoire = mode === "chronologie"
     ? {
       mode,
       //  ON APPARIE PAR RANG, et on s'arrête au plus court : une
       //  moitié de moment, c'est un moment qu'on ne sait pas lire.
       moments: dates.slice(0, Math.min(dates.length, textes.length))
-        .map((date, i) => ({ date, texte: textes[i] })),
+        .map((date, i) => ({
+          date,
+          texte: textes[i],
+          image: images[i] ?? "",
+          credit: credits[i] ?? "",
+        })),
     }
     : { mode: "pave", texte: dedans(html, "histoire") };
 

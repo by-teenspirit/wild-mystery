@@ -39410,23 +39410,73 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-message, 1.75);
 }
 
-/*  LA CHRONOLOGIE : la date tient sa colonne, le texte prend le
-    reste. Elle s'empile aussi, et la date reste au-dessus de son
-    moment. */
+/*  ── LA CHRONOLOGIE, AVEC SON POINT ET SON TRAIT ───────────────────
+
+    « Ce serait bien de faire comme la chronologie du forum, avec un
+    point et un trait qui relie la chronologie. » — 24 novembre.
+
+    LE TRAIT EST PORTÉ PAR CHAQUE MOMENT, pas par la colonne : un
+    trait unique posé sur `.wmf__chrono` descendrait jusqu'au bouton
+    « Ajouter une date », qui n'est pas un moment. Chacun tire le sien
+    jusqu'au suivant, et le dernier n'en tire pas. */
 #modernbb .wmf__chrono {
   display: flex;
   flex-direction: column;
   gap: var(--wm-espace-18, 18px);
 }
 
+/*  LA DATE EST EN FACE DU TEXTE, pas en face des outils. « Il faut
+    que ça ait l'air d'aller ensemble. » La barre de balises est donc
+    posée sur sa propre rangée, en tête du moment, et la date partage
+    la seconde avec le texte — c'est pour ça que c'est une grille et
+    plus une file. */
 #modernbb .wmf__moment {
-  display: flex;
-  flex-wrap: wrap;
+  position: relative;
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
   gap: var(--wm-espace-4, 4px) var(--wm-espace-18, 18px);
+  padding-left: 26px;
+}
+
+#modernbb .wmf__moment > .wmf-form__balises {
+  grid-column: 1 / -1;
+}
+
+/*  LE POINT, SUR LA LIGNE DE LA DATE. Il se cale sur la hauteur
+    d'une étiquette, pas sur le haut du moment : posé plus haut, il
+    flotterait au-dessus du texte qu'il désigne. */
+#modernbb .wmf__moment::before {
+  position: absolute;
+  top: 7px;
+  left: 2px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--wm-fond-surface-haute, #fcf4ec);
+  border-radius: 50%;
+  background: var(--wm-accent-primaire, #275e7a);
+  content: "";
+}
+
+/*  LE TRAIT FAIT DEUX PIXELS, et il est centré sous le point. À un
+    seul pixel du ton des filets, il existait — mesuré — mais ne se
+    voyait pas : un trait qu'on ne voit pas ne relie rien. */
+#modernbb .wmf__moment::after {
+  position: absolute;
+  top: 20px;
+  bottom: calc(-1 * var(--wm-espace-18, 18px) - 4px);
+  left: 5.5px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--wm-bord-net, #d9c3b1);
+  content: "";
+}
+
+#modernbb .wmf__moment:last-of-type::after {
+  content: none;
 }
 
 #modernbb .wmf__moment-date {
-  flex: 0 0 120px;
+  grid-column: 1;
   padding-top: var(--wm-espace-4, 4px);
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-surtitre, 10.5px);
@@ -39437,8 +39487,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wmf__moment-texte {
-  flex: 1 1 280px;
+  grid-column: 2;
   min-width: 0;
+}
+
+/*  L'IMAGE DU MOMENT TIENT LA TROISIÈME COLONNE. 140 px : assez pour
+    qu'un gif se voie, pas assez pour qu'il prenne le pas sur ce qui
+    est écrit à côté. Elle n'existe que s'il y en a une — la colonne
+    `auto` ne coûte rien quand elle est vide. */
+#modernbb .wmf__moment-image {
+  grid-column: 3;
+  width: 140px;
+}
+
+/*  SUR UN TÉLÉPHONE, LES TROIS COLONNES N'EN FONT QU'UNE : 120 px de
+    date plus 140 d'image ne laissent rien au texte. */
+@media (max-width: 760px) {
+  #modernbb .wmf__moment {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #modernbb .wmf__moment-date,
+  #modernbb .wmf__moment-texte,
+  #modernbb .wmf__moment-image {
+    grid-column: 1;
+  }
+
+  #modernbb .wmf__moment-image {
+    width: 100%;
+    max-width: 200px;
+  }
 }
 
 /*  ── LE STARTER ────────────────────────────────────────────────── */
@@ -40039,5 +40117,70 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf__rencontre > wmf-s-rencontre {
   flex: 1 1 auto;
+}
+
+/*  ── LE BOUTON « AJOUTER UNE DATE » ────────────────────────────────
+
+    « Mets une icône "+" et change le texte pour "Ajouter une
+    date". » Le SVG a besoin d'une taille écrite : sans elle, il prend
+    toute la largeur que le bouton lui laisse, et le bouton devient un
+    carré bleu de trois cents pixels. */
+#modernbb .wmf-form__plus {
+  display: inline-flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  align-self: start;
+  margin-left: 26px;
+}
+
+#modernbb .wmf-form__plus svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+
+/*  ── LE CADRE D'UN MOMENT N'EST PAS CELUI D'UN AVATAR ──────────────
+
+    Il mesure 140 px de large : lui laisser la hauteur d'un portrait
+    de 320 donnerait une colonne deux fois plus haute que le texte
+    qu'elle accompagne. Et il attend autre chose, donc il le dit
+    autrement. */
+#modernbb .wmf__moment-image .wmf__cadre:not(:has(img))::before {
+  height: 140px;
+  padding: var(--wm-espace-10, 10px);
+  content: "une image ou un gif";
+}
+
+/*  L'IMAGE D'UN MOMENT NE DÉPASSE PAS SA COLONNE en hauteur non
+    plus : un gif haut et étroit étirerait la rangée à lui seul. */
+#modernbb .wmf__moment-image .wmf__cadre > img {
+  max-height: 200px;
+  object-fit: cover;
+}
+
+/*  UN MOMENT SANS IMAGE N'A PAS DE COLONNE D'IMAGE, sur la fiche
+    publiée. Les balises y sont quand même — c'est le rang qui relie
+    un moment à son image, et en sauter une les décale toutes — mais
+    un cadre vide par moment ferait une colonne de trous le long de la
+    chronologie. Dans l'éditeur, il reste : c'est là qu'on le
+    remplit. */
+#modernbb .wmf__moment-image:not(:has(img)) {
+  display: none;
+}
+
+#modernbb .wmf-form__fiche .wmf__moment-image {
+  display: block;
+}
+
+/*  UN CRÉDIT VIDE NE LAISSE PAS DE TAG VIDE sur la fiche publiée. La
+    balise y est — c'est le rang qui relie un moment à son crédit —
+    mais une pastille sombre posée sur une image pour n'y rien dire
+    n'a pas lieu d'être.
+
+    `data-vide` EST LA MARQUE DU MESSAGE : seul le rendu publié le
+    pose, jamais celui de l'éditeur. La règle ne peut donc pas
+    atteindre le tag qu'on est en train de remplir. */
+#modernbb .wmf__credit-tag:has([data-vide]:empty) {
+  display: none;
 }
 
