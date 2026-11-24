@@ -129,7 +129,7 @@ export const JOUEUR: readonly Champ[] = [
   },
   { clef: "j-connaissance", etiquette: "D'OÙ NOUS CONNAIS-TU ?" },
   { clef: "j-avis", etiquette: "AVIS SUR LE FORUM", long: true },
-  { clef: "j-credits", etiquette: "AUTRES CRÉDITS", exemple: "le codage, un kit, une typo" },
+  { clef: "j-credits", etiquette: "CRÉDITS", exemple: "le codage, un kit, une typo" },
   { clef: "j-credit-avatar", etiquette: "L'AVATAR", exemple: "qui a fait cette image" },
   { clef: "j-credit-tcard", etiquette: "L'IMAGE CARRÉE", exemple: "qui a fait cette image" },
   { clef: "j-autre", etiquette: "AUTRE", exemple: "une dernière information ?" },
@@ -426,20 +426,10 @@ function bloc(
     tête de leur bloc, sous forme d'image. */
 const DANS_LA_TETE = new Set(["j-avatar", "j-tcard"]);
 
-/*  LES CRÉDITS SE REMPLISSENT DEVANT LEURS IMAGES. « Pour le champ
-    crédits rempli tout en bas, permet de remplir les crédits
-    directement avec les deux images : l'avatar et l'image carrée »
-    — 24 novembre.
-
-    Écrire « Avatar (@boscaesperanza) » à la main dans un champ libre
-    marchait, mais il fallait nommer l'image dont on parlait. En
-    posant la vignette à côté de la ligne, la question ne se pose
-    plus : on crédite ce qu'on a sous les yeux. */
-const CREDITS = new Set(["j-credits", "j-credit-avatar", "j-credit-tcard"]);
-
-const CREDIT_AVATAR = JOUEUR.find((c) => c.clef === "j-credit-avatar") as Champ;
-const CREDIT_TCARD = JOUEUR.find((c) => c.clef === "j-credit-tcard") as Champ;
-const CREDIT_AUTRES = JOUEUR.find((c) => c.clef === "j-credits") as Champ;
+/*  LES DEUX CRÉDITS D'IMAGE VIVENT DANS LEUR CADRE, en haut à droite
+    de l'image qu'ils créditent — voir `cadreImage`. Ils sortent donc
+    de la grille, comme les deux adresses. */
+const CREDITS = new Set(["j-credit-avatar", "j-credit-tcard"]);
 
 const JOUEUR_EN_BLOC: readonly Champ[] = JOUEUR.filter(
   (c) => !DANS_LA_TETE.has(c.clef) && !CREDITS.has(c.clef),
@@ -556,42 +546,48 @@ function note(ecrire: boolean, texte: string): string {
   return ecrire ? `<p class="wmf__note">${texte}</p>` : "";
 }
 
-/** Le bloc des crédits : chaque image avec sa ligne, et une ligne
- *  pour le reste.
+/** Un cadre d'image : l'image, son crédit en haut à droite, son
+ *  adresse en bas.
  *
- *  ── POURQUOI LES VIGNETTES SONT LÀ ─────────────────────────────────
+ *  ── POURQUOI TOUT EST DANS LE CADRE ────────────────────────────────
  *
- *  « Permet de remplir les crédits directement avec les deux images :
- *  l'avatar et l'image carrée » — 24 novembre.
+ *  « Placer à l'intérieur, en bas, le champ "adresse de l'image". Le
+ *  mettre sur une ligne, laisse le champ en défilement horizontal si
+ *  besoin. En haut à droite, placer le champ pour indiquer le crédit.
+ *  Sur la présentation finale : l'afficher comme un tag. » —
+ *  24 novembre.
  *
- *  Les deux images sont déjà dans la fiche, en haut et en bas. Les
- *  reposer ici en petit ne les répète pas pour décorer : c'est ce qui
- *  dit DE QUELLE image parle la ligne qu'on remplit. Sans elles, il
- *  fallait l'écrire — « Avatar (@quelquun) » — et deviner le mot que
- *  le lecteur suivant emploierait.
+ *  Les trois choses parlent de la MÊME image, donc elles vivent au
+ *  même endroit. Le bloc de crédits séparé, en bas de la fiche,
+ *  demandait de se souvenir de quelle image on parlait : c'est ce
+ *  qu'il remplace.
  *
- *  UNE VIGNETTE SANS ADRESSE NE LAISSE PAS D'IMAGE CASSÉE : la case
- *  reste, vide, et la ligne de crédit avec elle. Le gabarit tient
- *  même quand rien n'est rempli. */
-function credits(f: Fiche, ecrire: boolean): string {
-  const b = (c: Champ, v: string): string =>
-    `<div class="wmf__champ"><y>${c.etiquette}</y> ${balise(c.clef, v, ecrire)}</div>`;
-  const vignette = (classe: string, adresse: string): string => {
-    const propre = adresse.trim();
-    return `<div class="wmf__credit-vignette ${classe}">` +
-      (propre === "" ? "" : `<img src="${ecrire ? echappe(propre) : propre}" alt="" />`) +
-      `</div>`;
-  };
-  const ligne = (classe: string, adresse: string, c: Champ): string =>
-    `<div class="wmf__credit">${vignette(classe, adresse)}${
-      b(c, f.joueur[c.clef] ?? "")
-    }</div>`;
-  return `<div class="wmf__credits">` +
-    `<div class="wmf__bandeau">CRÉDITS</div>` +
-    ligne("wmf__credit-avatar", f.avatar, CREDIT_AVATAR) +
-    ligne("wmf__credit-tcard", f.joueur["j-tcard"] ?? "", CREDIT_TCARD) +
-    b(CREDIT_AUTRES, f.joueur["j-credits"] ?? "") +
-    `</div>`;
+ *  L'ADRESSE PART DANS LE MESSAGE, MAIS NE S'Y VOIT PAS. Elle doit y
+ *  être : c'est elle, et pas l'image affichée, que `lireUneFiche`
+ *  relit pour retrouver l'avatar quand on rouvre sa fiche. La retirer
+ *  faisait perdre l'image à la première réédition — attrapé par les
+ *  tests avant d'arriver sur le forum. C'est la feuille qui la cache,
+ *  et seulement dans la fiche publiée.
+ *
+ *  UN CRÉDIT VIDE NE LAISSE PAS DE TAG VIDE sur la fiche publiée. Le
+ *  gabarit vaut pour les champs d'une fiche, pas pour une étiquette
+ *  posée par-dessus une image. */
+function cadreImage(
+  adresse: string,
+  clefAdresse: string,
+  clefCredit: string,
+  credit: string,
+  ecrire: boolean,
+  carre: boolean,
+): string {
+  const propre = adresse.trim();
+  const img = propre === "" ? "" : `<img src="${ecrire ? echappe(propre) : propre}" alt="" />`;
+  const tag = ecrire || credit.trim() !== ""
+    ? `<div class="wmf__credit-tag">${balise(clefCredit, credit, ecrire)}</div>`
+    : "";
+  const sous = `<div class="wmf__adresse">${balise(clefAdresse, adresse, ecrire)}</div>`;
+  return `<div class="wmf__cadre${carre ? " wmf__cadre--carre" : ""}">` +
+    img + tag + sous + `</div>`;
 }
 
 export function publier(f: Fiche, r: Rendu = {}): string {
@@ -625,10 +621,14 @@ export function publier(f: Fiche, r: Rendu = {}): string {
   morceaux.push(`<div class="wmf__haut">`);
   morceaux.push(
     `<div class="wmf__avatar">` +
-      (f.avatar.trim() === ""
-        ? ""
-        : `<img src="${ecrire ? echappe(f.avatar.trim()) : f.avatar.trim()}" alt="" />`) +
-      b("avatar", f.avatar) +
+      cadreImage(
+        f.avatar,
+        "avatar",
+        "j-credit-avatar",
+        f.joueur["j-credit-avatar"] ?? "",
+        ecrire,
+        false,
+      ) +
       //  L'ENCADRÉ DU FACECLAIM FAIT PARTIE DU GABARIT, rempli ou non.
       //  Il était resté conditionnel quand tout le reste est devenu
       //  permanent, donc il disparaissait des fiches vides : « tu as
@@ -759,14 +759,17 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       `<div class="wmf__bandeau">DERRIÈRE L'ÉCRAN</div>` +
       `<div class="wmf__joueur-haut">` +
       `<div class="wmf__tcard">` +
-      (tcard.trim() === ""
-        ? ""
-        : `<img src="${ecrire ? echappe(tcard.trim()) : tcard.trim()}" alt="" />`) +
-      b("j-tcard", tcard) +
+      cadreImage(
+        tcard,
+        "j-tcard",
+        "j-credit-tcard",
+        f.joueur["j-credit-tcard"] ?? "",
+        ecrire,
+        true,
+      ) +
       `</div>` +
       `<div class="wmf__joueur-infos">${bloc(JOUEUR_EN_BLOC, f.joueur, ecrire)}</div>` +
       `</div>` +
-      credits(f, ecrire) +
       `</div>`,
   );
   morceaux.push(`</div>`);

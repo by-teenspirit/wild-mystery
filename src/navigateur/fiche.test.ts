@@ -285,14 +285,18 @@ Deno.test("LA TRAINER CARD EST UNE IMAGE, PAS UNE ADRESSE EN TOUTES LETTRES", ()
     joueur: { ...COMPLETE.joueur, "j-tcard": "https://exemple.test/carte.png" },
   };
   const html = publier(f);
+  //  L'IMAGE EST DANS SON CADRE, avec son crédit et son adresse —
+  //  « placer à l'intérieur, en bas, le champ adresse de l'image ».
   assertEquals(
-    html.includes(`<div class="wmf__tcard"><img src="https://exemple.test/carte.png"`),
+    html.includes(
+      `<div class="wmf__cadre wmf__cadre--carre"><img src="https://exemple.test/carte.png"`,
+    ),
     true,
   );
   assertEquals(html.split("<wmf-j-tcard>").length - 1, 1);
   //  SANS ADRESSE, PAS D'IMAGE CASSÉE — comme pour l'avatar.
   const sans: Fiche = { ...COMPLETE, joueur: { ...COMPLETE.joueur, "j-tcard": "" } };
-  assertEquals(publier(sans).includes(`<div class="wmf__tcard"><img`), false);
+  assertEquals(publier(sans).includes(`wmf__cadre--carre"><img`), false);
 });
 
 Deno.test("LES DEUX IMAGES SE RELISENT, OÙ QU'ELLES SOIENT PASSÉES", () => {
@@ -464,7 +468,8 @@ Deno.test("UNE FICHE VIDE GARDE TOUT SON GABARIT", () => {
       "wmf__starter",
       "wmf__ancienne",
       "wmf__joueur",
-      "wmf__credits",
+      "wmf__cadre",
+      "wmf__adresse",
     ]
   ) {
     assertEquals(html.includes(`class="${classe}"`), true, classe);

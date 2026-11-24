@@ -620,18 +620,15 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     }
     if (clef === "avatar") {
       vue = { ...vue, avatar: v };
-      majImage(".wmf__avatar", v);
-      //  LA VIGNETTE DU CRÉDIT MONTRE LA MÊME IMAGE : sans ça, on
-      //  crédite une case vide tant qu'on n'a pas rechargé.
-      majImage(".wmf__credit-avatar", v);
+      //  L'IMAGE VIT DANS SON CADRE, avec son crédit et son adresse.
+      majImage(".wmf__avatar .wmf__cadre", v);
       return;
     }
     //  LA TRAINER CARD EST UNE IMAGE, ELLE AUSSI, et elle suit le même
     //  chemin que l'avatar : l'adresse se tape, l'image se montre.
     if (clef === "j-tcard") {
       vue = { ...vue, joueur: { ...vue.joueur, "j-tcard": v } };
-      majImage(".wmf__tcard", v);
-      majImage(".wmf__credit-tcard", v);
+      majImage(".wmf__tcard .wmf__cadre", v);
       return;
     }
     if (clef === "ancienne") {

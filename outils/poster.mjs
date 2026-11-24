@@ -691,7 +691,6 @@ const OUTILS = () => {
       "L'ÉQUIPE D'AVANT",
       "L'ORGANISATION",
       "DERRIÈRE L'ÉCRAN",
-      "CRÉDITS",
     ]),
     JSON.stringify(pose.bandeaux),
   );
@@ -836,7 +835,7 @@ const OUTILS = () => {
     "   l'adresse collée devient l'image carrée",
     images.carree === "https://exemple.test/carte.png" &&
       images.message.includes(
-        '<div class="wmf__tcard"><img src="https://exemple.test/carte.png"',
+        '<div class="wmf__cadre wmf__cadre--carre"><img src="https://exemple.test/carte.png"',
       ),
     JSON.stringify({ src: images.carree }),
   );
@@ -1766,50 +1765,69 @@ const OUTILS = () => {
 }
 
 {
-  //  ── LES CRÉDITS SE REMPLISSENT DEVANT LEURS IMAGES ─────────────
+  //  ── LE CRÉDIT EST DANS LE CADRE DE SON IMAGE ───────────────────
   //
-  //  « Permet de remplir les crédits directement avec les deux
-  //  images : l'avatar et l'image carrée » — 24 novembre. La mesure
-  //  qui compte est que la vignette SUIVE l'adresse qu'on tape : si
-  //  elle n'apparaissait qu'au rechargement, on créditerait une case
-  //  vide.
+  //  « En haut à droite, placer le champ pour indiquer le crédit. Sur
+  //  la présentation finale : l'afficher comme un tag. » — 24
+  //  novembre. Ce qui compte : le crédit est DANS le cadre de son
+  //  image, donc on sait de quelle image il parle sans le dire, et
+  //  l'adresse est sous la même image, sur une ligne qui défile.
   const q = await monterLaFiche("");
   await q.evaluate(OUTILS);
   const vu = await q.evaluate(async () => {
-    const vignette = (c) => {
-      const v = document.querySelector(`.wmf__credit-vignette.${c}`);
-      const img = v?.querySelector("img");
-      return { la: v !== null, image: img?.getAttribute("src") ?? null };
-    };
-    const avant = {
-      avatar: vignette("wmf__credit-avatar"),
-      tcard: vignette("wmf__credit-tcard"),
-    };
     globalThis.wmTaper("avatar", "https://exemple.test/portrait.png");
-    globalThis.wmTaper("j-tcard", "https://exemple.test/carre.png");
     globalThis.wmTaper("j-credit-avatar", "@quelquun");
     await globalThis.wmPause(250);
+    const cadre = document.querySelector(".wmf__avatar .wmf__cadre");
     const m = globalThis.wmMessage();
+    const zone = document.querySelector(".wmf__adresse [data-wmf-zone]");
     return {
-      avant,
-      apres: { avatar: vignette("wmf__credit-avatar"), tcard: vignette("wmf__credit-tcard") },
-      creditDansLeMessage: /<wmf-j-credit-avatar>@quelquun<\/wmf-j-credit-avatar>/.test(m),
-      //  Le crédit est DANS le bloc des crédits, pas dans la grille
-      //  « derrière l'écran » : c'est tout l'objet du changement.
-      dansLeBloc: /<div class="wmf__credits">[\s\S]*?<wmf-j-credit-avatar>/.test(m),
+      imageDansLeCadre: cadre?.querySelector("img")?.getAttribute("src") ?? null,
+      tagDansLeCadre: cadre?.querySelector(".wmf__credit-tag wmf-j-credit-avatar") !== null,
+      adresseDansLeCadre: cadre?.querySelector(".wmf__adresse") !== null,
+      //  « Le mettre sur une ligne, laisse le champ en défilement
+      //  horizontal si besoin. » On mesure le COMPORTEMENT : une
+      //  adresse très longue doit déborder sur les côtés, pas
+      //  descendre sur une deuxième ligne.
+      hauteurLigne: zone === null ? null : Math.round(zone.getBoundingClientRect().height),
+      defile: zone === null ? null : getComputedStyle(zone).overflowX,
+      creditDansLeMessage: /<wmf-j-credit-avatar>@quelquun</.test(m),
+      //  L'adresse part aussi : c'est elle qui retrouve l'image à la
+      //  réouverture. Elle ne se voit simplement pas.
+      adresseDansLeMessage: m.includes("https://exemple.test/portrait.png"),
+      plusDeBlocDeCredits: !m.includes("wmf__credits"),
     };
   });
   dire(
-    "LES DEUX VIGNETTES DE CRÉDIT SUIVENT LES ADRESSES TAPÉES",
-    vu.avant.avatar.la && vu.avant.avatar.image === null &&
-      vu.apres.avatar.image === "https://exemple.test/portrait.png" &&
-      vu.apres.tcard.image === "https://exemple.test/carre.png",
-    JSON.stringify(vu.avant) + " → " + JSON.stringify(vu.apres),
+    "LE CRÉDIT ET L'ADRESSE VIVENT DANS LE CADRE DE LEUR IMAGE",
+    vu.imageDansLeCadre === "https://exemple.test/portrait.png" &&
+      vu.tagDansLeCadre && vu.adresseDansLeCadre,
+    JSON.stringify(vu),
+  );
+  //  LA MÊME ZONE, AVEC UNE ADRESSE QUI NE TIENT PAS. C'est le seul
+  //  cas qui distingue « sur une ligne » d'un champ ordinaire.
+  const longue = await q.evaluate(async () => {
+    globalThis.wmTaper("avatar", "https://exemple.test/" + "x".repeat(300) + ".png");
+    await globalThis.wmPause(200);
+    const z = document.querySelector(".wmf__adresse [data-wmf-zone]");
+    return {
+      hauteur: Math.round(z.getBoundingClientRect().height),
+      deborde: z.scrollWidth > z.clientWidth,
+    };
+  });
+  dire(
+    "   et une adresse trop longue défile au lieu de passer à la ligne",
+    longue.deborde === true && longue.hauteur === vu.hauteurLigne,
+    JSON.stringify({ ...longue, uneLigne: vu.hauteurLigne }),
   );
   dire(
-    "   et le crédit part dans le message, dans son propre bloc",
-    vu.creditDansLeMessage && vu.dansLeBloc,
-    JSON.stringify({ message: vu.creditDansLeMessage, bloc: vu.dansLeBloc }),
+    "   le crédit part dans le message, l'adresse aussi, et le bloc de crédits n'est plus",
+    vu.creditDansLeMessage && vu.adresseDansLeMessage && vu.plusDeBlocDeCredits,
+    JSON.stringify({
+      credit: vu.creditDansLeMessage,
+      adresse: vu.adresseDansLeMessage,
+      sansBloc: vu.plusDeBlocDeCredits,
+    }),
   );
   await q.close();
 }
@@ -1873,7 +1891,7 @@ const OUTILS = () => {
         "wmf__starter",
         "wmf__ancienne",
         "wmf__joueur",
-        "wmf__credits",
+        "wmf__cadre",
       ].filter((c) => !bloc(c)),
       champs: (apres.match(/class="wmf__champ"/g) ?? []).length,
       invites: (apres.match(/ data-vide="/g) ?? []).length,
@@ -1881,8 +1899,8 @@ const OUTILS = () => {
   });
   dire(
     "ENVOYER SANS RIEN TAPER LAISSE LE GABARIT ENTIER DANS LE MESSAGE",
-    vu.videAvant === true && vu.sections.length === 0 && vu.champs > 20 &&
-      vu.invites > 20,
+    vu.videAvant === true && vu.sections.length === 0 && vu.champs >= 18 &&
+      vu.invites >= 18,
     JSON.stringify(vu),
   );
   await q.close();
