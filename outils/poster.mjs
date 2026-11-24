@@ -1840,6 +1840,53 @@ const OUTILS = () => {
   await q.close();
 }
 
+{
+  //  ── ENVOYER SANS RIEN TAPER ────────────────────────────────────
+  //
+  //  « Quand je poste la fiche, sans rien remplir, on perd les
+  //  blocs » — 24 novembre. Le cas est réel et il n'était mesuré
+  //  nulle part : toutes les mesures d'écriture tapent d'abord
+  //  quelque chose, donc elles passaient par `ecrire()`. Qui ne
+  //  touche à rien ne déclenche aucun `input` — il ne reste que
+  //  l'écriture du `submit`.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(async () => {
+    const forme = document.querySelector("#text_editor_textarea").closest("form");
+    const avant = document.querySelector("#text_editor_textarea").value;
+    //  On déclenche l'envoi SANS le laisser partir : la mesure veut
+    //  savoir ce que le message contient à cet instant, pas poster.
+    forme.addEventListener("submit", (e) => e.preventDefault(), { once: false });
+    forme.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    const apres = document.querySelector("#text_editor_textarea").value;
+    const bloc = (c) => apres.includes(`class="${c}"`);
+    return {
+      videAvant: avant.trim() === "",
+      sections: [
+        "wmf__tete",
+        "wmf__soustitre",
+        "wmf__tw",
+        "wmf__haut",
+        "wmf__fc",
+        "wmf__histoire",
+        "wmf__starter",
+        "wmf__ancienne",
+        "wmf__joueur",
+        "wmf__credits",
+      ].filter((c) => !bloc(c)),
+      champs: (apres.match(/class="wmf__champ"/g) ?? []).length,
+      invites: (apres.match(/ data-vide="/g) ?? []).length,
+    };
+  });
+  dire(
+    "ENVOYER SANS RIEN TAPER LAISSE LE GABARIT ENTIER DANS LE MESSAGE",
+    vu.videAvant === true && vu.sections.length === 0 && vu.champs > 20 &&
+      vu.invites > 20,
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));

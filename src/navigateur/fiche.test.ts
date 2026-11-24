@@ -459,6 +459,7 @@ Deno.test("UNE FICHE VIDE GARDE TOUT SON GABARIT", () => {
       "wmf__soustitre",
       "wmf__tw",
       "wmf__haut",
+      "wmf__fc",
       "wmf__histoire",
       "wmf__starter",
       "wmf__ancienne",

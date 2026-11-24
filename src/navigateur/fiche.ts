@@ -581,9 +581,12 @@ export function publier(f: Fiche, r: Rendu = {}): string {
         ? ""
         : `<img src="${ecrire ? echappe(f.avatar.trim()) : f.avatar.trim()}" alt="" />`) +
       b("avatar", f.avatar) +
-      (ecrire || fc.trim() !== ""
-        ? `<div class="wmf__fc"><y>AVATAR JOUÉ PAR</y> ${b("j-avatar", fc)}</div>`
-        : "") +
+      //  L'ENCADRÉ DU FACECLAIM FAIT PARTIE DU GABARIT, rempli ou non.
+      //  Il était resté conditionnel quand tout le reste est devenu
+      //  permanent, donc il disparaissait des fiches vides : « tu as
+      //  enlevé l'avatar utilisé sous l'avatar du coup, remets »,
+      //  24 novembre.
+      `<div class="wmf__fc"><y>AVATAR JOUÉ PAR</y> ${b("j-avatar", fc)}</div>` +
       `</div>`,
   );
   morceaux.push(`<div class="wmf__infos">${bloc(IDENTITE, f.identite, ecrire)}</div>`);
