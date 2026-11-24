@@ -986,8 +986,92 @@
     min-width: 0;
   }
 
-  #modernbb .wmf__avatar {
-    flex: 1 1 100%;
+  /*  ── LA FICHE GARDE SES RANGÉES ─────────────────────────────────
+
+      « Attention, en version mobile, tout est cassé » et « faut garder
+      exactement la même structure » — 24 novembre.
+
+      Ce qui cassait : les trois colonnes d'image sont écrites en
+      pixels — 200 pour l'avatar et la trainer card, 160 pour la carte
+      du Pokémon — et leur voisine demande 320 de base. Deux colonnes
+      qui réclament 520 dans un téléphone de 390 ne tiennent pas :
+      elles passaient donc l'une SOUS l'autre, et la fiche se dépliait
+      en une colonne de cinq mètres.
+
+      Les mêmes largeurs en pourcentage tiennent la rangée à toutes
+      les tailles, et les pourcentages sont CEUX DE LA FICHE DE
+      BUREAU : 714 px de contenu, donc 200 pour l'avatar font 28 %,
+      160 pour la carte du Pokémon en font 22. La proportion ne change
+      pas, seule l'unité. */
+  #modernbb .wmf {
+    padding: var(--wm-espace-14, 14px);
+  }
+
+  #modernbb .wmf__avatar,
+  #modernbb .wmf__tcard {
+    flex: 0 0 28%;
+    width: auto;
+    min-width: 0;
+  }
+
+  /*  La carte du Pokémon ne descend pas sous la largeur de son
+      sprite : 96 px, sinon l'image déborde de sa propre carte. */
+  #modernbb .wmf__pokemon {
+    flex: 0 0 22%;
+    width: auto;
+    min-width: 96px;
+  }
+
+  #modernbb .wmf__sprite {
+    max-width: 100%;
+  }
+
+  /*  LES IMAGES SUIVENT LEUR COLONNE au lieu de la déborder, et
+      gardent leur forme : un portrait reste un portrait, la trainer
+      card reste carrée. */
+  #modernbb .wmf__avatar img,
+  #modernbb .wmf__avatar:not(:has(img))::before {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 200 / 320;
+  }
+
+  #modernbb .wmf__tcard img,
+  #modernbb .wmf__tcard:not(:has(img))::before {
+    width: 100%;
+    height: auto;
+  }
+
+  /*  LA COLONNE DE TEXTE CÈDE SA BASE. `flex: 1 1 320px` réclamait
+      320 px avant de rétrécir : c'est cette base, et pas la largeur
+      de l'image, qui faisait réellement passer la rangée à la ligne. */
+  #modernbb .wmf__infos,
+  #modernbb .wmf__rencontre,
+  #modernbb .wmf__joueur-infos {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /*  ET LA HAUTEUR FIXE S'EN VA AVEC. 388 px était la hauteur d'un
+      avatar de 320 plus son encadré ; à 38 % de 390, l'image fait
+      moitié moins, et la colonne de droite aurait gardé un cadre de
+      défilement plus haut que son voisin. */
+  #modernbb .wmf__haut {
+    --wmf-haut: none;
+  }
+
+  #modernbb .wmf__infos,
+  #modernbb .wmf__joueur-infos {
+    max-height: none;
+  }
+
+  /*  LA SEULE CHOSE QUI CHANGE DE FORME, et parce qu'elle ne peut
+      pas faire autrement : « derrière l'écran » range ses champs sur
+      deux colonnes. Dans les 250 px qui lui restent sur un
+      téléphone, ça fait deux colonnes de 120 — « PSEUDO/PRÉNOM » et
+      « ÂGE » se chevauchaient, lettres sur lettres. Une colonne. */
+  #modernbb .wmf__joueur-infos {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   #modernbb .wmf__moment-date {
@@ -1105,4 +1189,26 @@
   border-radius: 0;
   background: none;
   height: 56px;
+}
+
+/*  ── LES SAUTS DE LIGNE DES FICHES DÉJÀ PUBLIÉES ───────────────────
+
+    `publier` n'écrit plus de retour à la ligne entre ses blocs, mais
+    les fiches postées avant le 24 novembre en portent : Forumactif les
+    a rendus en `<br>`, et dans une colonne flex un `<br>` est un
+    élément à part entière — une ligne vide plus un intervalle de 20 px
+    avant chaque bloc.
+
+    Les cacher ici répare ces fiches-là sans que personne ait à les
+    rouvrir. La règle ne vise QUE les enfants directs de nos
+    conteneurs : un `<br>` que le joueur a tapé dans son histoire est
+    dans sa zone de texte, pas ici, et il reste. */
+#modernbb .wmf > br,
+#modernbb .wmf__haut > br,
+#modernbb .wmf__starter > br,
+#modernbb .wmf__joueur > br,
+#modernbb .wmf__joueur-haut > br,
+#modernbb .wmf__credits > br,
+#modernbb .wmf__chrono > br {
+  display: none;
 }

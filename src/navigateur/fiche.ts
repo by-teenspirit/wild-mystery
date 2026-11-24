@@ -700,7 +700,22 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       `</div>`,
   );
   morceaux.push(`</div>`);
-  return morceaux.join("\n");
+  //  ── AUCUN SAUT DE LIGNE DANS LE MESSAGE ────────────────────────
+  //
+  //  « Quand on poste il semble y avoir des espaces bizarres » —
+  //  24 novembre, et c'est mesurable : sur la fiche de Xaden en ligne,
+  //  SEPT `<br>` étaient posés entre les blocs, un par saut de ligne
+  //  de ce `join`.
+  //
+  //  sceditor rend notre HTML au caractère près, retours à la ligne
+  //  compris, et Forumactif les transforme en `<br>` à l'affichage.
+  //  Dans `.wmf`, qui est une colonne flex à 20 px de `gap`, chaque
+  //  `<br>` devient un élément de plus : une ligne vide ET un
+  //  intervalle supplémentaire, avant chaque bloc.
+  //
+  //  On n'en écrit donc plus aucun. La feuille en cache ce qu'il
+  //  reste, pour les fiches déjà publiées que personne ne rouvrira.
+  return morceaux.join("");
 }
 
 // ── relire ──────────────────────────────────────────────────────────

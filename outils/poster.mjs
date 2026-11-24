@@ -1887,6 +1887,63 @@ const OUTILS = () => {
   await q.close();
 }
 
+{
+  //  ── SUR UN TÉLÉPHONE, LA FICHE GARDE SES RANGÉES ───────────────
+  //
+  //  « Attention, en version mobile, tout est cassé » et « faut
+  //  garder exactement la même structure » — 24 novembre.
+  //
+  //  Ce que la mesure attrape, et qu'aucun œil ne voit depuis un
+  //  bureau : les colonnes d'image sont en pixels et leur voisine
+  //  demande 320 de base, donc sous 560 px la rangée passait à la
+  //  ligne et la fiche se dépliait en une seule colonne.
+  //
+  //  ON COMPARE DES POSITIONS, PAS DES RÈGLES. « Côte à côte » veut
+  //  dire que les deux boîtes partagent une bande horizontale ; une
+  //  liste de propriétés CSS ne le dirait pas.
+  const q = await monterLaFiche("");
+  await q.setViewportSize({ width: 390, height: 844 });
+  await q.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+  const vu = await q.evaluate(() => {
+    const cote = (a, b) => {
+      const x = document.querySelector(a)?.getBoundingClientRect();
+      const y = document.querySelector(b)?.getBoundingClientRect();
+      if (x === undefined || y === undefined) return null;
+      //  Même bande : le haut de l'un est au-dessus du bas de
+      //  l'autre, dans les deux sens.
+      return x.top < y.bottom && y.top < x.bottom && x.right <= y.left + 1;
+    };
+    const large = (s) =>
+      Math.round(document.querySelector(s)?.getBoundingClientRect().width ?? -1);
+    return {
+      tete: cote(".wmf__avatar", ".wmf__infos"),
+      starter: cote(".wmf__pokemon", ".wmf__rencontre"),
+      joueur: cote(".wmf__tcard", ".wmf__joueur-infos"),
+      colonnes: getComputedStyle(document.querySelector(".wmf__joueur-infos"))
+        .gridTemplateColumns.split(" ").length,
+      debordement: document.querySelector(".wmf").scrollWidth -
+        document.querySelector(".wmf").clientWidth,
+      sprite: large(".wmf__pokemon") >= 96,
+    };
+  });
+  dire(
+    "À 390 PX, LA FICHE GARDE SES TROIS RANGÉES",
+    vu.tete === true && vu.starter === true && vu.joueur === true,
+    JSON.stringify(vu),
+  );
+  dire(
+    "   et rien ne déborde, ni la carte du Pokémon sous son sprite",
+    vu.debordement <= 0 && vu.sprite === true,
+    JSON.stringify({ debordement: vu.debordement, carte: vu.sprite }),
+  );
+  dire(
+    "   « derrière l'écran » passe à une colonne, la seule chose qui change",
+    vu.colonnes === 1,
+    JSON.stringify(vu.colonnes),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));
