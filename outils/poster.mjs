@@ -2011,15 +2011,21 @@ const OUTILS = () => {
       b.getAttribute("aria-label")
     );
     const dessins = [...barre.querySelectorAll(".wmf-form__balise svg")].length;
-    const menus = [...barre.querySelectorAll(".wmf-form__menu")].map((m) =>
-      m.options[0].textContent
+    //  LES DEUX MENUS SONT DES ICÔNES depuis le 25 novembre : le
+    //  `<select>` est toujours là, transparent par-dessus le dessin.
+    //  C'est ce que la mesure vérifie — un bouton qui n'ouvrirait
+    //  plus de liste aurait perdu sa raison d'être.
+    const menus = [...barre.querySelectorAll(".wmf-form__outil-menu")].map((m) =>
+      m.getAttribute("aria-label")
     );
+    const menusDessines = [...barre.querySelectorAll(".wmf-form__outil svg")].length;
     return {
       mots,
       menus,
       couleur: barre.querySelector('input[type="color"]') !== null,
       traits: barre.querySelectorAll(".wmf-form__balises-trait").length,
       dessins,
+      menusDessines,
     };
   });
   //  LES NOMS SONT CEUX DE FORUMACTIF, relevés sur sa barre le
@@ -2053,10 +2059,10 @@ const OUTILS = () => {
     JSON.stringify({ mots: vu.mots, dessins: vu.dessins }),
   );
   dire(
-    "   avec ses trois menus — taille, police, couleur",
+    "   avec ses trois menus — taille, police, couleur — en icônes",
     JSON.stringify(vu.menus) === JSON.stringify(["Taille", "Police"]) &&
-      vu.couleur === true,
-    JSON.stringify({ menus: vu.menus, couleur: vu.couleur }),
+      vu.menusDessines === 2 && vu.couleur === true,
+    JSON.stringify({ menus: vu.menus, dessins: vu.menusDessines, couleur: vu.couleur }),
   );
   dire(
     "   et les familles sont séparées, sinon vingt boutons font un mur",
@@ -2167,11 +2173,12 @@ const OUTILS = () => {
       traitDuDernier: dernier.backgroundSize.split(",").pop().trim(),
       //  LE RAIL EST UNE COLONNE À PART, à gauche de la date.
       railAGauche: date.left > cadre.left + 8,
-      //  LA CROIX EST SOUS LA DATE, dans sa colonne : la colonne est
-      //  vide sous elle, et c'est là qu'on regarde quand on pense
-      //  « ce moment-là ». Dans le coin de la barre, elle passait
-      //  pour un vingt-et-unième outil.
-      croixSousLaDate: croix.top >= date.bottom - 1 && croix.right <= texte.left,
+      //  LA CROIX EST TOUT À DROITE, sur la rangée de la date, et
+      //  elle porte un fond : posée à nu, une croix se lit comme un
+      //  signe ; dans une pastille, comme quelque chose qu'on presse.
+      croixADroite: croix.left >= texte.right &&
+        getComputedStyle(un.querySelector(".wmf-form__croix")).backgroundColor !==
+          "rgba(0, 0, 0, 0)",
     };
   });
   dire(
@@ -2200,9 +2207,9 @@ const OUTILS = () => {
     }),
   );
   dire(
-    "   et la croix est sous la date, dans sa colonne",
-    vu.croixSousLaDate === true,
-    JSON.stringify(vu.croixSousLaDate),
+    "   et la croix est tout à droite, avec un fond",
+    vu.croixADroite === true,
+    JSON.stringify(vu.croixADroite),
   );
 
   //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────

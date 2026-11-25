@@ -342,17 +342,76 @@
   background: var(--wm-bord-fin, #eadacd);
 }
 
+/*  ── LES DEUX MENUS DE LA BARRE SONT DES ICÔNES ────────────────────
+
+    « La taille et la police, tu peux aussi mettre une icône ? »
+    — 25 novembre.
+
+    Une liste déroulante montre forcément du texte quand elle est
+    fermée. On la rend donc transparente, posée sur l'icône : le
+    `<select>` reste un vrai `<select>` — le clavier l'atteint, il
+    garde son nom accessible, et il ouvre la liste du système, où les
+    tailles s'écrivent en toutes lettres. */
+#modernbb .wmf-form__outil {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 24px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wmf-form__outil svg {
+  width: 16px;
+  height: 16px;
+  fill: currentcolor;
+}
+
+#modernbb .wmf-form__outil-menu {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  /*  Safari dessine quand même la flèche d'un select au-dessus de
+      tout : sans ça, elle dépasse du bouton. */
+  appearance: none;
+}
+
+/*  L'ANNEAU DE FOCUS EST SUR LA BOÎTE, puisque le champ qui le reçoit
+    est invisible. Sans lui, se déplacer au clavier dans la barre fait
+    disparaître le curseur pendant deux boutons. */
+#modernbb .wmf-form__outil:focus-within,
+#modernbb .wmf-form__outil:hover {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  ── LES MENUS DE LA FICHE, EUX, SONT DES CHAMPS ───────────────────
+
+    L'espèce et le talent du compagnon. « Le dropdown du talent :
+    toute la largeur. » — 25 novembre : il prenait la largeur de son
+    contenu, donc il changeait de taille à chaque espèce choisie et ne
+    s'alignait avec aucun de ses deux voisins. */
 #modernbb .wmf-form__menu {
-  padding: var(--wm-espace-2, 2px) var(--wm-espace-4, 4px);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: inherit;
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: var(--wm-graisse-demi, 600);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
+  font-size: var(--wm-taille-normal, 13.5px);
 }
 
 /*  LE SÉLECTEUR DE COULEUR EST NATIF : il ouvre la palette du
@@ -957,7 +1016,7 @@
       ce qui le met EN FACE DE LA DATE sans qu'on ait à deviner la
       hauteur de la barre d'outils au-dessus. « Affiche le point face
       à la date » — 24 novembre. */
-  grid-template-columns: 14px 120px minmax(0, 1fr) auto;
+  grid-template-columns: 14px 120px minmax(0, 1fr) auto 28px;
   gap: var(--wm-espace-4, 4px) var(--wm-espace-14, 14px);
 }
 
@@ -970,20 +1029,22 @@
   grid-column: 1 / -1;
 }
 
-/*  LA CROIX EST SOUS LA DATE, dans sa colonne.
+/*  LA CROIX EST TOUT À DROITE, AVEC UN FOND. « Pour la croix, essayer
+    tout à droite, avec un fond. » — 25 novembre, après deux autres
+    places. Elle a sa propre colonne, au bout de la rangée : ni dans
+    la barre d'outils, où elle passait pour un outil, ni sous la date,
+    où elle flottait dans un vide.
 
-    Troisième place en une journée, et c'est la bonne pour une raison
-    simple : la colonne de la date est vide sous elle, et c'est là
-    qu'on regarde quand on pense « ce moment-là ». Dans le coin de la
-    barre d'outils, elle passait pour un vingt-et-unième outil ; en
-    dernier enfant sans place assignée, elle se rangeait toute seule
-    dans la grille et tombait n'importe où. */
+    LE FOND EST CE QUI EN FAIT UN BOUTON. Posée à nu sur le fond du
+    bloc, une croix se lit comme un signe ; dans une pastille, comme
+    quelque chose qu'on presse. */
 #modernbb .wmf__moment > .wmf-form__croix {
-  grid-row: 3;
-  grid-column: 2;
+  grid-row: 2;
+  grid-column: 5;
   align-self: start;
-  justify-self: start;
-  margin-top: var(--wm-espace-6, 6px);
+  justify-self: end;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
 }
 
 /*  LE POINT ET LE TRAIT SONT UN SEUL DESSIN, posé dans la colonne du
@@ -1690,10 +1751,11 @@
   color: var(--wm-accent-primaire, #275e7a);
 }
 
-/*  ET DE L'AIR SOUS LUI : collé au bord du bloc, il donnait
+/*  ET DE LA MARGE SOUS LUI : « Ajouter une date : mets en margin en
+    dessous. » — 25 novembre. Collé au bord du bloc, il donnait
     l'impression d'en déborder. */
-#modernbb .wmf__chrono {
-  padding-bottom: var(--wm-espace-6, 6px);
+#modernbb .wmf-form__plus {
+  margin-bottom: var(--wm-espace-16, 16px);
 }
 
 #modernbb .wmf-form__plus svg {
@@ -1802,7 +1864,8 @@
     ralentissent la lecture de ce qu'on compare — « 9 PX, 10 PX, 12
     PX » se lit moins vite que « 9 px, 10 px, 12 px ». Le bouton
     fermé, lui, reste une étiquette. */
-#modernbb .wmf-form__menu option {
+#modernbb .wmf-form__menu option,
+#modernbb .wmf-form__outil-menu option {
   font-size: var(--wm-taille-normal, 13.5px);
   letter-spacing: normal;
   text-transform: none;

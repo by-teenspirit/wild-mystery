@@ -252,7 +252,7 @@ function bouton(
     ELLE N'AJOUTE RIEN QU'ON NE PUISSE TAPER. Le joueur qui connaît
     `<b>` l'écrit directement ; la barre existe pour celui qui ne le
     connaît pas, et elle lui montre ce qu'elle insère. */
-const BALISEES = new Set(["histoire", "m-texte", "s-rencontre"]);
+const BALISEES = new Set(["histoire", "m-texte", "s-rencontre", "ancienne"]);
 
 /*  ── LA BARRE REPREND CELLE DE FORUMACTIF ──────────────────────────
 
@@ -959,14 +959,26 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     }
 
     //  ── LES TROIS MENUS, ET LE NETTOYAGE ───────────────────────────
-    barre.appendChild(menu(z, "Taille", TAILLES, (v) => [
-      `<span style="font-size:${v}px">`,
-      "</span>",
-    ], true));
-    barre.appendChild(menu(z, "Police", POLICES, (v) => [
-      `<span style="font-family:${v}">`,
-      "</span>",
-    ]));
+    barre.appendChild(menu(
+      z,
+      "Taille",
+      //  DEUX « A » DE TAILLES DIFFÉRENTES : l'icône de la taille de
+      //  police dans tous les éditeurs, y compris celui de
+      //  Forumactif.
+      `<text x="1" y="13" font-size="8" font-family="Georgia, serif">A</text>` +
+        `<text x="7" y="13" font-size="13" font-family="Georgia, serif">A</text>`,
+      TAILLES,
+      (v) => [`<span style="font-size:${v}px">`, "</span>"],
+      true,
+    ));
+    barre.appendChild(menu(
+      z,
+      "Police",
+      `<text x="8" y="13" text-anchor="middle" font-size="13" ` +
+        `font-family="Georgia, serif">Aa</text>`,
+      POLICES,
+      (v) => [`<span style="font-family:${v}">`, "</span>"],
+    ));
 
     //  LA COULEUR EST LE SEUL ENDROIT OÙ UNE LISTE NE SUFFIT PAS :
     //  Forumactif y ouvre une palette, et nous n'avons pas à deviner
@@ -1054,11 +1066,25 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const menu = (
     z: HTMLElement,
     intitule: string,
+    dessin: string,
     valeurs: readonly string[],
     balises: (v: string) => readonly [string, string],
     suffixePx = false,
   ): HTMLElement => {
-    const m = el<HTMLSelectElement>(doc, "select", "wmf-form__menu");
+    //  ── UNE ICÔNE QUI OUVRE UNE VRAIE LISTE ──────────────────────
+    //
+    //  « La taille et la police, tu peux aussi mettre une icône ? »
+    //  — 25 novembre. Une liste déroulante montre forcément du texte
+    //  quand elle est fermée : c'est ce qui faisait deux mots au
+    //  milieu de dix-neuf dessins.
+    //
+    //  On la rend donc transparente et on pose l'icône dessous. Le
+    //  `<select>` reste un vrai `<select>` — il garde son nom, le
+    //  clavier l'atteint, et il ouvre la liste du système, où les
+    //  tailles s'écrivent en toutes lettres.
+    const boite = el(doc, "span", "wmf-form__outil");
+    boite.appendChild(icone(dessin));
+    const m = el<HTMLSelectElement>(doc, "select", "wmf-form__outil-menu");
     m.title = intitule;
     m.setAttribute("aria-label", intitule);
     m.appendChild(el<HTMLOptionElement>(doc, "option", "", intitule));
@@ -1075,7 +1101,8 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       entourer(doc, z, ouvre, ferme);
       m.selectedIndex = 0;
     });
-    return m;
+    boite.appendChild(m);
+    return boite;
   };
 
   //  ── LE LIEN DEMANDE SON ADRESSE ────────────────────────────────
