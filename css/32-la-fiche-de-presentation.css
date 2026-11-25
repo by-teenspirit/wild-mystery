@@ -1017,34 +1017,57 @@
       hauteur de la barre d'outils au-dessus. « Affiche le point face
       à la date » — 24 novembre. */
   grid-template-columns: 14px 120px minmax(0, 1fr) auto 28px;
+  /*  LES DEUX RANGÉES SONT DÉCLARÉES, et pas laissées implicites :
+      `grid-row: 1 / -1` ne compte QUE les rangées explicites. Sans
+      cette ligne, la bande de la croix ne couvrait que la première,
+      et rien dans la feuille ne disait pourquoi. */
+  grid-template-rows: auto auto;
   gap: var(--wm-espace-4, 4px) var(--wm-espace-14, 14px);
 }
 
-/*  La barre tient toute la première rangée, et se réserve la place de
-    la croix à droite. Lui retirer une colonne de grille marchait
-    aussi, mais lui coûtait les 140 px de la colonne d'image : elle
-    passait alors sur deux rangées pour un seul bouton. */
+/*  LA BARRE S'ARRÊTE AVANT LA COLONNE DE LA CROIX. « On pourrait
+    faire en sorte que le bouton de la croix prenne toute la hauteur,
+    même qu'elle pousse le bloc d'édition ? » — 25 novembre : oui, et
+    c'est ce qui manquait pour qu'on la voie comme la commande du
+    moment entier.
+
+    Lui retirer une colonne coûtait 140 px du temps où la croix
+    occupait celle de l'image ; la sienne n'en fait que 28. */
 #modernbb .wmf__moment > .wmf-form__balises {
   grid-row: 1;
-  grid-column: 1 / -1;
+  grid-column: 1 / -2;
 }
 
-/*  LA CROIX EST TOUT À DROITE, AVEC UN FOND. « Pour la croix, essayer
-    tout à droite, avec un fond. » — 25 novembre, après deux autres
-    places. Elle a sa propre colonne, au bout de la rangée : ni dans
-    la barre d'outils, où elle passait pour un outil, ni sous la date,
-    où elle flottait dans un vide.
+/*  LA CROIX EST UNE BANDE, SUR TOUTE LA HAUTEUR DU MOMENT. « Le
+    bouton de la croix prend toute la hauteur, même qu'elle pousse le
+    bloc d'édition. » — 25 novembre, après trois places essayées.
 
-    LE FOND EST CE QUI EN FAIT UN BOUTON. Posée à nu sur le fond du
-    bloc, une croix se lit comme un signe ; dans une pastille, comme
-    quelque chose qu'on presse. */
+    C'est la bonne, et pour une raison qu'aucune des trois n'avait :
+    une croix de 28 px posée quelque part désigne CE QUI EST À CÔTÉ
+    D'ELLE, et il a fallu trois fois deviner quoi. Une bande qui
+    longe le moment d'un bout à l'autre désigne le moment, sans qu'on
+    ait à le dire.
+
+    LE SIGNE RESTE EN HAUT, et ne se centre pas sur la bande : au
+    milieu de trois cents pixels, il flotterait à nouveau. Il est à la
+    hauteur de la première ligne, là où commence ce qu'on supprime. */
 #modernbb .wmf__moment > .wmf-form__croix {
-  grid-row: 2;
+  grid-row: 1 / -1;
   grid-column: 5;
-  align-self: start;
-  justify-self: end;
+  align-self: stretch;
+  justify-self: stretch;
+  width: 28px;
+  height: auto;
+  /*  UN BOUTON CENTRE SON CONTENU : sans ces trois lignes, le signe
+      se posait au milieu de trois cents pixels de bande, c'est-à-dire
+      en face de rien. */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: var(--wm-espace-6, 6px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
+  line-height: 1;
 }
 
 /*  LE POINT ET LE TRAIT SONT UN SEUL DESSIN, posé dans la colonne du
@@ -1063,7 +1086,7 @@
     du haut, le trait sous lui, et le tout qui dépasse par le bas pour
     rejoindre le point suivant. */
 #modernbb .wmf__moment::before {
-  grid-row: 2 / span 2;
+  grid-row: 2;
   grid-column: 1;
   align-self: stretch;
   justify-self: center;
@@ -1131,7 +1154,7 @@
 }
 
 #modernbb .wmf__moment-texte {
-  grid-row: 2 / span 2;
+  grid-row: 2;
   grid-column: 3;
   min-width: 0;
 }
@@ -1141,7 +1164,7 @@
     est écrit à côté. Elle n'existe que s'il y en a une — la colonne
     `auto` ne coûte rien quand elle est vide. */
 #modernbb .wmf__moment-image {
-  grid-row: 2 / span 2;
+  grid-row: 2;
   grid-column: 4;
   width: 140px;
 }
