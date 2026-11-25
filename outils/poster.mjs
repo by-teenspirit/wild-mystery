@@ -2176,6 +2176,15 @@ const OUTILS = () => {
       //  LA CROIX EST TOUT À DROITE, sur la rangée de la date, et
       //  elle porte un fond : posée à nu, une croix se lit comme un
       //  signe ; dans une pastille, comme quelque chose qu'on presse.
+      //  « CE SERAIT BIEN QUE L'IMAGE OU LE GIF SOIT AUSSI HAUT QUE
+      //  LE BLOC » — 25 novembre. Le cadre est hors flux dans une
+      //  colonne étirée : il ne pèse donc pas sur la hauteur de la
+      //  rangée, il la suit. Sans ça, un gif de six cents pixels
+      //  ferait un moment de six cents pixels pour trois lignes.
+      imageCommeLeTexte: Math.abs(
+        un.querySelector(".wmf__moment-image .wmf__cadre").getBoundingClientRect()
+          .height - texte.height,
+      ) <= 1,
       croixADroite: croix.left >= texte.right &&
         getComputedStyle(un.querySelector(".wmf-form__croix")).backgroundColor !==
           "rgba(0, 0, 0, 0)",
@@ -2210,6 +2219,11 @@ const OUTILS = () => {
     "   et la croix est tout à droite, avec un fond",
     vu.croixADroite === true,
     JSON.stringify(vu.croixADroite),
+  );
+  dire(
+    "   l'image du moment fait exactement la hauteur de son texte",
+    vu.imageCommeLeTexte === true,
+    JSON.stringify(vu.imageCommeLeTexte),
   );
 
   //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────

@@ -39658,10 +39658,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     qu'un gif se voie, pas assez pour qu'il prenne le pas sur ce qui
     est écrit à côté. Elle n'existe que s'il y en a une — la colonne
     `auto` ne coûte rien quand elle est vide. */
+/*  ── L'IMAGE EST AUSSI HAUTE QUE LE TEXTE ──────────────────────────
+
+    « Ce serait bien que l'image ou le gif soit aussi haut que le bloc
+    "ce qui s'est passé". » — 25 novembre.
+
+    LE CADRE EST HORS FLUX, ET C'EST TOUT LE TRUC. Posé normalement,
+    il aurait sa hauteur propre — celle du gif — et c'est LUI qui
+    dicterait la hauteur de la rangée : un gif de six cents pixels
+    ferait un moment de six cents pixels pour trois lignes de texte.
+    En absolu dans une colonne étirée, il n'entre pas dans le calcul
+    et se contente de remplir ce que le texte a décidé. */
 #modernbb .wmf__moment-image {
+  position: relative;
   grid-row: 2;
   grid-column: 4;
+  align-self: stretch;
   width: 140px;
+  min-height: 0;
+}
+
+#modernbb .wmf__moment-image > .wmf__cadre {
+  position: absolute;
+  inset: 0;
 }
 
 /*  SUR UN TÉLÉPHONE, LES TROIS COLONNES N'EN FONT QU'UNE : 120 px de
@@ -39677,9 +39696,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     grid-column: 2;
   }
 
+  /*  SUR UN TÉLÉPHONE, L'IMAGE REPREND SA PLACE DANS LE FLUX : la
+      colonne n'est plus à côté du texte mais en dessous, donc il n'y
+      a plus de hauteur à suivre — et un cadre en absolu dans une
+      case sans hauteur ne se verrait pas du tout. */
   #modernbb .wmf__moment-image {
+    position: static;
     width: 100%;
     max-width: 200px;
+  }
+
+  #modernbb .wmf__moment-image > .wmf__cadre {
+    position: relative;
+    inset: auto;
+  }
+
+  #modernbb .wmf__moment-image .wmf__cadre:not(:has(img))::before {
+    height: 140px;
+  }
+
+  #modernbb .wmf__moment-image .wmf__cadre > img {
+    height: auto;
+    max-height: 200px;
   }
 }
 
@@ -40289,15 +40327,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     qu'elle accompagne. Et il attend autre chose, donc il le dit
     autrement. */
 #modernbb .wmf__moment-image .wmf__cadre:not(:has(img))::before {
-  height: 140px;
+  height: 100%;
   padding: var(--wm-espace-10, 10px);
   content: "une image ou un gif";
 }
 
-/*  L'IMAGE D'UN MOMENT NE DÉPASSE PAS SA COLONNE en hauteur non
-    plus : un gif haut et étroit étirerait la rangée à lui seul. */
+/*  L'IMAGE REMPLIT SON CADRE. `cover` recadre ce qui dépasse plutôt
+    que de déformer : un gif large y perd ses bords, jamais ses
+    proportions. */
 #modernbb .wmf__moment-image .wmf__cadre > img {
-  max-height: 200px;
+  height: 100%;
   object-fit: cover;
 }
 
