@@ -893,18 +893,32 @@
     un champ long — la place qu'occuperait une réponse brève. */
 #modernbb .wmf__champ > y + * {
   display: block;
-  /*  DEUX LIGNES PAR CHAMP, pas une. « Les champs à l'intérieur
-      doivent prendre toute la hauteur et être sur 2 lignes. Ils
-      s'agrandissent si la personne écrit davantage. » — 24 novembre.
+  /*  UNE LIGNE SUR LA FICHE PUBLIÉE, DEUX DANS L'ÉDITEUR.
+
+      « Quand on poste la fiche, y'a beaucoup d'espace dans les champs
+      "informations" et "derrière l'écran". » — 25 novembre. Mesuré
+      sur le sujet 1017 : chaque valeur tenait 45 px pour une ligne de
+      22, soit une vingtaine de pixels de vide répétés dix-neuf fois.
+
+      Les deux lignes du 24 novembre servaient à saisir : il faut une
+      cible à cliquer, et voir d'avance la place qu'on a. Une fois
+      posté, plus personne ne clique — un champ vaut ce qu'il contient,
+      et une ligne de plancher suffit pour qu'un champ vide garde son
+      étiquette et son invite.
+
       `min-height` donne le plancher, rien ne donne de plafond :
       écrire plus pousse le bloc, écrire moins ne le creuse pas. */
-  min-height: 3.3em;
+  min-height: 1.65em;
   margin-top: var(--wm-espace-2, 2px);
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
-#modernbb .wmf__champ[data-long="oui"] > y + * {
+#modernbb .wmf-form__fiche .wmf__champ > y + * {
+  min-height: 3.3em;
+}
+
+#modernbb .wmf-form__fiche .wmf__champ[data-long="oui"] > y + * {
   min-height: 4.95em;
 }
 
