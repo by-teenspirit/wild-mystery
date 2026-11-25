@@ -2146,6 +2146,7 @@ const OUTILS = () => {
     const un = moments[0];
     const date = un.querySelector(".wmf__moment-date").getBoundingClientRect();
     const texte = un.querySelector(".wmf__moment-texte").getBoundingClientRect();
+    const image = un.querySelector(".wmf__moment-image").getBoundingClientRect();
     const barre = un.querySelector(".wmf-form__balises").getBoundingClientRect();
     const rail = getComputedStyle(un, "::before");
     const dernier = getComputedStyle(moments[moments.length - 1], "::before");
@@ -2176,15 +2177,16 @@ const OUTILS = () => {
       //  LA CROIX EST TOUT À DROITE, sur la rangée de la date, et
       //  elle porte un fond : posée à nu, une croix se lit comme un
       //  signe ; dans une pastille, comme quelque chose qu'on presse.
-      //  « CE SERAIT BIEN QUE L'IMAGE OU LE GIF SOIT AUSSI HAUT QUE
-      //  LE BLOC » — 25 novembre. Le cadre est hors flux dans une
-      //  colonne étirée : il ne pèse donc pas sur la hauteur de la
-      //  rangée, il la suit. Sans ça, un gif de six cents pixels
-      //  ferait un moment de six cents pixels pour trois lignes.
-      imageCommeLeTexte: Math.abs(
-        un.querySelector(".wmf__moment-image .wmf__cadre").getBoundingClientRect()
-          .height - texte.height,
-      ) <= 1,
+      //  « UN PETIT RECTANGLE DE LA TAILLE D'UN GIF À GAUCHE, EN
+      //  FLOAT DU TEXTE » — 25 novembre. Trois choses à tenir, et
+      //  aucune ne se lit dans la feuille : l'image flotte, elle est
+      //  À GAUCHE du texte et pas à côté dans une colonne, et elle
+      //  est PETITE — étirée sur la hauteur du bloc, elle recadrait
+      //  un format paysage en lanière.
+      imageFlottante: getComputedStyle(un.querySelector(".wmf__moment-image")).float ===
+        "left",
+      imageAGaucheDuTexte: image.left < texte.left + 4 && image.right <= texte.right,
+      imagePetite: image.height < texte.height,
       croixADroite: croix.left >= texte.right &&
         getComputedStyle(un.querySelector(".wmf-form__croix")).backgroundColor !==
           "rgba(0, 0, 0, 0)",
@@ -2221,9 +2223,14 @@ const OUTILS = () => {
     JSON.stringify(vu.croixADroite),
   );
   dire(
-    "   l'image du moment fait exactement la hauteur de son texte",
-    vu.imageCommeLeTexte === true,
-    JSON.stringify(vu.imageCommeLeTexte),
+    "   l'image du moment flotte à gauche du texte, à sa taille",
+    vu.imageFlottante === true && vu.imageAGaucheDuTexte === true &&
+      vu.imagePetite === true,
+    JSON.stringify({
+      flotte: vu.imageFlottante,
+      aGauche: vu.imageAGaucheDuTexte,
+      petite: vu.imagePetite,
+    }),
   );
 
   //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────

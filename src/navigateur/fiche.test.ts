@@ -11,7 +11,7 @@
 //  renvoyé le message.
 // ════════════════════════════════════════════════════════════════════
 
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import {
   estUneFicheEntiere,
   type Fiche,
@@ -540,6 +540,15 @@ Deno.test("UN MOMENT PORTE SON IMAGE ET SON CRÉDIT, ET SE RELIT", () => {
   //  moment à son image, donc en sauter un les décale tous. C'est la
   //  feuille qui cache le cadre vide sur la fiche publiée.
   assertEquals(publier(f).split("wmf__moment-image").length - 1, 2);
+  //  L'IMAGE VIENT AVANT LE TEXTE, DANS LE MÊME BLOC QUE LUI : c'est
+  //  ce qui permet au texte de l'habiller. Posée après, elle
+  //  flotterait le long du moment SUIVANT, et la feuille n'y pourrait
+  //  rien — l'ordre est ici, pas dans le CSS.
+  const html = publier(f);
+  const corps = html.indexOf(`<div class="wmf__moment-corps">`);
+  assert(corps > -1);
+  assert(html.indexOf(`wmf__moment-image`) > corps);
+  assert(html.indexOf(`wmf__moment-image`) < html.indexOf(`wmf__moment-texte`));
 });
 
 Deno.test("UNE CHRONOLOGIE D'AVANT LE 24 NOVEMBRE SE RELIT ENCORE", () => {

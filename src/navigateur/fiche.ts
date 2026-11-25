@@ -684,7 +684,14 @@ export function publier(f: Fiche, r: Rendu = {}): string {
         .map((m) =>
           `<div class="wmf__moment">` +
           `<div class="wmf__moment-date">${b("m-date", m.date)}</div>` +
-          `<div class="wmf__moment-texte">${b("m-texte", m.texte)}</div>` +
+          //  L'IMAGE EST AVANT LE TEXTE, ET DANS LE MÊME BLOC QUE LUI.
+          //  « Peut-être juste un petit rectangle de la taille d'un
+          //  gif à gauche, en float du texte. » — 25 novembre. Un
+          //  float ne pousse que les LIGNES qui le croisent : pour
+          //  que le texte l'habille, il faut qu'ils partagent un
+          //  contexte, et que l'image vienne en premier. D'où ce
+          //  `corps` : la colonne de l'image a disparu de la grille.
+          `<div class="wmf__moment-corps">` +
           //  L'IMAGE DU MOMENT PASSE PAR LE MÊME CADRE que l'avatar
           //  et la carte : l'adresse dessous, le crédit en tag. Trois
           //  images dans la fiche, une seule façon de les poser.
@@ -701,6 +708,8 @@ export function publier(f: Fiche, r: Rendu = {}): string {
           //  Attrapé par un test, pas sur le forum.
           `<div class="wmf__moment-image">` +
           cadreImage(m.image, "m-image", "m-credit", m.credit, ecrire, false) +
+          `</div>` +
+          `<div class="wmf__moment-texte">${b("m-texte", m.texte)}</div>` +
           `</div>` +
           `</div>`
         )
