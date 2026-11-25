@@ -49,18 +49,13 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { deflateSync } from "node:zlib";
 import { chromium } from "npm:playwright@1.56.0";
-
-const CHROME = [
-  "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
-  "/opt/pw-browsers/chromium/chrome-linux64/chrome",
-].find((c) => {
-  try {
-    readFileSync(c);
-    return true;
-  } catch {
-    return false;
-  }
-});
+//  LA LISTE DE CHEMINS QUI ÉTAIT ÉCRITE ICI EST PARTIE DANS
+//  `chromium.mjs`. C'est la trente-et-unième copie de la même liste,
+//  et elle a fait exactement ce que ce fichier-là annonçait le 23
+//  novembre : figée sur une version de Playwright, elle n'a pas
+//  trouvé le navigateur de la machine, et le harnais du répertoire ne
+//  démarrait plus du tout.
+import { ouvrirChromium } from "./chromium.mjs";
 
 const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
@@ -661,7 +656,7 @@ const regarder = () => {
   };
 };
 
-const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
+const nav = await ouvrirChromium(chromium);
 
 // ════════════════════════════════════════════════════════════════════
 //  0 · CE QUE LE GÉNÉRATEUR DIT
