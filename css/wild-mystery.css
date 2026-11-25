@@ -38620,7 +38620,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf-form__fiche {
   box-sizing: border-box;
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
+  /*  MÊME FOND QUE LA FICHE PUBLIÉE : l'éditeur montre ce qui sera
+      posté, la couleur en fait partie. */
+  background: var(--wm-fond-terre, #f8eae1);
 }
 
 /*  LE TITRE DU SUJET, repris du bloc d'édition qu'on masque. */
@@ -39195,7 +39197,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: var(--wm-espace-24, 24px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
+  /*  « Je préfèrerais avoir un léger fond de couleur pour la
+      présentation, différent du fond blanc de l'affichage des
+      sujets. » — 25 novembre. Le message, lui, est transparent sur le
+      blanc cassé du sujet : la fiche se posait dessus sans se
+      détacher. `terre` la teinte juste assez, et les trois niveaux
+      restent dans le bon ordre — cadre teinté, cartes pâles, panneaux
+      de texte plus chauds. */
+  background: var(--wm-fond-terre, #f8eae1);
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
@@ -39479,7 +39488,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf__histoire-corps {
   max-height: 520px;
-  font-size: var(--wm-taille-message, 16px);
+}
+
+/*  ── LA TAILLE DE LECTURE DES PAVÉS ────────────────────────────────
+
+    « Les blocs histoire, compagnon d'une vie et équipe d'avant me
+    paraissent gros en texte. » — 25 novembre.
+
+    Ils étaient à 16 px parce qu'ils HÉRITAIENT du corps d'un message,
+    que la charte met à 16 exprès pour les pavés de RP. Une fiche n'en
+    est pas un : c'est un formulaire rempli, et ses propres champs
+    sont à 13,5. Le même bloc portait donc deux tailles à trois
+    centimètres d'écart. 14 px les rapproche sans serrer la lecture, et
+    l'interligne généreux de la charte reste.
+
+    Écrit en dur et pas avec `--wm-taille-message` : ce token-là
+    gouverne AUSSI tous les messages du forum, et on ne touche pas à
+    la taille des RP pour régler une fiche. */
+#modernbb .wmf__histoire-corps,
+#modernbb .wmf__moment-texte,
+#modernbb .wmf__rencontre,
+#modernbb .wmf__ancienne {
+  font-size: 14px;
   line-height: var(--wm-interligne-message, 1.75);
 }
 
@@ -39654,10 +39684,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   min-width: 0;
 }
 
-/*  L'IMAGE DU MOMENT TIENT LA TROISIÈME COLONNE. 140 px : assez pour
-    qu'un gif se voie, pas assez pour qu'il prenne le pas sur ce qui
-    est écrit à côté. Elle n'existe que s'il y en a une — la colonne
-    `auto` ne coûte rien quand elle est vide. */
+/*  L'IMAGE DU MOMENT TIENT LA QUATRIÈME COLONNE. Elle n'existe que
+    s'il y en a une — la colonne `auto` ne coûte rien quand elle est
+    vide. */
 /*  ── L'IMAGE EST AUSSI HAUTE QUE LE TEXTE ──────────────────────────
 
     « Ce serait bien que l'image ou le gif soit aussi haut que le bloc
@@ -39674,7 +39703,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   grid-row: 2;
   grid-column: 4;
   align-self: stretch;
-  width: 140px;
+  /*  190 ET PLUS 140 : une fois l'image vraiment étirée sur toute la
+      hauteur du texte, 140 de large pour 320 de haut découpaient une
+      lanière dans un gif au format paysage — on n'y reconnaissait
+      plus rien. 190 laisse voir la scène et laisse encore 270 au
+      texte à côté. */
+  width: 190px;
   min-height: 0;
 }
 
@@ -39794,7 +39828,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__rencontre {
   flex: 1 1 320px;
   min-width: 0;
-  font-size: var(--wm-taille-message, 16px);
 }
 
 /*  CES DEUX-LÀ DÉFILENT AUSSI, et le panneau est sur la VALEUR, pas
@@ -40322,10 +40355,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  ── LE CADRE D'UN MOMENT N'EST PAS CELUI D'UN AVATAR ──────────────
 
-    Il mesure 140 px de large : lui laisser la hauteur d'un portrait
-    de 320 donnerait une colonne deux fois plus haute que le texte
-    qu'elle accompagne. Et il attend autre chose, donc il le dit
-    autrement. */
+    Il suit la hauteur du texte, pas celle d'un portrait : une taille
+    à lui donnerait une colonne plus haute que ce qu'elle accompagne.
+    Et il attend autre chose, donc il le dit autrement. */
 #modernbb .wmf__moment-image .wmf__cadre:not(:has(img))::before {
   height: 100%;
   padding: var(--wm-espace-10, 10px);
@@ -40334,10 +40366,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  L'IMAGE REMPLIT SON CADRE. `cover` recadre ce qui dépasse plutôt
     que de déformer : un gif large y perd ses bords, jamais ses
-    proportions. */
+    proportions.
+
+    `!important` PARCE QUE MODERNBB FORCE `height: auto !important`
+    SUR TOUTE IMAGE DE MESSAGE. Sans ça, `height: 100%` passait à la
+    trappe sans un mot : mesuré sur le sujet 1017, un gif de 540 × 360
+    rendait 140 × 93 collés en haut d'une colonne de 420, le reste
+    vide. C'était ça, le mauvais placement. */
 #modernbb .wmf__moment-image .wmf__cadre > img {
-  height: 100%;
+  height: 100% !important;
   object-fit: cover;
+  object-position: center;
 }
 
 /*  UN MOMENT SANS IMAGE N'A PAS DE COLONNE D'IMAGE, sur la fiche
