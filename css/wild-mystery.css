@@ -40138,6 +40138,35 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
+/*  ── L'ESPÈCE N'A PAS D'ÉTIQUETTE SUR LA FICHE PUBLIÉE ─────────────
+
+    « Dans la fiche, quand on l'affiche, enlève "Choisis ton
+    compagnon" et écris le nom du Pokémon au centre. » — 25 novembre.
+
+    « Choisis ton compagnon » est une CONSIGNE : elle a un sens
+    au-dessus d'un menu déroulant, aucun au-dessus d'un nom déjà
+    choisi. Le nom se range donc sous le sprite, centré comme lui,
+    et c'est la légende de l'image plutôt qu'une troisième ligne de
+    formulaire.
+
+    L'éditeur, lui, garde l'étiquette et l'alignement des deux autres
+    lignes : c'est là qu'on choisit. */
+#modernbb .wmf__espece > y {
+  display: none;
+}
+
+#modernbb .wmf__espece {
+  text-align: center;
+}
+
+#modernbb .wmf-form__fiche .wmf__espece > y {
+  display: block;
+}
+
+#modernbb .wmf-form__fiche .wmf__espece {
+  text-align: left;
+}
+
 /*  ── LE BANDEAU DU BLOC D'INFORMATIONS ─────────────────────────────
 
     Il est DANS la carte, qui défile : sans ça, le titre partirait
