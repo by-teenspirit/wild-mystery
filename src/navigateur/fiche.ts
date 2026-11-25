@@ -129,7 +129,10 @@ export const JOUEUR: readonly Champ[] = [
   },
   { clef: "j-connaissance", etiquette: "D'OÙ NOUS CONNAIS-TU ?" },
   { clef: "j-avis", etiquette: "AVIS SUR LE FORUM", long: true },
-  { clef: "j-credits", etiquette: "CRÉDITS", exemple: "le codage, un kit, une typo" },
+  //  PLUS DE CHAMP « CRÉDITS » LIBRE. « Dans le cadre "derrière
+  //  l'écran", enlève le champ crédits. » — 25 novembre. Les deux
+  //  crédits qui comptent sont attachés à leur image depuis le 24, en
+  //  tag sous le cadre ; celui-ci ne restait que par habitude.
   { clef: "j-credit-avatar", etiquette: "L'AVATAR", exemple: "crédit" },
   { clef: "j-credit-tcard", etiquette: "L'IMAGE CARRÉE", exemple: "crédit" },
   { clef: "j-autre", etiquette: "AUTRE", exemple: "une dernière information ?" },

@@ -86,7 +86,6 @@ const REMPLIE = {
     "j-age": "25",
     "j-avatar": "Florence Pugh",
     "j-credit-avatar": "@quelquun",
-    "j-credits": "codage maison",
   },
 };
 

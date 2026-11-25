@@ -742,7 +742,7 @@ const OUTILS = () => {
     "ancienne",
     "o-avis",
     "j-pseudo",
-    "j-credits",
+    "j-autre",
   ];
   dire(
     "CHAQUE VALEUR A SA ZONE, MÊME VIDE",
