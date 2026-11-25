@@ -1211,11 +1211,37 @@
   content: "";
 }
 
-#modernbb .wmf__moment-image {
+#modernbb .wmf__moment-corps > .wmf__moment-image {
   float: left;
   width: 150px;
   max-width: 45%;
   margin: 2px var(--wm-espace-14, 14px) var(--wm-espace-8, 8px) 0;
+}
+
+/*  ── LES CHRONOLOGIES DÉJÀ POSTÉES N'ONT PAS DE CORPS ──────────────
+
+    UN MESSAGE NE SE RÉÉCRIT PAS. Les fiches postées avant le 25
+    novembre portent la date, le texte et l'image côte à côte dans le
+    moment, sans le bloc qui les réunit — et la feuille, elle, est
+    servie à tout le monde d'un coup. Les régler ici n'est pas une
+    politesse : sans ces trois règles, le texte de toutes les fiches
+    déjà en ligne tombait dans une colonne d'un caractère de large.
+    Constaté sur le sujet 1017, pas prévu.
+
+    L'image y passe SOUS le texte plutôt qu'à côté : à cet endroit du
+    DOM, elle n'a personne à habiller. */
+#modernbb .wmf__moment > .wmf__moment-texte {
+  grid-row: 2;
+  grid-column: 3;
+  min-width: 0;
+}
+
+#modernbb .wmf__moment > .wmf__moment-image {
+  grid-row: 3;
+  grid-column: 3;
+  width: 150px;
+  max-width: 100%;
+  margin-top: var(--wm-espace-8, 8px);
 }
 
 /*  L'IMAGE GARDE SES PROPORTIONS. Plus de `cover` ni de hauteur
@@ -1236,7 +1262,9 @@
   }
 
   #modernbb .wmf__moment-date,
-  #modernbb .wmf__moment-corps {
+  #modernbb .wmf__moment-corps,
+  #modernbb .wmf__moment > .wmf__moment-texte,
+  #modernbb .wmf__moment > .wmf__moment-image {
     grid-column: 2;
   }
 
