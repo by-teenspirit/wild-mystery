@@ -1,0 +1,425 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     Arbre de compétences — à coller dans une page HTML.
+
+     ÉCRITE PAR `outils/arbre.py` depuis `data/arbre.json`. Ne pas
+     corriger ce fichier à la main : la correction serait perdue à la
+     prochaine génération.
+
+     Les cases viennent des sujets t1012 (les médailles) et t855 (les
+     thèmes de missions) : on les range, on ne les réécrit pas.
+
+     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
+     MODE AVANCÉ, et « Utiliser le header et le footer du forum » = NON.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arbre de compétences — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css" />
+</head>
+<body>
+<div id="modernbb">
+    <nav class="wm-retour" aria-label="Retour au forum">
+      <a class="wm-retour__nom" href="/">Wild Mystery</a>
+      <a class="wm-retour__lien" href="/search">Rechercher</a>
+      <a class="wm-retour__lien" href="/memberlist">Membres</a>
+      <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+    </nav>
+
+<div class="wm-annexe">
+  <div class="wm-annexe__corps">
+    <div class="wm-annexe__colonne wm-annexe__colonne--large">
+
+      <p class="wm-annexe__surtitre">La progression</p>
+      <h1 class="wm-annexe__titre">Arbre de compétences</h1>
+      <p class="wm-annexe__chapo">Chaque case est une chose faite, cochée une fois pour toutes. Le tronc est ouvert à tout le monde ; la branche est celle de ta maison. Il faut 5 cases dont 1 de ta branche pour le palier 2, 12 dont 3 pour le 3.</p>
+
+      <div class="wm-arbre" data-wm-arbre>
+    <section class="wm-arbre__bloc">
+      <h2 class="wm-arbre__titre">Liées à la capture de Pokémon</h2>
+      <ol class="wm-arbre__cases" style="--colonnes: 7">
+        <li class="wm-arbre__case" data-wm-case="capture-5" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="pokemon_possedes" data-wm-seuil="5">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Petit collectionneur</h3>
+<p class="wm-arbre__quoi">Posséder 5 Pokémon</p><p class="wm-arbre__gain">100 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-10" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="capture-5" data-wm-mesure="pokemon_possedes" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Collectionneur en herbe</h3>
+<p class="wm-arbre__quoi">Posséder 10 Pokémon</p><p class="wm-arbre__gain">200 Pokédollars + 2 Poké Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-20" data-wm-genre="mesure" data-wm-colonne="2" data-wm-apres="capture-10" data-wm-mesure="pokemon_possedes" data-wm-seuil="20">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Dresseur confirmé</h3>
+<p class="wm-arbre__quoi">Posséder 20 Pokémon</p><p class="wm-arbre__gain">300 Pokédollars + 2 Super Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-50" data-wm-genre="mesure" data-wm-colonne="3" data-wm-apres="capture-20" data-wm-mesure="pokemon_possedes" data-wm-seuil="50">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Grand collectionneur</h3>
+<p class="wm-arbre__quoi">Posséder 50 Pokémon</p><p class="wm-arbre__gain">500 Pokédollars + 3 Super Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-100" data-wm-genre="mesure" data-wm-colonne="4" data-wm-apres="capture-50" data-wm-mesure="pokemon_possedes" data-wm-seuil="100">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Dresseur aguerri</h3>
+<p class="wm-arbre__quoi">Posséder 100 Pokémon</p><p class="wm-arbre__gain">750 Pokédollars + 2 Hyper Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-150" data-wm-genre="mesure" data-wm-colonne="5" data-wm-apres="capture-100" data-wm-mesure="pokemon_possedes" data-wm-seuil="150">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Encyclopédie vivante</h3>
+<p class="wm-arbre__quoi">Posséder 150 Pokémon</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="capture-200" data-wm-genre="mesure" data-wm-colonne="6" data-wm-apres="capture-150" data-wm-mesure="pokemon_possedes" data-wm-seuil="200">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Maître collectionneur</h3>
+<p class="wm-arbre__quoi">Posséder 200 Pokémon</p><p class="wm-arbre__gain">1500 000 Pokédollars + 2 Master Ball</p>        </li>
+      </ol>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="equipe-complete" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="equipe" data-wm-seuil="6">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Famille nombreuse</h3>
+<p class="wm-arbre__quoi">Avoir son équipe au complet</p><p class="wm-arbre__gain">200 Pokédollars + 2 Potions</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="favoritisme" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="equipe_un_type" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Favoritisme</h3>
+<p class="wm-arbre__quoi">Avoir une équipe composée uniquement de Pokémon du même type (les doubles types sont acceptés)</p><p class="wm-arbre__gain">300 Pokédollars + 1 pierre d’évolution du type concerné</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="diversite" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="types_captures" data-wm-seuil="18">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">La diversité fait la force</h3>
+<p class="wm-arbre__quoi">Avoir attrapé au moins un Pokémon de chaque type connu</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-eleve" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_normal" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Élève</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Normal</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Ovale</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-karateka" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_combat" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Karatéka</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Combat</p><p class="wm-arbre__gain">150 Pokédollars + 1 Poing Chance</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-ornithologue" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_vol" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Ornithologue</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Vol</p><p class="wm-arbre__gain">150 Pokédollars + 1 Bec Pointu</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-vaurienne" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_poison" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Vaurienne</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Poison</p><p class="wm-arbre__gain">150 Pokédollars + 1 Tissu Fauche</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-archeologue" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_sol" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Archéologue</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Sol</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Soleil</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-montagnard" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_roche" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Montagnard</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Roche</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Dure</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-scout" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_insecte" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Scout</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Insecte</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Stase</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-mystimaniac" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_spectre" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Mystimaniac</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Spectre</p><p class="wm-arbre__gain">150 Pokédollars + 1 Tissu Fauche</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-controleur" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_acier" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Contrôleur</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Acier</p><p class="wm-arbre__gain">150 Pokédollars + 1 Peau Métal</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-saltimbanque" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_feu" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Saltimbanque</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Feu</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Feu</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-nageur" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_eau" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Nageur</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Eau</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Eau</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-jardinier" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_plante" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Jardinier</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Plante</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Plante</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-rockeur" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_électrik" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Rockeur</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Électrik</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Foudre</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-kinesiste" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_psy" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Kinésiste</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Psy</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Éclat</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-dracologue" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_dragon" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Dracologue</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Dragon</p><p class="wm-arbre__gain">150 Pokédollars + 1 Écaille Draco</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="type-fillette" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="captures_type_fée" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Fillette</h3>
+<p class="wm-arbre__quoi">Avoir attrapé 10 Pokémon de type Fée</p><p class="wm-arbre__gain">150 Pokédollars + 1 Pierre Lune</p>        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc">
+      <h2 class="wm-arbre__titre">Liées à la progression</h2>
+      <ol class="wm-arbre__cases" style="--colonnes: 5">
+        <li class="wm-arbre__case" data-wm-case="niveau-15" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="trois_au_niveau" data-wm-seuil="15">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Premiers pas</h3>
+<p class="wm-arbre__quoi">Posséder 3 Pokémon de niveau 15 ou plus</p><p class="wm-arbre__gain">150 Pokédollars + 2 Potions</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="niveau-20" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="niveau-15" data-wm-mesure="trois_au_niveau" data-wm-seuil="20">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Ça va chauffer</h3>
+<p class="wm-arbre__quoi">Posséder 3 Pokémon de niveau 20 ou plus</p><p class="wm-arbre__gain">200 Pokédollars + 2 Super Potions</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="niveau-30" data-wm-genre="mesure" data-wm-colonne="2" data-wm-apres="niveau-20" data-wm-mesure="trois_au_niveau" data-wm-seuil="30">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Dresseur expérimenté</h3>
+<p class="wm-arbre__quoi">Posséder 3 Pokémon de niveau 30 ou plus</p><p class="wm-arbre__gain">300 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="niveau-40" data-wm-genre="mesure" data-wm-colonne="3" data-wm-apres="niveau-30" data-wm-mesure="trois_au_niveau" data-wm-seuil="40">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">La force tranquille</h3>
+<p class="wm-arbre__quoi">Posséder 3 Pokémon de niveau 40 ou plus</p><p class="wm-arbre__gain">400 Pokédollars + 2 Hyper Potions</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="niveau-50" data-wm-genre="mesure" data-wm-colonne="4" data-wm-apres="niveau-40" data-wm-mesure="trois_au_niveau" data-wm-seuil="50">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Au sommet</h3>
+<p class="wm-arbre__quoi">Posséder 3 Pokémon de niveau 50 ou plus</p><p class="wm-arbre__gain">500 Pokédollars + 2 Super Bonbons</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="equipe-40" data-wm-genre="mesure" data-wm-colonne="4" data-wm-apres="niveau-40" data-wm-mesure="six_au_niveau" data-wm-seuil="40">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Équipe de choc</h3>
+<p class="wm-arbre__quoi">Posséder 6 Pokémon de niveau 40 ou plus</p><p class="wm-arbre__gain">750 Pokédollars + 2 Supers Bonbons</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="badge-1" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="badges" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Première victoire</h3>
+<p class="wm-arbre__quoi">Obtenir son premier badge d&#x27;arène</p><p class="wm-arbre__gain">200 Pokédollars + 1 Rappel</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="badge-3" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="badge-1" data-wm-mesure="badges" data-wm-seuil="3">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Combattant aguerri</h3>
+<p class="wm-arbre__quoi">Avoir obtenu son troisième badge d&#x27;arène</p><p class="wm-arbre__gain">400 Pokédollars + 1 Super Bonbon + 1 Super Potion</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="badge-5" data-wm-genre="mesure" data-wm-colonne="2" data-wm-apres="badge-3" data-wm-mesure="badges" data-wm-seuil="5">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Esprit compétitif</h3>
+<p class="wm-arbre__quoi">Avoir obtenu son cinquième badge d&#x27;arène</p><p class="wm-arbre__gain">600 Pokédollars + 2 Super Bonbons</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="badge-tous" data-wm-genre="mesure" data-wm-colonne="3" data-wm-apres="badge-5" data-wm-mesure="badges" data-wm-seuil="11">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Top dresseur</h3>
+<p class="wm-arbre__quoi">Avoir obtenu tous les badges d&#x27;arène</p><p class="wm-arbre__gain">1 500 Pokédollars + 1 CT au choix</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="ligue" data-wm-genre="mesure" data-wm-colonne="4" data-wm-apres="badge-tous" data-wm-mesure="ligue" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Champion de Rhode</h3>
+<p class="wm-arbre__quoi">Avoir vaincu la Ligue</p><p class="wm-arbre__gain">2 500 Pokédollars + 1 objet rare au choix</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="zones-faciles" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="zones_palier_1" data-wm-seuil="6">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Voyageur en herbe</h3>
+<p class="wm-arbre__quoi">Avoir visité toutes les zones faciles de la région</p><p class="wm-arbre__gain">200 Pokédollars + 5 Poké Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="zones-moyennes" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="zones-faciles" data-wm-mesure="zones_palier_2" data-wm-seuil="6">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Voyageur aguerri</h3>
+<p class="wm-arbre__quoi">Avoir visité toutes les zones moyennes de la région</p><p class="wm-arbre__gain">400 Pokédollars + 5 Super Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="zones-sauvages" data-wm-genre="mesure" data-wm-colonne="2" data-wm-apres="zones-moyennes" data-wm-mesure="zones_palier_3" data-wm-seuil="5">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Grand explorateur</h3>
+<p class="wm-arbre__quoi">Avoir visité toutes les zones sauvages de la région</p><p class="wm-arbre__gain">750 Pokédollars + 2 Hyper Ball</p>        </li>
+      </ol>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="ascension" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="niveaux_gagnes" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Ascension fulgurante</h3>
+<p class="wm-arbre__quoi">Avoir fait gagner plus de 10 niveaux à un seul et même Pokémon</p><p class="wm-arbre__gain">500 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="evoli" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="evolutions_evoli" data-wm-seuil="8">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Le maître des évolutions</h3>
+<p class="wm-arbre__quoi">Posséder toutes les évolutions d&#x27;Évoli</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 Pierre évolutive au choix</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="dernier-stade" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="dernier_stade" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Le plein potentiel</h3>
+<p class="wm-arbre__quoi">Faire évoluer un Pokémon jusqu&#x27;à son dernier stade évolutif (ne compte que jusqu&#x27;au troisième stade)</p><p class="wm-arbre__gain">300 Pokédollars + 1 Pierre évolutive au choix</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="bonheur" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="evolution_bonheur" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">L&#x27;amour nous guidera</h3>
+<p class="wm-arbre__quoi">Faire évoluer un Pokémon grâce au bonheur</p><p class="wm-arbre__gain">500 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="villes" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="villes" data-wm-seuil="7">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Rhode n&#x27;a plus de secrets</h3>
+<p class="wm-arbre__quoi">Avoir visité toutes les villes de la région en RP</p><p class="wm-arbre__gain">1 000 Pokédollars</p>        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc">
+      <h2 class="wm-arbre__titre">Liées aux RPs</h2>
+      <p class="wm-arbre__note">ne concernent pas les RPs solos et des réponses de plus de 300 mots</p>
+      <ol class="wm-arbre__cases" style="--colonnes: 4">
+        <li class="wm-arbre__case" data-wm-case="rp-10" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="rp_postes" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Premiers mots</h3>
+<p class="wm-arbre__quoi">Avoir posté 10 RP</p><p class="wm-arbre__gain">200 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="rp-20" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="rp-10" data-wm-mesure="rp_postes" data-wm-seuil="20">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Plume débutante</h3>
+<p class="wm-arbre__quoi">Avoir posté 20 RP</p><p class="wm-arbre__gain">400 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="rp-50" data-wm-genre="mesure" data-wm-colonne="2" data-wm-apres="rp-20" data-wm-mesure="rp_postes" data-wm-seuil="50">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Plume confirmée</h3>
+<p class="wm-arbre__quoi">Avoir posté 50 RP</p><p class="wm-arbre__gain">600 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="rp-100" data-wm-genre="mesure" data-wm-colonne="3" data-wm-apres="rp-50" data-wm-mesure="rp_postes" data-wm-seuil="100">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Écrivain passionné</h3>
+<p class="wm-arbre__quoi">Avoir posté 100 RP</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="partenaires-5" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="partenaires" data-wm-seuil="5">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Premières rencontres</h3>
+<p class="wm-arbre__quoi">Avoir fait un RP avec cinq membres différents</p><p class="wm-arbre__gain">250 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="partenaires-10" data-wm-genre="mesure" data-wm-colonne="1" data-wm-apres="partenaires-5" data-wm-mesure="partenaires" data-wm-seuil="10">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Toujours plus d&#x27;amis</h3>
+<p class="wm-arbre__quoi">Avoir fait un RP avec dix membres différents</p><p class="wm-arbre__gain">500 Pokédollars + 2 Super Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="event-1" data-wm-genre="staff" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Constaté par le staff — rien ne le compte.">à la main</p>
+          <h3 class="wm-arbre__nom">Engagé dans la vie active</h3>
+<p class="wm-arbre__quoi">Participer à son premier événement officiel du forum</p><p class="wm-arbre__gain">300 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="event-3" data-wm-genre="staff" data-wm-colonne="1" data-wm-apres="event-1">
+          <p class="wm-arbre__genre" title="Constaté par le staff — rien ne le compte.">à la main</p>
+          <h3 class="wm-arbre__nom">Toujours de la partie</h3>
+<p class="wm-arbre__quoi">Avoir participé à trois événements officiels du forum</p><p class="wm-arbre__gain">600 Pokédollars + 1 objet exclusif d&#x27;événement</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="event-10" data-wm-genre="staff" data-wm-colonne="2" data-wm-apres="event-3">
+          <p class="wm-arbre__genre" title="Constaté par le staff — rien ne le compte.">à la main</p>
+          <h3 class="wm-arbre__nom">Fidèle au rendez-vous</h3>
+<p class="wm-arbre__quoi">Avoir participé à dix événements officiels du forum</p><p class="wm-arbre__gain">1 500 Pokédollars + 1 pierre d’évolution au choix</p>        </li>
+      </ol>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="rp-5-en-cours" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="rp_ouverts" data-wm-seuil="5">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Toujours inspiré</h3>
+<p class="wm-arbre__quoi">Participer à 5 RPs en même temps</p><p class="wm-arbre__gain">250 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="rp-30-min" data-wm-genre="forum" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="La réponse est côté forum, et rien ne la lit encore.">pas encore</p>
+          <h3 class="wm-arbre__nom">Plus rapide que l&#x27;éclair</h3>
+<p class="wm-arbre__quoi">Répondre à un RP en moins de 30 minutes</p><p class="wm-arbre__gain">200 Pokédollars + 1 Poké Ball</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="rp-5-jour" data-wm-genre="forum" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="La réponse est côté forum, et rien ne la lit encore.">pas encore</p>
+          <h3 class="wm-arbre__nom">Infatigable</h3>
+<p class="wm-arbre__quoi">Poster 5 RPs de plus de 500 mots dans la même journée</p><p class="wm-arbre__gain">500 Pokédollars + 1 Super Bonbon</p>        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc">
+      <h2 class="wm-arbre__titre">Médailles spéciales</h2>
+      <ol class="wm-arbre__cases" style="--colonnes: 3">
+        <li class="wm-arbre__case" data-wm-case="messages-300" data-wm-genre="forum" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="La réponse est côté forum, et rien ne la lit encore.">pas encore</p>
+          <h3 class="wm-arbre__nom">Pipelette</h3>
+<p class="wm-arbre__quoi">Avoir posté plus de 300 messages sur le forum</p><p class="wm-arbre__gain">200 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="messages-500" data-wm-genre="forum" data-wm-colonne="1" data-wm-apres="messages-300">
+          <p class="wm-arbre__genre" title="La réponse est côté forum, et rien ne la lit encore.">pas encore</p>
+          <h3 class="wm-arbre__nom">Accro du clavier</h3>
+<p class="wm-arbre__quoi">Avoir posté plus de 500 messages sur le forum</p><p class="wm-arbre__gain">400 Pokédollars + 5 Poké Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="messages-1000" data-wm-genre="forum" data-wm-colonne="2" data-wm-apres="messages-500">
+          <p class="wm-arbre__genre" title="La réponse est côté forum, et rien ne la lit encore.">pas encore</p>
+          <h3 class="wm-arbre__nom">Vétéran de Rhode</h3>
+<p class="wm-arbre__quoi">Avoir posté plus de 1 000 messages sur le forum</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 objet au choix de la boutique pokemon</p>        </li>
+      </ol>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="chromatique" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="chromatiques" data-wm-seuil="1">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Chance insolente</h3>
+<p class="wm-arbre__quoi">Capturer son tout premier Pokémon chromatique</p><p class="wm-arbre__gain">500 Pokédollars + 5 Poké Balls</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="six-types" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="types_en_equipe" data-wm-seuil="6">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Équipe atypique</h3>
+<p class="wm-arbre__quoi">Avoir une équipe composée de six types différents</p><p class="wm-arbre__gain">500 Pokédollars + 1 Super Bonbon</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="legendaire" data-wm-genre="staff" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Constaté par le staff — rien ne le compte.">à la main</p>
+          <h3 class="wm-arbre__nom">La Légende de Rhode</h3>
+<p class="wm-arbre__quoi">Avoir vu un Pokémon légendaire au cours d&#x27;un événement</p><p class="wm-arbre__gain">300 Pokédollars</p>        </li>
+        <li class="wm-arbre__case" data-wm-case="vingt-medailles" data-wm-genre="mesure" data-wm-colonne="0" data-wm-mesure="medailles" data-wm-seuil="20">
+          <p class="wm-arbre__genre" title="La partie compte toute seule.">compté</p>
+          <h3 class="wm-arbre__nom">Légende vivante</h3>
+<p class="wm-arbre__quoi">Avoir obtenu plus de 20 médailles</p><p class="wm-arbre__gain">1 000 Pokédollars + 1 Rappel</p>        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Brave · Cresselia</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="brave-duo" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Combattre à deux contre un duo maléfique</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="brave-pnj" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Entraîner son équipe complète contre un PNJ</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="brave-defi" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Participer à un défi de la rue contre un autre membre pour un combat</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="brave-obscur" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Capturer un Pokémon Obscur pour le Prof. Syrus</h3>
+        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Hardi · Keldeo</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="hardi-niveau" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Faire gagner un LVL à son pokemon durant un rp</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="hardi-trois" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Capturer trois pokemon d&#x27;un même type dans un rp</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="hardi-pyrite" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.</h3>
+        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Sérieux · Créhelf</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="serieux-chromatique" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Trouver un pokemon chromatique</h3>
+        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Doux · Shaymin</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="doux-couple" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Trouver un pokemon femelle et mâle du même type pour un éleveur</h3>
+        </li>
+        <li class="wm-arbre__case" data-wm-case="doux-identique" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Capturer un couple de Pokemon identique</h3>
+        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Malin · Hoopa</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="malin-ko" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture</h3>
+        </li>
+      </ul>
+    </section>
+    <section class="wm-arbre__bloc wm-arbre__bloc--branche">
+      <h2 class="wm-arbre__titre">Jovial · Celebi</h2>
+      <ul class="wm-arbre__libres">
+        <li class="wm-arbre__case" data-wm-case="jovial-fillette" data-wm-genre="mission" data-wm-colonne="0">
+          <p class="wm-arbre__genre" title="Une mission à jouer, validée par le staff.">mission</p>
+          <h3 class="wm-arbre__nom">Aider une petite fille à retrouver son pokemon dans un rp</h3>
+        </li>
+      </ul>
+    </section>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <footer class="wm-pied-annexe">
+      Wild Mystery — forum créé avec
+      <a href="https://www.forumactif.com/">Forumactif</a>
+    </footer>
+</div>
+<script src="https://by-teenspirit.github.io/wild-mystery/js/annexes.js"></script>
+</body>
+</html>

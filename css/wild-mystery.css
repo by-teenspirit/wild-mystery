@@ -38,6 +38,7 @@
      · css/30-messagerie.css
      · css/31-qui-est-en-ligne.css
      · css/32-la-fiche-de-presentation.css
+     · css/33-arbre.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -40516,5 +40517,240 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-normal, 13.5px);
   letter-spacing: normal;
   text-transform: none;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    33 · L'ARBRE DE COMPÉTENCES
+
+    « Est-ce que tu peux proposer un espèce d'arbre de compétences avec
+    les missions et le coder ? » — 25 novembre 2026.
+
+    ── CE QUI FAIT UN ARBRE PLUTÔT QU'UNE LISTE ──────────────────────
+
+    LA COLONNE. Une case qui en attend une autre est posée plus loin,
+    et le filet qui la relie part de la colonne d'avant. « Posséder 50
+    pokémon » n'a de sens qu'après « 20 » : on doit le voir sans lire.
+
+    La colonne est calculée par le générateur depuis les prérequis et
+    posée en attribut ; la feuille ne fait que la rendre. Une chaîne de
+    sept médailles donne sept colonnes, et c'est la grille qui défile,
+    pas la page.
+
+    ── LES QUATRE ÉTATS ──────────────────────────────────────────────
+
+    `acquis` · `a-portee` · `verrouille` · `hors-jeu`. Ils sont posés
+    par le script sur une joueuse connectée. SANS SCRIPT, AUCUN N'EST
+    POSÉ et toutes les cases s'affichent pareil — c'est l'état par
+    défaut de la feuille, et c'est voulu : la page est d'abord une
+    liste à lire.
+
+    `hors-jeu` est le seul qui s'affiche sans joueuse, parce qu'il ne
+    dépend de personne : une médaille que rien ne sait compter est
+    hors-jeu pour tout le monde. Elle se lit quand même — Callista l'a
+    écrite — mais elle le dit.
+    ══════════════════════════════════════════════════════════════════ */
+
+#modernbb .wm-arbre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-32, 32px);
+}
+
+#modernbb .wm-arbre__bloc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-arbre__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: 600;
+}
+
+/*  LA BRANCHE SE DISTINGUE DU TRONC, et par un filet à gauche plutôt
+    que par une couleur : les six maisons ont déjà la leur, et deux
+    codes couleur sur la même page s'annulent. */
+#modernbb .wm-arbre__bloc--branche > .wm-arbre__titre::before {
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  margin-right: var(--wm-espace-8, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  content: "";
+  vertical-align: middle;
+}
+
+#modernbb .wm-arbre__note {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: italic;
+}
+
+/*  ── LA GRILLE ─────────────────────────────────────────────────────
+
+    Une colonne par profondeur, et chaque case se place dans la sienne.
+    `grid-auto-flow: dense` serre les trous qu'une chaîne longue laisse
+    à côté d'une chaîne courte, sinon la famille des captures ferait
+    une diagonale de vide sur toute sa hauteur.
+
+    LA GRILLE DÉFILE, PAS LA PAGE : sept colonnes de 200 px ne tiennent
+    pas dans un forum de 760, et élargir la page pour une seule famille
+    casserait toutes les autres. */
+#modernbb .wm-arbre__cases {
+  display: grid;
+  grid-auto-flow: dense;
+  grid-template-columns: repeat(var(--colonnes, 1), minmax(190px, 1fr));
+  gap: var(--wm-espace-10, 10px);
+  margin: 0;
+  padding: 0 0 var(--wm-espace-6, 6px);
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-color: var(--wm-bord-net, #d9c3b1) transparent;
+  scrollbar-width: thin;
+}
+
+/*  LES CASES LIBRES NE SONT PAS UNE CHAÎNE. Dix-huit médailles de type
+    qui ne s'attendent pas entre elles n'ont pas de profondeur : elles
+    se rangent comme une liste, autant par rangée que la largeur en
+    accepte. Mesuré au premier rendu, où elles faisaient dix-huit
+    rangées d'une seule case et une colonne de vide à côté. */
+#modernbb .wm-arbre__libres {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--wm-espace-10, 10px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-arbre__case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LA COLONNE NE VAUT QUE DANS UNE CHAÎNE. Écrites sans le
+    `.wm-arbre__cases` devant, ces sept règles rangeaient AUSSI les
+    cases libres — toutes en profondeur zéro, donc toutes en colonne 1,
+    donc une colonne de dix-huit médailles de type et trois quarts de
+    page vides à côté. Vu au rendu, pas en relisant. */
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="0"] { grid-column: 1 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="1"] { grid-column: 2 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="2"] { grid-column: 3 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="3"] { grid-column: 4 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="4"] { grid-column: 5 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="5"] { grid-column: 6 }
+#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="6"] { grid-column: 7 }
+
+/*  LE FILET DE LIAISON part du bord gauche d'une case qui en attend
+    une autre et va chercher la colonne d'avant. Il est décoratif :
+    l'information est dans `data-wm-apres`, et un lecteur d'écran
+    n'annonce pas un trait. */
+#modernbb .wm-arbre__case[data-wm-apres]::before {
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--wm-espace-10, 10px) - 1px);
+  width: var(--wm-espace-10, 10px);
+  height: 1px;
+  background: var(--wm-bord-net, #d9c3b1);
+  content: "";
+}
+
+#modernbb .wm-arbre__genre {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-arbre__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: 600;
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-arbre__quoi {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-arbre__gain {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-legende, 10.5px);
+}
+
+/*  ── LES ÉTATS ─────────────────────────────────────────────────────
+
+    Posés par le script. AUCUNE DIFFÉRENCE N'EST PORTÉE PAR LA SEULE
+    COULEUR : l'acquis prend un fond plein ET une puce, le verrouillé
+    perd du contraste ET gagne un cadenas. Une page où le vert et le
+    gris disent tout est illisible pour qui ne distingue pas les deux. */
+#modernbb .wm-arbre__case[data-wm-etat="acquis"] {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-arbre__case[data-wm-etat="acquis"] > .wm-arbre__genre::after {
+  margin-left: var(--wm-espace-6, 6px);
+  color: var(--wm-accent-primaire, #275e7a);
+  content: "✓ acquis";
+}
+
+#modernbb .wm-arbre__case[data-wm-etat="a-portee"] {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  border-style: dashed;
+}
+
+#modernbb .wm-arbre__case[data-wm-etat="verrouille"],
+#modernbb .wm-arbre__case[data-wm-genre="forum"],
+#modernbb .wm-arbre__case[data-wm-genre="staff"] {
+  background: none;
+}
+
+#modernbb .wm-arbre__case[data-wm-etat="verrouille"] > .wm-arbre__nom,
+#modernbb .wm-arbre__case[data-wm-etat="verrouille"] > .wm-arbre__quoi {
+  color: var(--wm-texte-pale, #69564c);
+}
+
+/*  ── SOUS 760 PX ───────────────────────────────────────────────────
+
+    Une seule colonne, et le filet disparaît avec elle : un trait
+    horizontal vers une case qui est maintenant au-dessus désignerait
+    le vide. L'ordre de lecture, lui, reste celui des prérequis — le
+    générateur écrit déjà les cases dans cet ordre. */
+@media (max-width: 760px) {
+  #modernbb .wm-arbre__cases {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /*  LE PARENT EST RÉPÉTÉ ICI, et ce n'est pas du zèle. Écrite
+      `#modernbb .wm-arbre__case[data-wm-colonne]`, cette règle est
+      MOINS spécifique que les sept d'au-dessus, qui portent
+      `.wm-arbre__cases >` en plus — et une requête de média ne change
+      rien à la spécificité. Les sept colonnes tenaient donc à 390 px.
+      Mesuré par le harnais, pas vu en relisant. */
+  #modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne] {
+    grid-column: 1;
+  }
+
+  #modernbb .wm-arbre__case[data-wm-apres]::before {
+    display: none;
+  }
 }
 

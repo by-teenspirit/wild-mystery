@@ -1,0 +1,862 @@
+{
+  "_": "L'ARBRE DE COMPÉTENCES. Les nœuds ne sont pas inventés : ce sont les médailles du sujet t1012 et les thèmes de missions du sujet t855, relevés le 25 novembre et recopiés MOT POUR MOT — titres, conditions et récompenses. Ce fichier n'apporte que la STRUCTURE : à quelle famille un nœud appartient, ce qu'il faut avoir fait avant lui, et ce que la base sait compter pour l'allumer. Demandé le 25 novembre : « est-ce que tu peux proposer un espèce d'arbre de compétences avec les missions et le coder ? »",
+  "_genres": "TROIS GENRES, ET LA DIFFÉRENCE EST CELLE DE QUI PEUT ALLUMER LA CASE. `mesure` : la base sait compter, la relève allume toute seule. `forum` : la réponse est côté Forumactif (nombre de messages, délai de réponse) et personne ne la lit encore — la case existe, elle ne s'allume pas. `staff` : un humain constate (les événements, un légendaire vu). AUCUNE CASE `forum` OU `staff` N'EST COMPTÉE DANS LE PALIER tant que rien ne sait l'allumer : une condition que le jeu ne peut pas remplir est pire qu'une case absente.",
+  "_mesures": "Les mesures nommées ici sont des PROMESSES, pas du code : elles disent ce que le SQL devra savoir compter. Celles qui existent déjà en base : badges, zones visitées, chromatiques, pokémon possédés, types en équipe. Les autres (niveaux, évolutions, RP postés, partenaires, villes, ligue) demandent soit une requête neuve, soit une donnée que personne n'écrit encore. Le détail est dans la planche 110.",
+  "_branches": "LES MISSIONS VIENNENT DE t855 ET ELLES SONT INÉGALEMENT RÉPARTIES — quatre pour un groupe, une pour trois autres, et trois groupes dont le sujet dit seulement « LES MISSIONS ICI ». Les textes sont de Callista, recopiés tels quels ; LE RANGEMENT PAR MAISON EST UNE PROPOSITION, parce que les six groupes de la V1 (Ho-Oh, Reshiram, Deoxys, Xerneas, Zamazenta, Mew) ne portent pas les noms des six maisons de la V2. Une branche vide reste vide : écrire des missions à la place de Callista serait pire que de montrer le trou.",
+  "_palier": "Le palier se lit sur le NOMBRE DE CASES ALLUMÉES, pas sur un total de points. Palier 2 à cinq cases dont une de sa branche, palier 3 à douze dont trois. Les seuils sont dans `palier` ci-dessous ; le barème qui fait foi reste en SQL (migration 0018), et ces deux-là doivent s'accorder — un contrat le vérifiera.",
+  "palier": {
+    "2": {
+      "cases": 5,
+      "deSaBranche": 1
+    },
+    "3": {
+      "cases": 12,
+      "deSaBranche": 3
+    }
+  },
+  "familles": [
+    {
+      "clef": "capture",
+      "titre": "Liées à la capture de Pokémon",
+      "noeuds": [
+        {
+          "clef": "capture-5",
+          "titre": "Petit collectionneur",
+          "condition": "Posséder 5 Pokémon",
+          "recompense": "100 Pokédollars",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 5,
+          "apres": []
+        },
+        {
+          "clef": "capture-10",
+          "titre": "Collectionneur en herbe",
+          "condition": "Posséder 10 Pokémon",
+          "recompense": "200 Pokédollars + 2 Poké Balls",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 10,
+          "apres": [
+            "capture-5"
+          ]
+        },
+        {
+          "clef": "capture-20",
+          "titre": "Dresseur confirmé",
+          "condition": "Posséder 20 Pokémon",
+          "recompense": "300 Pokédollars + 2 Super Balls",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 20,
+          "apres": [
+            "capture-10"
+          ]
+        },
+        {
+          "clef": "capture-50",
+          "titre": "Grand collectionneur",
+          "condition": "Posséder 50 Pokémon",
+          "recompense": "500 Pokédollars + 3 Super Balls",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 50,
+          "apres": [
+            "capture-20"
+          ]
+        },
+        {
+          "clef": "capture-100",
+          "titre": "Dresseur aguerri",
+          "condition": "Posséder 100 Pokémon",
+          "recompense": "750 Pokédollars + 2 Hyper Balls",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 100,
+          "apres": [
+            "capture-50"
+          ]
+        },
+        {
+          "clef": "capture-150",
+          "titre": "Encyclopédie vivante",
+          "condition": "Posséder 150 Pokémon",
+          "recompense": "1 000 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 150,
+          "apres": [
+            "capture-100"
+          ]
+        },
+        {
+          "clef": "capture-200",
+          "titre": "Maître collectionneur",
+          "condition": "Posséder 200 Pokémon",
+          "recompense": "1500 000 Pokédollars + 2 Master Ball",
+          "genre": "mesure",
+          "mesure": "pokemon_possedes",
+          "seuil": 200,
+          "apres": [
+            "capture-150"
+          ]
+        },
+        {
+          "clef": "equipe-complete",
+          "titre": "Famille nombreuse",
+          "condition": "Avoir son équipe au complet",
+          "recompense": "200 Pokédollars + 2 Potions",
+          "genre": "mesure",
+          "mesure": "equipe",
+          "seuil": 6,
+          "apres": []
+        },
+        {
+          "clef": "favoritisme",
+          "titre": "Favoritisme",
+          "condition": "Avoir une équipe composée uniquement de Pokémon du même type (les doubles types sont acceptés)",
+          "recompense": "300 Pokédollars + 1 pierre d’évolution du type concerné",
+          "genre": "mesure",
+          "mesure": "equipe_un_type",
+          "seuil": 1,
+          "apres": []
+        },
+        {
+          "clef": "diversite",
+          "titre": "La diversité fait la force",
+          "condition": "Avoir attrapé au moins un Pokémon de chaque type connu",
+          "recompense": "1 000 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "types_captures",
+          "seuil": 18,
+          "apres": []
+        },
+        {
+          "clef": "type-eleve",
+          "titre": "Élève",
+          "condition": "Avoir attrapé 10 Pokémon de type Normal",
+          "recompense": "150 Pokédollars + 1 Pierre Ovale",
+          "genre": "mesure",
+          "mesure": "captures_type_normal",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-karateka",
+          "titre": "Karatéka",
+          "condition": "Avoir attrapé 10 Pokémon de type Combat",
+          "recompense": "150 Pokédollars + 1 Poing Chance",
+          "genre": "mesure",
+          "mesure": "captures_type_combat",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-ornithologue",
+          "titre": "Ornithologue",
+          "condition": "Avoir attrapé 10 Pokémon de type Vol",
+          "recompense": "150 Pokédollars + 1 Bec Pointu",
+          "genre": "mesure",
+          "mesure": "captures_type_vol",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-vaurienne",
+          "titre": "Vaurienne",
+          "condition": "Avoir attrapé 10 Pokémon de type Poison",
+          "recompense": "150 Pokédollars + 1 Tissu Fauche",
+          "genre": "mesure",
+          "mesure": "captures_type_poison",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-archeologue",
+          "titre": "Archéologue",
+          "condition": "Avoir attrapé 10 Pokémon de type Sol",
+          "recompense": "150 Pokédollars + 1 Pierre Soleil",
+          "genre": "mesure",
+          "mesure": "captures_type_sol",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-montagnard",
+          "titre": "Montagnard",
+          "condition": "Avoir attrapé 10 Pokémon de type Roche",
+          "recompense": "150 Pokédollars + 1 Pierre Dure",
+          "genre": "mesure",
+          "mesure": "captures_type_roche",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-scout",
+          "titre": "Scout",
+          "condition": "Avoir attrapé 10 Pokémon de type Insecte",
+          "recompense": "150 Pokédollars + 1 Pierre Stase",
+          "genre": "mesure",
+          "mesure": "captures_type_insecte",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-mystimaniac",
+          "titre": "Mystimaniac",
+          "condition": "Avoir attrapé 10 Pokémon de type Spectre",
+          "recompense": "150 Pokédollars + 1 Tissu Fauche",
+          "genre": "mesure",
+          "mesure": "captures_type_spectre",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-controleur",
+          "titre": "Contrôleur",
+          "condition": "Avoir attrapé 10 Pokémon de type Acier",
+          "recompense": "150 Pokédollars + 1 Peau Métal",
+          "genre": "mesure",
+          "mesure": "captures_type_acier",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-saltimbanque",
+          "titre": "Saltimbanque",
+          "condition": "Avoir attrapé 10 Pokémon de type Feu",
+          "recompense": "150 Pokédollars + 1 Pierre Feu",
+          "genre": "mesure",
+          "mesure": "captures_type_feu",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-nageur",
+          "titre": "Nageur",
+          "condition": "Avoir attrapé 10 Pokémon de type Eau",
+          "recompense": "150 Pokédollars + 1 Pierre Eau",
+          "genre": "mesure",
+          "mesure": "captures_type_eau",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-jardinier",
+          "titre": "Jardinier",
+          "condition": "Avoir attrapé 10 Pokémon de type Plante",
+          "recompense": "150 Pokédollars + 1 Pierre Plante",
+          "genre": "mesure",
+          "mesure": "captures_type_plante",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-rockeur",
+          "titre": "Rockeur",
+          "condition": "Avoir attrapé 10 Pokémon de type Électrik",
+          "recompense": "150 Pokédollars + 1 Pierre Foudre",
+          "genre": "mesure",
+          "mesure": "captures_type_électrik",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-kinesiste",
+          "titre": "Kinésiste",
+          "condition": "Avoir attrapé 10 Pokémon de type Psy",
+          "recompense": "150 Pokédollars + 1 Pierre Éclat",
+          "genre": "mesure",
+          "mesure": "captures_type_psy",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-dracologue",
+          "titre": "Dracologue",
+          "condition": "Avoir attrapé 10 Pokémon de type Dragon",
+          "recompense": "150 Pokédollars + 1 Écaille Draco",
+          "genre": "mesure",
+          "mesure": "captures_type_dragon",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "type-fillette",
+          "titre": "Fillette",
+          "condition": "Avoir attrapé 10 Pokémon de type Fée",
+          "recompense": "150 Pokédollars + 1 Pierre Lune",
+          "genre": "mesure",
+          "mesure": "captures_type_fée",
+          "seuil": 10,
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "progression",
+      "titre": "Liées à la progression",
+      "noeuds": [
+        {
+          "clef": "niveau-15",
+          "titre": "Premiers pas",
+          "condition": "Posséder 3 Pokémon de niveau 15 ou plus",
+          "recompense": "150 Pokédollars + 2 Potions",
+          "genre": "mesure",
+          "mesure": "trois_au_niveau",
+          "seuil": 15,
+          "apres": []
+        },
+        {
+          "clef": "niveau-20",
+          "titre": "Ça va chauffer",
+          "condition": "Posséder 3 Pokémon de niveau 20 ou plus",
+          "recompense": "200 Pokédollars + 2 Super Potions",
+          "genre": "mesure",
+          "mesure": "trois_au_niveau",
+          "seuil": 20,
+          "apres": [
+            "niveau-15"
+          ]
+        },
+        {
+          "clef": "niveau-30",
+          "titre": "Dresseur expérimenté",
+          "condition": "Posséder 3 Pokémon de niveau 30 ou plus",
+          "recompense": "300 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "trois_au_niveau",
+          "seuil": 30,
+          "apres": [
+            "niveau-20"
+          ]
+        },
+        {
+          "clef": "niveau-40",
+          "titre": "La force tranquille",
+          "condition": "Posséder 3 Pokémon de niveau 40 ou plus",
+          "recompense": "400 Pokédollars + 2 Hyper Potions",
+          "genre": "mesure",
+          "mesure": "trois_au_niveau",
+          "seuil": 40,
+          "apres": [
+            "niveau-30"
+          ]
+        },
+        {
+          "clef": "niveau-50",
+          "titre": "Au sommet",
+          "condition": "Posséder 3 Pokémon de niveau 50 ou plus",
+          "recompense": "500 Pokédollars + 2 Super Bonbons",
+          "genre": "mesure",
+          "mesure": "trois_au_niveau",
+          "seuil": 50,
+          "apres": [
+            "niveau-40"
+          ]
+        },
+        {
+          "clef": "equipe-40",
+          "titre": "Équipe de choc",
+          "condition": "Posséder 6 Pokémon de niveau 40 ou plus",
+          "recompense": "750 Pokédollars + 2 Supers Bonbons",
+          "genre": "mesure",
+          "mesure": "six_au_niveau",
+          "seuil": 40,
+          "apres": [
+            "niveau-40"
+          ]
+        },
+        {
+          "clef": "ascension",
+          "titre": "Ascension fulgurante",
+          "condition": "Avoir fait gagner plus de 10 niveaux à un seul et même Pokémon",
+          "recompense": "500 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "niveaux_gagnes",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "evoli",
+          "titre": "Le maître des évolutions",
+          "condition": "Posséder toutes les évolutions d'Évoli",
+          "recompense": "1 000 Pokédollars + 1 Pierre évolutive au choix",
+          "genre": "mesure",
+          "mesure": "evolutions_evoli",
+          "seuil": 8,
+          "apres": []
+        },
+        {
+          "clef": "dernier-stade",
+          "titre": "Le plein potentiel",
+          "condition": "Faire évoluer un Pokémon jusqu'à son dernier stade évolutif (ne compte que jusqu'au troisième stade)",
+          "recompense": "300 Pokédollars + 1 Pierre évolutive au choix",
+          "genre": "mesure",
+          "mesure": "dernier_stade",
+          "seuil": 1,
+          "apres": []
+        },
+        {
+          "clef": "bonheur",
+          "titre": "L'amour nous guidera",
+          "condition": "Faire évoluer un Pokémon grâce au bonheur",
+          "recompense": "500 Pokédollars",
+          "genre": "mesure",
+          "mesure": "evolution_bonheur",
+          "seuil": 1,
+          "apres": []
+        },
+        {
+          "clef": "badge-1",
+          "titre": "Première victoire",
+          "condition": "Obtenir son premier badge d'arène",
+          "recompense": "200 Pokédollars + 1 Rappel",
+          "genre": "mesure",
+          "mesure": "badges",
+          "seuil": 1,
+          "apres": []
+        },
+        {
+          "clef": "badge-3",
+          "titre": "Combattant aguerri",
+          "condition": "Avoir obtenu son troisième badge d'arène",
+          "recompense": "400 Pokédollars + 1 Super Bonbon + 1 Super Potion",
+          "genre": "mesure",
+          "mesure": "badges",
+          "seuil": 3,
+          "apres": [
+            "badge-1"
+          ]
+        },
+        {
+          "clef": "badge-5",
+          "titre": "Esprit compétitif",
+          "condition": "Avoir obtenu son cinquième badge d'arène",
+          "recompense": "600 Pokédollars + 2 Super Bonbons",
+          "genre": "mesure",
+          "mesure": "badges",
+          "seuil": 5,
+          "apres": [
+            "badge-3"
+          ]
+        },
+        {
+          "clef": "badge-tous",
+          "titre": "Top dresseur",
+          "condition": "Avoir obtenu tous les badges d'arène",
+          "recompense": "1 500 Pokédollars + 1 CT au choix",
+          "genre": "mesure",
+          "mesure": "badges",
+          "seuil": 11,
+          "apres": [
+            "badge-5"
+          ]
+        },
+        {
+          "clef": "ligue",
+          "titre": "Champion de Rhode",
+          "condition": "Avoir vaincu la Ligue",
+          "recompense": "2 500 Pokédollars + 1 objet rare au choix",
+          "genre": "mesure",
+          "mesure": "ligue",
+          "seuil": 1,
+          "apres": [
+            "badge-tous"
+          ]
+        },
+        {
+          "clef": "zones-faciles",
+          "titre": "Voyageur en herbe",
+          "condition": "Avoir visité toutes les zones faciles de la région",
+          "recompense": "200 Pokédollars + 5 Poké Balls",
+          "genre": "mesure",
+          "mesure": "zones_palier_1",
+          "seuil": 6,
+          "apres": []
+        },
+        {
+          "clef": "zones-moyennes",
+          "titre": "Voyageur aguerri",
+          "condition": "Avoir visité toutes les zones moyennes de la région",
+          "recompense": "400 Pokédollars + 5 Super Balls",
+          "genre": "mesure",
+          "mesure": "zones_palier_2",
+          "seuil": 6,
+          "apres": [
+            "zones-faciles"
+          ]
+        },
+        {
+          "clef": "zones-sauvages",
+          "titre": "Grand explorateur",
+          "condition": "Avoir visité toutes les zones sauvages de la région",
+          "recompense": "750 Pokédollars + 2 Hyper Ball",
+          "genre": "mesure",
+          "mesure": "zones_palier_3",
+          "seuil": 5,
+          "apres": [
+            "zones-moyennes"
+          ]
+        },
+        {
+          "clef": "villes",
+          "titre": "Rhode n'a plus de secrets",
+          "condition": "Avoir visité toutes les villes de la région en RP",
+          "recompense": "1 000 Pokédollars",
+          "genre": "mesure",
+          "mesure": "villes",
+          "seuil": 7,
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "rps",
+      "titre": "Liées aux RPs",
+      "note": "ne concernent pas les RPs solos et des réponses de plus de 300 mots",
+      "noeuds": [
+        {
+          "clef": "rp-10",
+          "titre": "Premiers mots",
+          "condition": "Avoir posté 10 RP",
+          "recompense": "200 Pokédollars",
+          "genre": "mesure",
+          "mesure": "rp_postes",
+          "seuil": 10,
+          "apres": []
+        },
+        {
+          "clef": "rp-20",
+          "titre": "Plume débutante",
+          "condition": "Avoir posté 20 RP",
+          "recompense": "400 Pokédollars",
+          "genre": "mesure",
+          "mesure": "rp_postes",
+          "seuil": 20,
+          "apres": [
+            "rp-10"
+          ]
+        },
+        {
+          "clef": "rp-50",
+          "titre": "Plume confirmée",
+          "condition": "Avoir posté 50 RP",
+          "recompense": "600 Pokédollars",
+          "genre": "mesure",
+          "mesure": "rp_postes",
+          "seuil": 50,
+          "apres": [
+            "rp-20"
+          ]
+        },
+        {
+          "clef": "rp-100",
+          "titre": "Écrivain passionné",
+          "condition": "Avoir posté 100 RP",
+          "recompense": "1 000 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "rp_postes",
+          "seuil": 100,
+          "apres": [
+            "rp-50"
+          ]
+        },
+        {
+          "clef": "rp-5-en-cours",
+          "titre": "Toujours inspiré",
+          "condition": "Participer à 5 RPs en même temps",
+          "recompense": "250 Pokédollars",
+          "genre": "mesure",
+          "mesure": "rp_ouverts",
+          "seuil": 5,
+          "apres": []
+        },
+        {
+          "clef": "rp-30-min",
+          "titre": "Plus rapide que l'éclair",
+          "condition": "Répondre à un RP en moins de 30 minutes",
+          "recompense": "200 Pokédollars + 1 Poké Ball",
+          "genre": "forum",
+          "apres": []
+        },
+        {
+          "clef": "rp-5-jour",
+          "titre": "Infatigable",
+          "condition": "Poster 5 RPs de plus de 500 mots dans la même journée",
+          "recompense": "500 Pokédollars + 1 Super Bonbon",
+          "genre": "forum",
+          "apres": []
+        },
+        {
+          "clef": "partenaires-5",
+          "titre": "Premières rencontres",
+          "condition": "Avoir fait un RP avec cinq membres différents",
+          "recompense": "250 Pokédollars",
+          "genre": "mesure",
+          "mesure": "partenaires",
+          "seuil": 5,
+          "apres": []
+        },
+        {
+          "clef": "partenaires-10",
+          "titre": "Toujours plus d'amis",
+          "condition": "Avoir fait un RP avec dix membres différents",
+          "recompense": "500 Pokédollars + 2 Super Balls",
+          "genre": "mesure",
+          "mesure": "partenaires",
+          "seuil": 10,
+          "apres": [
+            "partenaires-5"
+          ]
+        },
+        {
+          "clef": "event-1",
+          "titre": "Engagé dans la vie active",
+          "condition": "Participer à son premier événement officiel du forum",
+          "recompense": "300 Pokédollars",
+          "genre": "staff",
+          "apres": []
+        },
+        {
+          "clef": "event-3",
+          "titre": "Toujours de la partie",
+          "condition": "Avoir participé à trois événements officiels du forum",
+          "recompense": "600 Pokédollars + 1 objet exclusif d'événement",
+          "genre": "staff",
+          "apres": [
+            "event-1"
+          ]
+        },
+        {
+          "clef": "event-10",
+          "titre": "Fidèle au rendez-vous",
+          "condition": "Avoir participé à dix événements officiels du forum",
+          "recompense": "1 500 Pokédollars + 1 pierre d’évolution au choix",
+          "genre": "staff",
+          "apres": [
+            "event-3"
+          ]
+        }
+      ]
+    },
+    {
+      "clef": "speciales",
+      "titre": "Médailles spéciales",
+      "noeuds": [
+        {
+          "clef": "chromatique",
+          "titre": "Chance insolente",
+          "condition": "Capturer son tout premier Pokémon chromatique",
+          "recompense": "500 Pokédollars + 5 Poké Balls",
+          "genre": "mesure",
+          "mesure": "chromatiques",
+          "seuil": 1,
+          "apres": []
+        },
+        {
+          "clef": "six-types",
+          "titre": "Équipe atypique",
+          "condition": "Avoir une équipe composée de six types différents",
+          "recompense": "500 Pokédollars + 1 Super Bonbon",
+          "genre": "mesure",
+          "mesure": "types_en_equipe",
+          "seuil": 6,
+          "apres": []
+        },
+        {
+          "clef": "legendaire",
+          "titre": "La Légende de Rhode",
+          "condition": "Avoir vu un Pokémon légendaire au cours d'un événement",
+          "recompense": "300 Pokédollars",
+          "genre": "staff",
+          "apres": []
+        },
+        {
+          "clef": "vingt-medailles",
+          "titre": "Légende vivante",
+          "condition": "Avoir obtenu plus de 20 médailles",
+          "recompense": "1 000 Pokédollars + 1 Rappel",
+          "genre": "mesure",
+          "mesure": "medailles",
+          "seuil": 20,
+          "apres": []
+        },
+        {
+          "clef": "messages-300",
+          "titre": "Pipelette",
+          "condition": "Avoir posté plus de 300 messages sur le forum",
+          "recompense": "200 Pokédollars",
+          "genre": "forum",
+          "apres": []
+        },
+        {
+          "clef": "messages-500",
+          "titre": "Accro du clavier",
+          "condition": "Avoir posté plus de 500 messages sur le forum",
+          "recompense": "400 Pokédollars + 5 Poké Balls",
+          "genre": "forum",
+          "apres": [
+            "messages-300"
+          ]
+        },
+        {
+          "clef": "messages-1000",
+          "titre": "Vétéran de Rhode",
+          "condition": "Avoir posté plus de 1 000 messages sur le forum",
+          "recompense": "1 000 Pokédollars + 1 objet au choix de la boutique pokemon",
+          "genre": "forum",
+          "apres": [
+            "messages-500"
+          ]
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "clef": "brave",
+      "nom": "Brave",
+      "embleme": "Cresselia",
+      "v1": "Groupe Ho-Oh",
+      "noeuds": [
+        {
+          "clef": "brave-duo",
+          "titre": "Combattre à deux contre un duo maléfique",
+          "condition": "Combattre à deux contre un duo maléfique",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "brave-pnj",
+          "titre": "Entraîner son équipe complète contre un PNJ",
+          "condition": "Entraîner son équipe complète contre un PNJ",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "brave-defi",
+          "titre": "Participer à un défi de la rue contre un autre membre pour un combat",
+          "condition": "Participer à un défi de la rue contre un autre membre pour un combat",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "brave-obscur",
+          "titre": "Capturer un Pokémon Obscur pour le Prof. Syrus",
+          "condition": "Capturer un Pokémon Obscur pour le Prof. Syrus",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "hardi",
+      "nom": "Hardi",
+      "embleme": "Keldeo",
+      "v1": "Groupe Reshiram",
+      "noeuds": [
+        {
+          "clef": "hardi-niveau",
+          "titre": "Faire gagner un LVL à son pokemon durant un rp",
+          "condition": "Faire gagner un LVL à son pokemon durant un rp",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "hardi-trois",
+          "titre": "Capturer trois pokemon d'un même type dans un rp",
+          "condition": "Capturer trois pokemon d'un même type dans un rp",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "hardi-pyrite",
+          "titre": "Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.",
+          "condition": "Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "serieux",
+      "nom": "Sérieux",
+      "embleme": "Créhelf",
+      "v1": "Groupe Deoxys",
+      "noeuds": [
+        {
+          "clef": "serieux-chromatique",
+          "titre": "Trouver un pokemon chromatique",
+          "condition": "Trouver un pokemon chromatique",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "doux",
+      "nom": "Doux",
+      "embleme": "Shaymin",
+      "v1": "Groupe Xerneas",
+      "noeuds": [
+        {
+          "clef": "doux-couple",
+          "titre": "Trouver un pokemon femelle et mâle du même type pour un éleveur",
+          "condition": "Trouver un pokemon femelle et mâle du même type pour un éleveur",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        },
+        {
+          "clef": "doux-identique",
+          "titre": "Capturer un couple de Pokemon identique",
+          "condition": "Capturer un couple de Pokemon identique",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "malin",
+      "nom": "Malin",
+      "embleme": "Hoopa",
+      "v1": "Groupe Zamazenta",
+      "noeuds": [
+        {
+          "clef": "malin-ko",
+          "titre": "Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture",
+          "condition": "Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    },
+    {
+      "clef": "jovial",
+      "nom": "Jovial",
+      "embleme": "Celebi",
+      "v1": "Groupe Mew",
+      "noeuds": [
+        {
+          "clef": "jovial-fillette",
+          "titre": "Aider une petite fille à retrouver son pokemon dans un rp",
+          "condition": "Aider une petite fille à retrouver son pokemon dans un rp",
+          "recompense": "",
+          "genre": "mission",
+          "apres": []
+        }
+      ]
+    }
+  ]
+}
