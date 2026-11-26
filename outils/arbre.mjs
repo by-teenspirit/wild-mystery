@@ -221,7 +221,7 @@ const liste = await onglet.evaluate(() => {
 dire("une section par maison", liste.sections === donnees.branches.length);
 dire("deux portes annoncées par maison", liste.portes === donnees.branches.length * 2);
 dire(
-  "neuf objectifs par palier dans chaque liste",
+  "dix objectifs par palier dans chaque liste",
   liste.premiere === donnees.parPalier * 2,
   `${liste.premiere} pour ${donnees.parPalier * 2}`,
 );

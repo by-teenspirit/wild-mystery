@@ -196,7 +196,7 @@ def dessin(d):
 
 ETIQUETTES = {
     "commun": "commun",
-    "maison": "ta maison",
+    "maison": "quête",
     "mission": "mission",
     "a-ecrire": "à écrire",
 }
@@ -282,9 +282,9 @@ GABARIT = """<!-- ════════════════════�
 
 CHAPO = (
     "{n} objectifs ouvrent le palier 2 et ses zones, {n} de plus ouvrent le "
-    "palier 3. À chaque étage, six sont les mêmes pour tout le monde, deux "
-    "appartiennent à ta maison, et une est une mission à jouer. Ce ne sont pas "
-    "des récompenses à collectionner — c'est ce qu'il y a à faire."
+    "palier 3. À chaque étage, quatre sont les mêmes pour tout le monde, quatre "
+    "sont les quêtes de ta maison, et deux sont des missions à jouer. Ce ne sont "
+    "pas des récompenses à collectionner — c'est ce qu'il y a à faire."
 )
 
 

@@ -25,11 +25,13 @@ function maison(clef: string, mission: Objectif) {
         o(`${clef}-2a`, { genre: "maison" }),
         o(`${clef}-2b`, { genre: "maison" }),
         mission,
+        o(`${clef}-2m2`, { genre: "mission", mesure: undefined, seuil: undefined }),
       ],
       "3": [
         o(`${clef}-3a`, { genre: "maison" }),
         o(`${clef}-3b`, { genre: "maison" }),
         o(`${clef}-3m`, { genre: "mission", mesure: undefined, seuil: undefined }),
+        o(`${clef}-3m2`, { genre: "mission", mesure: undefined, seuil: undefined }),
       ],
     },
   };
@@ -37,7 +39,7 @@ function maison(clef: string, mission: Objectif) {
 
 function arbre(): Arbre {
   return {
-    parPalier: 5,
+    parPalier: 6,
     communs: {
       "2": [o("c2a"), o("c2b")],
       "3": [o("c3a"), o("c3b")],
@@ -53,12 +55,12 @@ function arbre(): Arbre {
 }
 
 const rien: Progres = { maison: "doux", faits: new Set() };
-const tout2 = new Set(["c2a", "c2b", "doux-2a", "doux-2b", "doux-2m"]);
-const tout3 = new Set([...tout2, "c3a", "c3b", "doux-3a", "doux-3b", "doux-3m"]);
+const tout2 = new Set(["c2a", "c2b", "doux-2a", "doux-2b", "doux-2m", "doux-2m2"]);
+const tout3 = new Set([...tout2, "c3a", "c3b", "doux-3a", "doux-3b", "doux-3m", "doux-3m2"]);
 
 Deno.test("un étage mêle les communs et ceux de la maison", () => {
   const clefs = objectifsDe(arbre(), "doux", "2").map((x) => x.clef);
-  assertEquals(clefs, ["c2a", "c2b", "doux-2a", "doux-2b", "doux-2m"]);
+  assertEquals(clefs, ["c2a", "c2b", "doux-2a", "doux-2b", "doux-2m", "doux-2m2"]);
 });
 
 Deno.test("sans maison, il ne reste que les communs", () => {
@@ -68,11 +70,11 @@ Deno.test("sans maison, il ne reste que les communs", () => {
 Deno.test("un étage compte ce qui est fait", () => {
   const e = lireUnEtage(arbre(), { maison: "doux", faits: new Set(["c2a"]) }, "2");
   assertEquals(e.faits, 1);
-  assertEquals(e.total, 5);
+  assertEquals(e.total, 6);
   assertEquals(e.ouverte, false);
 });
 
-Deno.test("la porte s'ouvre quand les neuf sont faits, pas huit", () => {
+Deno.test("la porte s'ouvre quand tous sont faits, pas presque tous", () => {
   //  Un seuil partiel se négocie, et ce qui se négocie finit par
   //  s'arbitrer au cas par cas.
   const presque = new Set([...tout2]);
@@ -85,7 +87,7 @@ Deno.test("une case à écrire ne bloque pas la porte", () => {
   //  Tant que la mission n'est pas écrite, elle compte comme faite :
   //  une porte fermée par un texte manquant serait un mur que
   //  personne ne comprendrait.
-  const faits = new Set(["c2a", "c2b", "brave-2a", "brave-2b"]);
+  const faits = new Set(["c2a", "c2b", "brave-2a", "brave-2b", "brave-2m2"]);
   const e = lireUnEtage(arbre(), { maison: "brave", faits }, "2");
   assertEquals(e.ouverte, true);
 });
@@ -105,9 +107,9 @@ Deno.test("sans maison, on reste au palier 1 même en ayant tout fait", () => {
 
 Deno.test("il manque dit ce qu'il reste à l'étage en cours", () => {
   const a = arbre();
-  assertEquals(ilManque(a, rien), 5);
-  assertEquals(ilManque(a, { maison: "doux", faits: new Set(["c2a"]) }), 4);
-  assertEquals(ilManque(a, { maison: "doux", faits: tout2 }), 5);
+  assertEquals(ilManque(a, rien), 6);
+  assertEquals(ilManque(a, { maison: "doux", faits: new Set(["c2a"]) }), 5);
+  assertEquals(ilManque(a, { maison: "doux", faits: tout2 }), 6);
   assertEquals(ilManque(a, { maison: "doux", faits: tout3 }), null);
 });
 
@@ -123,7 +125,7 @@ Deno.test("ouEnEstElle rend les deux étages", () => {
   assertEquals(vu.branche?.clef, "doux");
   assertEquals(vu.etages.length, 2);
   assertEquals(vu.palier, 2);
-  assertEquals(vu.reste, 5);
+  assertEquals(vu.reste, 6);
 });
 
 Deno.test("sans maison, aucun étage à montrer", () => {
@@ -147,11 +149,11 @@ Deno.test("les plaintes attrapent un fait de jeu sans mesure", () => {
 
 Deno.test("les plaintes attrapent un étage qui n'a pas le bon compte", () => {
   const a = arbre();
-  const casse: Arbre = { ...a, parPalier: 9 };
-  assert(plaintes(casse).some((p) => p.includes("pas 9")));
+  const casse: Arbre = { ...a, parPalier: 10 };
+  assert(plaintes(casse).some((p) => p.includes("pas 10")));
 });
 
-Deno.test("les plaintes attrapent deux missions dans le même étage", () => {
+Deno.test("les plaintes attrapent le mauvais nombre de missions", () => {
   const a = arbre();
   const b = a.branches[0];
   const casse: Arbre = {
@@ -174,15 +176,15 @@ Deno.test("l'arbre livré ne porte aucune plainte", async () => {
   assertEquals(plaintes(a), []);
 });
 
-Deno.test("l'arbre livré a neuf objectifs par palier et par maison", async () => {
+Deno.test("l'arbre livré a dix objectifs par palier et par maison", async () => {
   const a = JSON.parse(
     await Deno.readTextFile(new URL("../../data/arbre.json", import.meta.url)),
   ) as Arbre;
-  assertEquals(a.parPalier, 9);
+  assertEquals(a.parPalier, 10);
   assertEquals(a.branches.length, 6);
   for (const b of a.branches) {
     for (const p of ["2", "3"] as const) {
-      assertEquals(objectifsDe(a, b.clef, p).length, 9, `${b.clef} ${p}`);
+      assertEquals(objectifsDe(a, b.clef, p).length, 10, `${b.clef} ${p}`);
     }
   }
 });
@@ -198,8 +200,8 @@ Deno.test("l'arbre livré porte les missions de Callista, mot pour mot", async (
   assert(titres.includes("Trouver un pokemon chromatique."));
 });
 
-Deno.test("il manque exactement trois missions", async () => {
-  //  Sérieux, Malin et Jovial n'en ont qu'une là où il en faut deux.
+Deno.test("il manque exactement douze missions", async () => {
+  //  Vingt-quatre attendues, douze héritées de la V1.
   //  Ce test est là pour que le nombre descende, pas pour qu'il se
   //  cache.
   const a = JSON.parse(
@@ -208,7 +210,7 @@ Deno.test("il manque exactement trois missions", async () => {
   const vides = a.branches.flatMap((b) => [...b.paliers["2"], ...b.paliers["3"]]).filter((x) =>
     x.genre === "a-ecrire"
   );
-  assertEquals(vides.length, 3);
+  assertEquals(vides.length, 12);
   assert(vides.every((x) => x.titre === ""));
 });
 
@@ -226,6 +228,9 @@ Deno.test("chaque fait de jeu nomme une mesure que la base devra compter", async
   //  LE NOMBRE DE MESURES DISTINCTES EST LE COÛT DE LA MIGRATION.
   //  L'écrire ici le rend visible : chaque mesure de plus est une
   //  requête SQL de plus à écrire et à tenir.
-  assert(mesures.size <= 20, `${mesures.size} mesures distinctes`);
+  //  SEIZE, ET C'EST UN BUDGET. Quarante-huit quêtes tiennent en douze
+  //  mesures parce que les maisons puisent dans un vivier commun ;
+  //  sans lui, ce serait quarante-huit requêtes SQL.
+  assert(mesures.size <= 16, `${mesures.size} mesures distinctes`);
   assert(!mesures.has(undefined));
 });

@@ -1,10 +1,10 @@
 {
-  "_": "L'ARBRE DES PALIERS. Neuf objectifs par palier, en trois couches : six communs aux six maisons, deux propres à la maison, une mission écrite. « On voulait entre 8 et 10 objectifs par paliers. » — 26 novembre.",
-  "_pourquoi": "NEUF × DEUX PALIERS × SIX MAISONS FONT CENT HUIT OBJECTIFS, et la V1 en a laissé douze. La seule question qui compte est donc QUI ÉCRIT QUOI, et c'est ce que les trois couches tranchent : les communs et les objectifs de maison sont des FAITS DE JEU que la base compte — pas une ligne de prose, pas une relecture du staff. Seule la mission est écrite. Douze missions pour douze cases, et il en manque trois.",
-  "_maison": "LES DEUX OBJECTIFS DE MAISON ONT LA MÊME MÉCANIQUE QUE LES COMMUNS, un filtre différent. C'est ce qui permet à une maison de se sentir sans rien coûter en écriture : le Hardi fouille parce que son avantage relance une fouille bredouille, le Sérieux croise des rares parce que le sien double la rareté, le Jovial cherche des fossiles parce que les siens sont doublés.",
-  "_mesures": "LES MESURES NOMMÉES SONT DES PROMESSES, PAS DU CODE : elles disent ce que le SQL devra savoir compter. VINGT, ET C'EST UN BUDGET. Le premier jet en demandait vingt-cinq, parce que chaque maison avait deux mesures neuves au palier 3 — un colosseum, une réanimation de fossile, une dépense. Chacune était plus jolie que « la même chose, en plus », et chacune coûtait une requête SQL de plus à écrire et à tenir. Le palier 3 reprend donc les deux mesures du palier 2 avec un seuil plus haut. La relève en compte trois aujourd'hui — badges, zones, chromatiques ; les autres sont une migration et pas une devinette, les tables existent toutes (cloture, pokemon, pokedex, registre, rp_participant, combat, defi, commande, pension, fossile_morceau).",
-  "_aecrire": "Trois missions manquent — Sérieux, Malin et Jovial n'en ont qu'une chacun là où il en faut deux. Elles restent VIDES : les écrire à la place de Callista serait pire que de montrer le trou.",
-  "parPalier": 9,
+  "_": "L'ARBRE DES PALIERS. Dix objectifs par palier : quatre communs, quatre quêtes de sa maison, deux missions. « 2 missions par groupe, 4 quêtes pour ta maison, 4 communs. » — 26 novembre.",
+  "_couches": "LES TROIS COUCHES SE DISTINGUENT PAR QUI LES ÉCRIT, et c'est la seule question qui compte : dix × deux paliers × six maisons font CENT VINGT objectifs, et la V1 en a laissé douze. Les COMMUNS et les QUÊTES sont des faits de jeu que la base compte — pas une ligne de prose, pas une relecture du staff. Seules les MISSIONS sont écrites, et il en faut vingt-quatre.",
+  "_vivier": "LES QUARANTE-HUIT QUÊTES TIENNENT EN DOUZE MESURES. Chaque maison en choisit quatre dans un vivier commun, selon son avantage — le Hardi fouille parce que le sien relance une fouille bredouille, le Jovial cherche des fossiles parce que les siens sont doublés — et deux maisons partagent une mesure avec des seuils différents. Sans ce vivier, quarante-huit quêtes auraient demandé quarante-huit requêtes SQL.",
+  "_mesures": "SEIZE MESURES EN TOUT : quatre pour les communs, douze pour le vivier des quêtes. Le palier 3 reprend les mesures du palier 2 avec un seuil plus haut, jamais une mesure neuve — chaque mesure de plus est une requête à écrire et à tenir. La relève en compte trois aujourd'hui (badges, zones, chromatiques) ; les autres sont une migration et pas une devinette, les tables existent toutes.",
+  "_aecrire": "DOUZE MISSIONS MANQUENT sur vingt-quatre. Brave en a quatre, Hardi trois, Doux deux, Sérieux, Malin et Jovial une chacun. Les cases vides restent vides : les écrire à la place de Callista serait pire que de montrer le trou, et elles ne bloquent pas la porte tant qu'elles le sont.",
+  "parPalier": 10,
   "communs": {
     "2": [
       {
@@ -15,11 +15,11 @@
         "seuil": 3
       },
       {
-        "clef": "c2-capture",
-        "titre": "Capturer 5 pokémon",
+        "clef": "c2-pokedex",
+        "titre": "Croiser 20 espèces",
         "genre": "commun",
-        "mesure": "pokemon",
-        "seuil": 5
+        "mesure": "pokedex",
+        "seuil": 20
       },
       {
         "clef": "c2-zones",
@@ -29,25 +29,11 @@
         "seuil": 4
       },
       {
-        "clef": "c2-pokedex",
-        "titre": "Croiser 20 espèces",
-        "genre": "commun",
-        "mesure": "pokedex",
-        "seuil": 20
-      },
-      {
         "clef": "c2-amis",
         "titre": "Jouer avec 2 personnes différentes",
         "genre": "commun",
         "mesure": "partenaires",
         "seuil": 2
-      },
-      {
-        "clef": "c2-marche",
-        "titre": "Acheter au Marché",
-        "genre": "commun",
-        "mesure": "commandes",
-        "seuil": 1
       }
     ],
     "3": [
@@ -59,20 +45,6 @@
         "seuil": 10
       },
       {
-        "clef": "c3-niveau",
-        "titre": "Trois pokémon au niveau 30",
-        "genre": "commun",
-        "mesure": "trois_au_niveau_30",
-        "seuil": 3
-      },
-      {
-        "clef": "c3-zones",
-        "titre": "Les six zones de palier 2",
-        "genre": "commun",
-        "mesure": "zones_palier_2",
-        "seuil": 6
-      },
-      {
         "clef": "c3-pokedex",
         "titre": "Croiser 60 espèces",
         "genre": "commun",
@@ -80,18 +52,18 @@
         "seuil": 60
       },
       {
+        "clef": "c3-zones",
+        "titre": "Visiter 12 zones",
+        "genre": "commun",
+        "mesure": "zones_visitees",
+        "seuil": 12
+      },
+      {
         "clef": "c3-amis",
         "titre": "Jouer avec 6 personnes différentes",
         "genre": "commun",
         "mesure": "partenaires",
         "seuil": 6
-      },
-      {
-        "clef": "c3-duels",
-        "titre": "Gagner 3 duels",
-        "genre": "commun",
-        "mesure": "duels_gagnes",
-        "seuil": 3
       }
     ]
   },
@@ -103,44 +75,82 @@
       "paliers": {
         "2": [
           {
-            "clef": "hardi-2-1",
+            "clef": "hardi-2-q1",
             "titre": "Fouiller 30 fois",
             "genre": "maison",
             "mesure": "fouilles",
             "seuil": 30
           },
           {
-            "clef": "hardi-2-2",
+            "clef": "hardi-2-q2",
             "titre": "Revenir 5 fois dans la même zone",
             "genre": "maison",
             "mesure": "retours_zone",
             "seuil": 5
           },
           {
-            "clef": "hardi-2-mission",
+            "clef": "hardi-2-q3",
+            "titre": "Compléter une zone",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 1
+          },
+          {
+            "clef": "hardi-2-q4",
+            "titre": "Gagner 3 combats",
+            "genre": "maison",
+            "mesure": "combats_gagnes",
+            "seuil": 3
+          },
+          {
+            "clef": "hardi-2-m1",
             "titre": "Faire gagner un LVL à son pokemon durant un rp.",
+            "genre": "mission"
+          },
+          {
+            "clef": "hardi-2-m2",
+            "titre": "Capturer trois pokemon d'un même type dans un rp.",
             "genre": "mission"
           }
         ],
         "3": [
           {
-            "clef": "hardi-3-1",
+            "clef": "hardi-3-q1",
             "titre": "Fouiller 100 fois",
             "genre": "maison",
             "mesure": "fouilles",
             "seuil": 100
           },
           {
-            "clef": "hardi-3-2",
+            "clef": "hardi-3-q2",
             "titre": "Revenir 15 fois dans la même zone",
             "genre": "maison",
             "mesure": "retours_zone",
             "seuil": 15
           },
           {
-            "clef": "hardi-3-mission",
+            "clef": "hardi-3-q3",
+            "titre": "Compléter 3 zones",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 3
+          },
+          {
+            "clef": "hardi-3-q4",
+            "titre": "Gagner 10 combats",
+            "genre": "maison",
+            "mesure": "combats_gagnes",
+            "seuil": 10
+          },
+          {
+            "clef": "hardi-3-m1",
             "titre": "Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.",
             "genre": "mission"
+          },
+          {
+            "clef": "hardi-3-m2",
+            "titre": "",
+            "genre": "a-ecrire"
           }
         ]
       }
@@ -152,42 +162,80 @@
       "paliers": {
         "2": [
           {
-            "clef": "serieux-2-1",
+            "clef": "serieux-2-q1",
             "titre": "Croiser 3 pokémon rares",
             "genre": "maison",
             "mesure": "rares_croises",
             "seuil": 3
           },
           {
-            "clef": "serieux-2-2",
-            "titre": "Compléter une zone",
+            "clef": "serieux-2-q2",
+            "titre": "Compléter 2 zones",
             "genre": "maison",
             "mesure": "zones_completes",
-            "seuil": 1
+            "seuil": 2
           },
           {
-            "clef": "serieux-2-mission",
+            "clef": "serieux-2-q3",
+            "titre": "Fouiller 40 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 40
+          },
+          {
+            "clef": "serieux-2-q4",
+            "titre": "Avoir 4 types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 4
+          },
+          {
+            "clef": "serieux-2-m1",
             "titre": "Trouver un pokemon chromatique.",
             "genre": "mission"
+          },
+          {
+            "clef": "serieux-2-m2",
+            "titre": "",
+            "genre": "a-ecrire"
           }
         ],
         "3": [
           {
-            "clef": "serieux-3-1",
+            "clef": "serieux-3-q1",
             "titre": "Croiser 10 pokémon rares",
             "genre": "maison",
             "mesure": "rares_croises",
             "seuil": 10
           },
           {
-            "clef": "serieux-3-2",
-            "titre": "Compléter trois zones",
+            "clef": "serieux-3-q2",
+            "titre": "Compléter 5 zones",
             "genre": "maison",
             "mesure": "zones_completes",
-            "seuil": 3
+            "seuil": 5
           },
           {
-            "clef": "serieux-3-mission",
+            "clef": "serieux-3-q3",
+            "titre": "Fouiller 120 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 120
+          },
+          {
+            "clef": "serieux-3-q4",
+            "titre": "Avoir 6 types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 6
+          },
+          {
+            "clef": "serieux-3-m1",
+            "titre": "",
+            "genre": "a-ecrire"
+          },
+          {
+            "clef": "serieux-3-m2",
             "titre": "",
             "genre": "a-ecrire"
           }
@@ -201,42 +249,80 @@
       "paliers": {
         "2": [
           {
-            "clef": "malin-2-1",
-            "titre": "Quatre types différents en équipe",
+            "clef": "malin-2-q1",
+            "titre": "Avoir 4 types différents en équipe",
             "genre": "maison",
             "mesure": "types_en_equipe",
             "seuil": 4
           },
           {
-            "clef": "malin-2-2",
+            "clef": "malin-2-q2",
             "titre": "Gagner un duel sans K.O.",
             "genre": "maison",
             "mesure": "duels_sans_ko",
             "seuil": 1
           },
           {
-            "clef": "malin-2-mission",
+            "clef": "malin-2-q3",
+            "titre": "Dépenser 5 000 pokédollars",
+            "genre": "maison",
+            "mesure": "depenses",
+            "seuil": 5000
+          },
+          {
+            "clef": "malin-2-q4",
+            "titre": "Croiser 2 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 2
+          },
+          {
+            "clef": "malin-2-m1",
             "titre": "Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture.",
             "genre": "mission"
+          },
+          {
+            "clef": "malin-2-m2",
+            "titre": "",
+            "genre": "a-ecrire"
           }
         ],
         "3": [
           {
-            "clef": "malin-3-1",
-            "titre": "Six types différents en équipe",
+            "clef": "malin-3-q1",
+            "titre": "Avoir 6 types différents en équipe",
             "genre": "maison",
             "mesure": "types_en_equipe",
             "seuil": 6
           },
           {
-            "clef": "malin-3-2",
+            "clef": "malin-3-q2",
             "titre": "Gagner 3 duels sans K.O.",
             "genre": "maison",
             "mesure": "duels_sans_ko",
             "seuil": 3
           },
           {
-            "clef": "malin-3-mission",
+            "clef": "malin-3-q3",
+            "titre": "Dépenser 20 000 pokédollars",
+            "genre": "maison",
+            "mesure": "depenses",
+            "seuil": 20000
+          },
+          {
+            "clef": "malin-3-q4",
+            "titre": "Croiser 6 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 6
+          },
+          {
+            "clef": "malin-3-m1",
+            "titre": "",
+            "genre": "a-ecrire"
+          },
+          {
+            "clef": "malin-3-m2",
             "titre": "",
             "genre": "a-ecrire"
           }
@@ -250,44 +336,82 @@
       "paliers": {
         "2": [
           {
-            "clef": "doux-2-1",
+            "clef": "doux-2-q1",
             "titre": "Clôturer 3 RP à plusieurs",
             "genre": "maison",
             "mesure": "rp_a_plusieurs",
             "seuil": 3
           },
           {
-            "clef": "doux-2-2",
-            "titre": "Confier un pokémon à la pension",
+            "clef": "doux-2-q2",
+            "titre": "Confier 1 pokémon à la pension",
             "genre": "maison",
             "mesure": "pensions",
             "seuil": 1
           },
           {
-            "clef": "doux-2-mission",
+            "clef": "doux-2-q3",
+            "titre": "Avoir 3 types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 3
+          },
+          {
+            "clef": "doux-2-q4",
+            "titre": "Compléter une zone",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 1
+          },
+          {
+            "clef": "doux-2-m1",
             "titre": "Trouver un pokemon femelle et mâle du même type pour un éleveur.",
+            "genre": "mission"
+          },
+          {
+            "clef": "doux-2-m2",
+            "titre": "Capturer un couple de Pokemon identique.",
             "genre": "mission"
           }
         ],
         "3": [
           {
-            "clef": "doux-3-1",
+            "clef": "doux-3-q1",
             "titre": "Clôturer 8 RP à plusieurs",
             "genre": "maison",
             "mesure": "rp_a_plusieurs",
             "seuil": 8
           },
           {
-            "clef": "doux-3-2",
+            "clef": "doux-3-q2",
             "titre": "Confier 3 pokémon à la pension",
             "genre": "maison",
             "mesure": "pensions",
             "seuil": 3
           },
           {
-            "clef": "doux-3-mission",
-            "titre": "Capturer un couple de Pokemon identique.",
-            "genre": "mission"
+            "clef": "doux-3-q3",
+            "titre": "Avoir 5 types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 5
+          },
+          {
+            "clef": "doux-3-q4",
+            "titre": "Compléter 2 zones",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 2
+          },
+          {
+            "clef": "doux-3-m1",
+            "titre": "",
+            "genre": "a-ecrire"
+          },
+          {
+            "clef": "doux-3-m2",
+            "titre": "",
+            "genre": "a-ecrire"
           }
         ]
       }
@@ -299,42 +423,80 @@
       "paliers": {
         "2": [
           {
-            "clef": "brave-2-1",
+            "clef": "brave-2-q1",
             "titre": "Gagner 3 combats",
             "genre": "maison",
             "mesure": "combats_gagnes",
             "seuil": 3
           },
           {
-            "clef": "brave-2-2",
+            "clef": "brave-2-q2",
             "titre": "Encaisser 3 K.O. sans fuir",
             "genre": "maison",
             "mesure": "ko_encaisses",
             "seuil": 3
           },
           {
-            "clef": "brave-2-mission",
+            "clef": "brave-2-q3",
+            "titre": "Gagner un duel sans K.O.",
+            "genre": "maison",
+            "mesure": "duels_sans_ko",
+            "seuil": 1
+          },
+          {
+            "clef": "brave-2-q4",
+            "titre": "Fouiller 20 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 20
+          },
+          {
+            "clef": "brave-2-m1",
             "titre": "Combattre à deux contre un duo maléfique.",
+            "genre": "mission"
+          },
+          {
+            "clef": "brave-2-m2",
+            "titre": "Entraîner son équipe complète contre un PNJ.",
             "genre": "mission"
           }
         ],
         "3": [
           {
-            "clef": "brave-3-1",
+            "clef": "brave-3-q1",
             "titre": "Gagner 10 combats",
             "genre": "maison",
             "mesure": "combats_gagnes",
             "seuil": 10
           },
           {
-            "clef": "brave-3-2",
+            "clef": "brave-3-q2",
             "titre": "Encaisser 10 K.O. sans fuir",
             "genre": "maison",
             "mesure": "ko_encaisses",
             "seuil": 10
           },
           {
-            "clef": "brave-3-mission",
+            "clef": "brave-3-q3",
+            "titre": "Gagner 4 duels sans K.O.",
+            "genre": "maison",
+            "mesure": "duels_sans_ko",
+            "seuil": 4
+          },
+          {
+            "clef": "brave-3-q4",
+            "titre": "Fouiller 70 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 70
+          },
+          {
+            "clef": "brave-3-m1",
+            "titre": "Participer à un défi de la rue contre un autre membre pour un combat.",
+            "genre": "mission"
+          },
+          {
+            "clef": "brave-3-m2",
             "titre": "Capturer un Pokémon Obscur pour le Prof. Syrus",
             "genre": "mission"
           }
@@ -348,42 +510,80 @@
       "paliers": {
         "2": [
           {
-            "clef": "jovial-2-1",
+            "clef": "jovial-2-q1",
             "titre": "Trouver 2 morceaux de fossile",
             "genre": "maison",
             "mesure": "morceaux_fossile",
             "seuil": 2
           },
           {
-            "clef": "jovial-2-2",
-            "titre": "Visiter 8 zones",
+            "clef": "jovial-2-q2",
+            "titre": "Compléter une zone",
             "genre": "maison",
-            "mesure": "zones_visitees",
-            "seuil": 8
+            "mesure": "zones_completes",
+            "seuil": 1
           },
           {
-            "clef": "jovial-2-mission",
+            "clef": "jovial-2-q3",
+            "titre": "Fouiller 25 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 25
+          },
+          {
+            "clef": "jovial-2-q4",
+            "titre": "Croiser 2 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 2
+          },
+          {
+            "clef": "jovial-2-m1",
             "titre": "Aider une petite fille à retrouver son pokemon dans un rp.",
             "genre": "mission"
+          },
+          {
+            "clef": "jovial-2-m2",
+            "titre": "",
+            "genre": "a-ecrire"
           }
         ],
         "3": [
           {
-            "clef": "jovial-3-1",
+            "clef": "jovial-3-q1",
             "titre": "Trouver 6 morceaux de fossile",
             "genre": "maison",
             "mesure": "morceaux_fossile",
             "seuil": 6
           },
           {
-            "clef": "jovial-3-2",
-            "titre": "Visiter les 17 zones",
+            "clef": "jovial-3-q2",
+            "titre": "Compléter 3 zones",
             "genre": "maison",
-            "mesure": "zones_visitees",
-            "seuil": 17
+            "mesure": "zones_completes",
+            "seuil": 3
           },
           {
-            "clef": "jovial-3-mission",
+            "clef": "jovial-3-q3",
+            "titre": "Fouiller 80 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 80
+          },
+          {
+            "clef": "jovial-3-q4",
+            "titre": "Croiser 6 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 6
+          },
+          {
+            "clef": "jovial-3-m1",
+            "titre": "",
+            "genre": "a-ecrire"
+          },
+          {
+            "clef": "jovial-3-m2",
             "titre": "",
             "genre": "a-ecrire"
           }

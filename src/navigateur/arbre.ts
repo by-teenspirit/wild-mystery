@@ -1,23 +1,25 @@
 // ════════════════════════════════════════════════════════════════════
-//  L'arbre des paliers — neuf objectifs par palier, en trois couches.
+//  L'arbre des paliers — dix objectifs par palier, en trois couches.
 //
-//  « On voulait entre 8 et 10 objectifs par paliers. » — 26 novembre.
+//  « 2 missions par groupe, 4 quêtes pour ta maison, 4 communs. »
+//  — 26 novembre.
 //
 //  ── POURQUOI TROIS COUCHES ET PAS UNE LISTE ─────────────────────────
 //
-//  Neuf objectifs × deux paliers × six maisons font CENT HUIT, et la V1
+//  Dix objectifs × deux paliers × six maisons font CENT VINGT, et la V1
 //  en a laissé douze. La seule question qui compte n'est donc pas « que
 //  demande-t-on ? » mais « QUI L'ÉCRIT ? ». Les trois couches la
 //  tranchent :
 //
-//   · `commun` — les six mêmes pour tout le monde. Un fait de jeu que
-//     la base compte. Zéro prose, zéro relecture ;
-//   · `maison` — deux par maison, même mécanique qu'un commun avec un
-//     filtre différent. C'est là que la maison se sent, et ça ne coûte
-//     pas une ligne d'écriture ;
-//   · `mission` — une seule, et c'est la seule qui soit écrite.
+//   · `commun` — les quatre mêmes pour tout le monde. Un fait de jeu
+//     que la base compte. Zéro prose, zéro relecture ;
+//   · `maison` — quatre quêtes, même mécanique qu'un commun avec un
+//     seuil et un filtre à elle. C'est là que la maison se sent, et ça
+//     ne coûte pas une ligne d'écriture ;
+//   · `mission` — deux, et ce sont les seules qui soient écrites.
 //
-//  Douze missions pour douze cases. Il en manque trois.
+//  Vingt-quatre missions attendues, douze héritées de la V1. Il en
+//  manque douze.
 //
 //  ── UN PALIER SE PREND EN ENTIER ────────────────────────────────────
 //
@@ -74,6 +76,12 @@ export type Etage = {
   readonly total: number;
   readonly ouverte: boolean;
 };
+
+/** Deux par palier et par maison. Écrit ici parce que c'est une règle
+ *  de jeu — « 2 missions par groupe » — et pas une conséquence des
+ *  données : une maison qui en porterait trois aurait trois fois plus
+ *  à relire par le staff que ses voisines. */
+const MISSIONS_PAR_PALIER = 2;
 
 function brancheDe(a: Arbre, maison: string | null): Branche | null {
   return a.branches.find((b) => b.clef === maison) ?? null;
@@ -181,8 +189,10 @@ export function plaintes(a: Arbre): string[] {
       const missions = b.paliers[palier].filter(
         (o) => o.genre === "mission" || o.genre === "a-ecrire",
       ).length;
-      if (missions !== 1) {
-        dits.push(`« ${b.clef} » a ${missions} mission(s) au palier ${palier}, pas une`);
+      if (missions !== MISSIONS_PAR_PALIER) {
+        dits.push(
+          `« ${b.clef} » a ${missions} mission(s) au palier ${palier}, pas ${MISSIONS_PAR_PALIER}`,
+        );
       }
     }
   }
