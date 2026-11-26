@@ -40592,14 +40592,40 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     l'ordre du document est l'ordre d'empilement, et une arête tracée
     après passerait par-dessus les perles qu'elle relie. */
 #modernbb .wm-paliers__trait {
+  fill: none;
   stroke: var(--wm-bord-net, #d9c3b1);
   stroke-width: 2;
+}
+
+/*  LE RAYON DES COMMUNS EST PLUS ÉPAIS. C'est le tronc : six objectifs
+    que les six maisons partagent, et le seul rayon droit du dessin.
+    `fill: none` n'est pas une coquetterie — un `path` fermé sans lui
+    se remplit, et la lentille d'un étage deviendrait un aplat. */
+#modernbb .wm-paliers__trait--commun {
+  stroke: var(--wm-bord-net, #d9c3b1);
+  stroke-width: 4;
 }
 
 #modernbb .wm-paliers__perle > circle {
   fill: var(--wm-fond-surface, #fffbf7);
   stroke: var(--wm-bord-net, #d9c3b1);
   stroke-width: 2;
+}
+
+#modernbb .wm-paliers__perle[data-wm-genre="commun"] > circle {
+  fill: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  UN OBJECTIF DE MAISON SE DISTINGUE D'UN COMMUN — c'est le seul
+    endroit où la maison se sent, et il n'y a que deux perles par
+    étage pour le dire. */
+#modernbb .wm-paliers__perle[data-wm-genre="maison"] > circle {
+  stroke: var(--wm-accent-terre, #8b4725);
+}
+
+#modernbb .wm-paliers__perle[data-wm-genre="mission"] > circle {
+  fill: var(--wm-accent-terre, #8b4725);
+  stroke: var(--wm-accent-terre, #8b4725);
 }
 
 #modernbb .wm-paliers__perle > text {
@@ -40693,26 +40719,45 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     les textes entre eux : un simple numéro suivi d'un point décale
     chaque ligne de la largeur de son chiffre. */
 #modernbb .wm-paliers__rang {
-  flex: 0 0 22px;
+  flex: 0 0 74px;
   box-sizing: border-box;
-  height: 22px;
+  height: 20px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: 50%;
+  border-radius: 10px;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-legende, 10.5px);
   line-height: 20px;
   text-align: center;
 }
 
-#modernbb .wm-paliers__etape[data-wm-genre="palier"] > .wm-paliers__rang {
-  border-color: var(--wm-accent-primaire, #275e7a);
-  background: var(--wm-accent-primaire, #275e7a);
+#modernbb .wm-paliers__etape[data-wm-genre="maison"] > .wm-paliers__rang,
+#modernbb .wm-paliers__etape[data-wm-genre="mission"] > .wm-paliers__rang {
+  border-color: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+#modernbb .wm-paliers__etape[data-wm-genre="mission"] > .wm-paliers__rang {
+  background: var(--wm-accent-terre, #8b4725);
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
-#modernbb .wm-paliers__etape[data-wm-genre="palier"] {
-  margin: var(--wm-espace-4, 4px) 0;
-  color: var(--wm-encre, #2e2018);
+/*  LA MESURE EST DITE EN PETIT À CÔTÉ DE L'OBJECTIF. C'est le nom que
+    la base devra savoir compter : l'écrire ici évite qu'on découvre à
+    la migration que « visiter 4 zones » et « les six zones de palier
+    2 » comptaient deux choses différentes. */
+#modernbb .wm-paliers__seuil {
+  color: var(--wm-texte-pale, #69564c);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+#modernbb .wm-paliers__porte {
+  margin: var(--wm-espace-10, 10px) 0 var(--wm-espace-2, 2px);
+  color: var(--wm-accent-primaire, #275e7a);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 #modernbb .wm-paliers__etape[data-wm-genre="a-ecrire"] > .wm-paliers__rang {

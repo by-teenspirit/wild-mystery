@@ -1,361 +1,394 @@
 {
-  "_": "L'ARBRE DES PALIERS. « On n'est pas sur des succès, on est vraiment sur des choses à faire pour atteindre le palier 2 puis le palier 3 et obtenir l'accès aux nouvelles zones. » — 26 novembre. Une maison, une branche, une suite d'étapes, et deux portes sur le chemin. On ne saute pas une étape : chacune attend la précédente.",
-  "_avant": "LA PREMIÈRE VERSION ÉTAIT UNE LISTE DE SUCCÈS. Elle rangeait les soixante-seize médailles du sujet t1012 en familles — « posséder 5 pokémon », « avoir posté 20 RP » — ce qui décrit ce qu'on A FAIT, pas ce qu'on DOIT faire. Les médailles restent ce qu'elles sont, des récompenses ; elles ne sont plus ici.",
-  "_aecrire": "LES ÉTAPES MARQUÉES `a-ecrire` SONT VIDES EXPRÈS. Les missions existantes viennent du sujet t855 et sont de Callista, recopiées mot pour mot ; il en manque vingt-quatre pour que les six branches tiennent debout, et les écrire à sa place serait pire que de montrer le trou. Le dessin les montre en pointillés.",
-  "_portes": "DEUX PORTES PAR BRANCHE, aux mêmes rangs pour les six : trois étapes avant le palier 2, trois autres avant le 3. Le même nombre pour tout le monde, sinon une maison devient le chemin court et les cinq autres un détour. Le barème qui fait foi reste en SQL (migration 0018) ; un contrat devra tenir les deux d'accord.",
-  "_v1": "Le nom du groupe de la V1 est gardé sur chaque branche : les six groupes de t855 (Ho-Oh, Reshiram, Deoxys, Xerneas, Zamazenta, Mew) ne portent pas les noms des six maisons de la V2, et L'APPARIEMENT EST UNE PROPOSITION — Ho-Oh chez Brave parce que ses quatre missions sont du combat, Deoxys chez Sérieux parce que le chromatique va avec sa rareté doublée.",
-  "avantLaPorte": {
-    "2": 3,
-    "3": 3
+  "_": "L'ARBRE DES PALIERS. Neuf objectifs par palier, en trois couches : six communs aux six maisons, deux propres à la maison, une mission écrite. « On voulait entre 8 et 10 objectifs par paliers. » — 26 novembre.",
+  "_pourquoi": "NEUF × DEUX PALIERS × SIX MAISONS FONT CENT HUIT OBJECTIFS, et la V1 en a laissé douze. La seule question qui compte est donc QUI ÉCRIT QUOI, et c'est ce que les trois couches tranchent : les communs et les objectifs de maison sont des FAITS DE JEU que la base compte — pas une ligne de prose, pas une relecture du staff. Seule la mission est écrite. Douze missions pour douze cases, et il en manque trois.",
+  "_maison": "LES DEUX OBJECTIFS DE MAISON ONT LA MÊME MÉCANIQUE QUE LES COMMUNS, un filtre différent. C'est ce qui permet à une maison de se sentir sans rien coûter en écriture : le Hardi fouille parce que son avantage relance une fouille bredouille, le Sérieux croise des rares parce que le sien double la rareté, le Jovial cherche des fossiles parce que les siens sont doublés.",
+  "_mesures": "LES MESURES NOMMÉES SONT DES PROMESSES, PAS DU CODE : elles disent ce que le SQL devra savoir compter. VINGT, ET C'EST UN BUDGET. Le premier jet en demandait vingt-cinq, parce que chaque maison avait deux mesures neuves au palier 3 — un colosseum, une réanimation de fossile, une dépense. Chacune était plus jolie que « la même chose, en plus », et chacune coûtait une requête SQL de plus à écrire et à tenir. Le palier 3 reprend donc les deux mesures du palier 2 avec un seuil plus haut. La relève en compte trois aujourd'hui — badges, zones, chromatiques ; les autres sont une migration et pas une devinette, les tables existent toutes (cloture, pokemon, pokedex, registre, rp_participant, combat, defi, commande, pension, fossile_morceau).",
+  "_aecrire": "Trois missions manquent — Sérieux, Malin et Jovial n'en ont qu'une chacun là où il en faut deux. Elles restent VIDES : les écrire à la place de Callista serait pire que de montrer le trou.",
+  "parPalier": 9,
+  "communs": {
+    "2": [
+      {
+        "clef": "c2-rp",
+        "titre": "Clôturer 3 RP",
+        "genre": "commun",
+        "mesure": "cloture",
+        "seuil": 3
+      },
+      {
+        "clef": "c2-capture",
+        "titre": "Capturer 5 pokémon",
+        "genre": "commun",
+        "mesure": "pokemon",
+        "seuil": 5
+      },
+      {
+        "clef": "c2-zones",
+        "titre": "Visiter 4 zones",
+        "genre": "commun",
+        "mesure": "zones_visitees",
+        "seuil": 4
+      },
+      {
+        "clef": "c2-pokedex",
+        "titre": "Croiser 20 espèces",
+        "genre": "commun",
+        "mesure": "pokedex",
+        "seuil": 20
+      },
+      {
+        "clef": "c2-amis",
+        "titre": "Jouer avec 2 personnes différentes",
+        "genre": "commun",
+        "mesure": "partenaires",
+        "seuil": 2
+      },
+      {
+        "clef": "c2-marche",
+        "titre": "Acheter au Marché",
+        "genre": "commun",
+        "mesure": "commandes",
+        "seuil": 1
+      }
+    ],
+    "3": [
+      {
+        "clef": "c3-rp",
+        "titre": "Clôturer 10 RP",
+        "genre": "commun",
+        "mesure": "cloture",
+        "seuil": 10
+      },
+      {
+        "clef": "c3-niveau",
+        "titre": "Trois pokémon au niveau 30",
+        "genre": "commun",
+        "mesure": "trois_au_niveau_30",
+        "seuil": 3
+      },
+      {
+        "clef": "c3-zones",
+        "titre": "Les six zones de palier 2",
+        "genre": "commun",
+        "mesure": "zones_palier_2",
+        "seuil": 6
+      },
+      {
+        "clef": "c3-pokedex",
+        "titre": "Croiser 60 espèces",
+        "genre": "commun",
+        "mesure": "pokedex",
+        "seuil": 60
+      },
+      {
+        "clef": "c3-amis",
+        "titre": "Jouer avec 6 personnes différentes",
+        "genre": "commun",
+        "mesure": "partenaires",
+        "seuil": 6
+      },
+      {
+        "clef": "c3-duels",
+        "titre": "Gagner 3 duels",
+        "genre": "commun",
+        "mesure": "duels_gagnes",
+        "seuil": 3
+      }
+    ]
   },
   "branches": [
     {
       "clef": "hardi",
       "nom": "Hardi",
       "embleme": "Keldeo",
-      "v1": "Groupe Reshiram",
-      "etapes": [
-        {
-          "clef": "hardi-1",
-          "titre": "Faire gagner un LVL à son pokemon durant un rp.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "hardi-2",
-          "titre": "Capturer trois pokemon d'un même type dans un rp.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "hardi-3",
-          "titre": "Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "hardi-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "hardi-4-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "hardi-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "hardi-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "hardi-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "hardi-2-1",
+            "titre": "Fouiller 30 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 30
+          },
+          {
+            "clef": "hardi-2-2",
+            "titre": "Revenir 5 fois dans la même zone",
+            "genre": "maison",
+            "mesure": "retours_zone",
+            "seuil": 5
+          },
+          {
+            "clef": "hardi-2-mission",
+            "titre": "Faire gagner un LVL à son pokemon durant un rp.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "hardi-3-1",
+            "titre": "Fouiller 100 fois",
+            "genre": "maison",
+            "mesure": "fouilles",
+            "seuil": 100
+          },
+          {
+            "clef": "hardi-3-2",
+            "titre": "Revenir 15 fois dans la même zone",
+            "genre": "maison",
+            "mesure": "retours_zone",
+            "seuil": 15
+          },
+          {
+            "clef": "hardi-3-mission",
+            "titre": "Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.",
+            "genre": "mission"
+          }
+        ]
+      }
     },
     {
       "clef": "serieux",
       "nom": "Sérieux",
       "embleme": "Créhelf",
-      "v1": "Groupe Deoxys",
-      "etapes": [
-        {
-          "clef": "serieux-1",
-          "titre": "Trouver un pokemon chromatique.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "serieux-2-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "serieux-3-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "serieux-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "serieux-4-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "serieux-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "serieux-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "serieux-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "serieux-2-1",
+            "titre": "Croiser 3 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 3
+          },
+          {
+            "clef": "serieux-2-2",
+            "titre": "Compléter une zone",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 1
+          },
+          {
+            "clef": "serieux-2-mission",
+            "titre": "Trouver un pokemon chromatique.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "serieux-3-1",
+            "titre": "Croiser 10 pokémon rares",
+            "genre": "maison",
+            "mesure": "rares_croises",
+            "seuil": 10
+          },
+          {
+            "clef": "serieux-3-2",
+            "titre": "Compléter trois zones",
+            "genre": "maison",
+            "mesure": "zones_completes",
+            "seuil": 3
+          },
+          {
+            "clef": "serieux-3-mission",
+            "titre": "",
+            "genre": "a-ecrire"
+          }
+        ]
+      }
     },
     {
       "clef": "malin",
       "nom": "Malin",
       "embleme": "Hoopa",
-      "v1": "Groupe Zamazenta",
-      "etapes": [
-        {
-          "clef": "malin-1",
-          "titre": "Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "malin-2-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "malin-3-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "malin-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "malin-4-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "malin-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "malin-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "malin-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "malin-2-1",
+            "titre": "Quatre types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 4
+          },
+          {
+            "clef": "malin-2-2",
+            "titre": "Gagner un duel sans K.O.",
+            "genre": "maison",
+            "mesure": "duels_sans_ko",
+            "seuil": 1
+          },
+          {
+            "clef": "malin-2-mission",
+            "titre": "Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "malin-3-1",
+            "titre": "Six types différents en équipe",
+            "genre": "maison",
+            "mesure": "types_en_equipe",
+            "seuil": 6
+          },
+          {
+            "clef": "malin-3-2",
+            "titre": "Gagner 3 duels sans K.O.",
+            "genre": "maison",
+            "mesure": "duels_sans_ko",
+            "seuil": 3
+          },
+          {
+            "clef": "malin-3-mission",
+            "titre": "",
+            "genre": "a-ecrire"
+          }
+        ]
+      }
     },
     {
       "clef": "doux",
       "nom": "Doux",
       "embleme": "Shaymin",
-      "v1": "Groupe Xerneas",
-      "etapes": [
-        {
-          "clef": "doux-1",
-          "titre": "Trouver un pokemon femelle et mâle du même type pour un éleveur.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "doux-2",
-          "titre": "Capturer un couple de Pokemon identique.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "doux-3-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "doux-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "doux-4-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "doux-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "doux-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "doux-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "doux-2-1",
+            "titre": "Clôturer 3 RP à plusieurs",
+            "genre": "maison",
+            "mesure": "rp_a_plusieurs",
+            "seuil": 3
+          },
+          {
+            "clef": "doux-2-2",
+            "titre": "Confier un pokémon à la pension",
+            "genre": "maison",
+            "mesure": "pensions",
+            "seuil": 1
+          },
+          {
+            "clef": "doux-2-mission",
+            "titre": "Trouver un pokemon femelle et mâle du même type pour un éleveur.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "doux-3-1",
+            "titre": "Clôturer 8 RP à plusieurs",
+            "genre": "maison",
+            "mesure": "rp_a_plusieurs",
+            "seuil": 8
+          },
+          {
+            "clef": "doux-3-2",
+            "titre": "Confier 3 pokémon à la pension",
+            "genre": "maison",
+            "mesure": "pensions",
+            "seuil": 3
+          },
+          {
+            "clef": "doux-3-mission",
+            "titre": "Capturer un couple de Pokemon identique.",
+            "genre": "mission"
+          }
+        ]
+      }
     },
     {
       "clef": "brave",
       "nom": "Brave",
       "embleme": "Cresselia",
-      "v1": "Groupe Ho-Oh",
-      "etapes": [
-        {
-          "clef": "brave-1",
-          "titre": "Combattre à deux contre un duo maléfique.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "brave-2",
-          "titre": "Entraîner son équipe complète contre un PNJ.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "brave-3",
-          "titre": "Participer à un défi de la rue contre un autre membre pour un combat.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "brave-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "brave-4",
-          "titre": "Capturer un Pokémon Obscur pour le Prof. Syrus",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "brave-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "brave-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "brave-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "brave-2-1",
+            "titre": "Gagner 3 combats",
+            "genre": "maison",
+            "mesure": "combats_gagnes",
+            "seuil": 3
+          },
+          {
+            "clef": "brave-2-2",
+            "titre": "Encaisser 3 K.O. sans fuir",
+            "genre": "maison",
+            "mesure": "ko_encaisses",
+            "seuil": 3
+          },
+          {
+            "clef": "brave-2-mission",
+            "titre": "Combattre à deux contre un duo maléfique.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "brave-3-1",
+            "titre": "Gagner 10 combats",
+            "genre": "maison",
+            "mesure": "combats_gagnes",
+            "seuil": 10
+          },
+          {
+            "clef": "brave-3-2",
+            "titre": "Encaisser 10 K.O. sans fuir",
+            "genre": "maison",
+            "mesure": "ko_encaisses",
+            "seuil": 10
+          },
+          {
+            "clef": "brave-3-mission",
+            "titre": "Capturer un Pokémon Obscur pour le Prof. Syrus",
+            "genre": "mission"
+          }
+        ]
+      }
     },
     {
       "clef": "jovial",
       "nom": "Jovial",
       "embleme": "Celebi",
-      "v1": "Groupe Mew",
-      "etapes": [
-        {
-          "clef": "jovial-1",
-          "titre": "Aider une petite fille à retrouver son pokemon dans un rp.",
-          "texte": "",
-          "genre": "mission"
-        },
-        {
-          "clef": "jovial-2-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "jovial-3-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "jovial-palier-2",
-          "titre": "Palier 2",
-          "texte": "Les zones de palier 2 s'ouvrent.",
-          "genre": "palier",
-          "palier": 2
-        },
-        {
-          "clef": "jovial-4-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "jovial-5-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "jovial-6-a-ecrire",
-          "titre": "",
-          "texte": "",
-          "genre": "a-ecrire"
-        },
-        {
-          "clef": "jovial-palier-3",
-          "titre": "Palier 3",
-          "texte": "Les zones de palier 3 s'ouvrent.",
-          "genre": "palier",
-          "palier": 3
-        }
-      ]
+      "paliers": {
+        "2": [
+          {
+            "clef": "jovial-2-1",
+            "titre": "Trouver 2 morceaux de fossile",
+            "genre": "maison",
+            "mesure": "morceaux_fossile",
+            "seuil": 2
+          },
+          {
+            "clef": "jovial-2-2",
+            "titre": "Visiter 8 zones",
+            "genre": "maison",
+            "mesure": "zones_visitees",
+            "seuil": 8
+          },
+          {
+            "clef": "jovial-2-mission",
+            "titre": "Aider une petite fille à retrouver son pokemon dans un rp.",
+            "genre": "mission"
+          }
+        ],
+        "3": [
+          {
+            "clef": "jovial-3-1",
+            "titre": "Trouver 6 morceaux de fossile",
+            "genre": "maison",
+            "mesure": "morceaux_fossile",
+            "seuil": 6
+          },
+          {
+            "clef": "jovial-3-2",
+            "titre": "Visiter les 17 zones",
+            "genre": "maison",
+            "mesure": "zones_visitees",
+            "seuil": 17
+          },
+          {
+            "clef": "jovial-3-mission",
+            "titre": "",
+            "genre": "a-ecrire"
+          }
+        ]
+      }
     }
   ]
 }

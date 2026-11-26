@@ -70,166 +70,167 @@ PERLE = 21
 PORTE = 29
 
 
-#  ── TROIS FORMES POUR LE MÊME ARBRE ────────────────────────────────
+#  ── DEUX ÉTAGES, SEPT RAYONS CHACUN ───────────────────────────────
 #
-#  « Fais-moi plusieurs propositions. » — 26 novembre. La donnée ne
-#  change pas d'une forme à l'autre : seules les coordonnées changent,
-#  et tout le reste — perles, portes, liste, harnais — est commun.
-#  C'est la raison d'être de ces trois fonctions : comparer des mises
-#  en page sans entretenir trois pages.
+#  « On voulait entre 8 et 10 objectifs par paliers. » — 26 novembre.
+#  Neuf par palier, en trois couches : six communs, deux de maison, une
+#  mission. C'est la structure qui dicte le dessin, et pas l'inverse.
 #
-#   · `radiale`  — un moyeu, six rayons à soixante degrés. C'est la
-#     forme des captures de jeux : le personnage au centre, le monde
-#     autour. Elle occupe un carré, donc elle rétrécit vite dans une
-#     colonne de forum ;
-#   · `eventail` — le moyeu en bas, six branches qui montent en
-#     éventail sur cent soixante degrés. Un arbre qui pousse, et une
-#     page large plutôt que carrée : à largeur égale, les perles sont
-#     plus grosses ;
-#   · `colonnes` — six colonnes verticales côte à côte, le moyeu en
-#     barre au pied. La moins spectaculaire, et de loin la plus
-#     lisible : les six chemins se comparent rang par rang, à
-#     l'horizontale.
+#  Un étage est une LENTILLE : tous les rayons partent du même point et
+#  se rejoignent au même point, la porte du palier. Le rayon du milieu
+#  porte les six communs ; les six autres portent les trois objectifs
+#  d'une maison. On voit d'un regard ce que tout le monde fait et ce
+#  qui n'appartient qu'à soi — c'est exactement ce que la structure
+#  dit, et aucune liste ne le montre aussi vite.
+#
+#  Deux étages empilés : le palier 2 en bas, le 3 au-dessus, et la
+#  porte du 2 sert de base au 3.
 
-FORMES = ("radiale", "eventail", "colonnes")
-
-#  Chaque forme donne son cadre : un carré pour la radiale, un paysage
-#  pour les deux autres. Écrire un cadre carré pour tout le monde
-#  laisserait la moitié du dessin vide dans deux cas sur trois.
-#  LES TROIS CADRES ONT ÉTÉ RÉGLÉS AU RENDU, pas au calcul : un nom de
-#  maison déborde de sa demi-largeur de texte, qu'aucun rayon ne dit.
-#  L'éventail touchait ses deux bords à 1600 de large, et les colonnes
-#  sortaient de 144 par le haut — huit perles montent plus haut qu'un
-#  cadre de mille.
-CADRES = {
-    "radiale": (1500, 1500),
-    "eventail": (1800, 1050),
-    "colonnes": (1200, 1300),
-}
-
-
-def moyeu_de(forme):
-    l, h = CADRES[forme]
-    if forme == "radiale":
-        return l / 2, h / 2
-    return l / 2, h - 90
+CADRE_L, CADRE_H = 1240, 1180
+CX = CADRE_L / 2
+Y_PIED = 1090
+Y_PORTE_2 = 660
+Y_PORTE_3 = 230
+RAYON_MOYEU = 60
+PERLE = 20
+PORTE = 30
+#  L'ÉCARTEMENT DES SIX RAYONS DE MAISON, de part et d'autre du rayon
+#  commun. Trois à gauche, trois à droite : un éventail d'un seul côté
+#  laisserait la moitié du cadre vide.
+#  LES ÉCARTS SONT CEUX DU POINT DE CONTRÔLE, PAS DU VENTRE DE LA
+#  COURBE. Une Bézier quadratique ne passe qu'à la MOITIÉ de son point
+#  de contrôle : réglés à 430 au premier jet, les rayons s'écartaient
+#  de 215 et le dessin occupait la moitié de son cadre. Mesuré au
+#  rendu — la bonne boîte faisait 571 de large dans un cadre de 1240.
+ECARTS = (-860, -570, -290, 290, 570, 860)
 
 
-def position(forme, branche, rang, total=6):
-    l, h = CADRES[forme]
-    cx, cy = moyeu_de(forme)
-    if forme == "colonnes":
-        #  LES COLONNES PARTENT DU BAS ET MONTENT. Une colonne qui
-        #  descend se lit à l'envers d'un arbre, et l'œil cherche la
-        #  racine en haut.
-        pas = 118
-        x = (l / (total + 1)) * (branche + 1)
-        return x, cy - 110 - rang * pas
-    if forme == "eventail":
-        #  CENT SOIXANTE DEGRÉS ET PAS CENT QUATRE-VINGTS : les deux
-        #  branches extrêmes seraient horizontales, donc à ras du bord
-        #  bas, et leurs noms sortiraient du cadre.
-        angle = math.radians(-170 + branche * (160 / (total - 1)))
-        r = 150 + rang * 76
-    else:
-        angle = math.radians(-90 + branche * (360 / total))
-        r = RAYON_1 + rang * PAS
-    return cx + r * math.cos(angle), cy + r * math.sin(angle)
+def courbe(t, x0, y0, cxc, cyc, x1, y1):
+    """Un point d'une Bézier quadratique. Les rayons sont courbes et
+    pas droits : sept droites partant du même point feraient une
+    étoile, où l'on ne suit aucun chemin des yeux."""
+    u = 1 - t
+    return (u * u * x0 + 2 * u * t * cxc + t * t * x1,
+            u * u * y0 + 2 * u * t * cyc + t * t * y1)
+
+
+def rayon(ecart, y0, y1, combien, bord0, bord1):
+    """Le tracé d'un rayon et la position de ses perles.
+
+    LE RAYON PART DU BORD DU MOYEU, PAS DE SON CENTRE. Tracé depuis le
+    centre, il passait sous le disque — ce qui ne se voit pas — mais sa
+    PREMIÈRE PERLE tombait dessus à moitié, et celle-là se voyait.
+    `bord0` et `bord1` sont les rayons des deux disques qu'il relie.
+    """
+    ya, yb = y0 - bord0, y1 + bord1
+    cxc, cyc = CX + ecart, (ya + yb) / 2
+    d = f"M {CX:.1f} {ya:.1f} Q {cxc:.1f} {cyc:.1f} {CX:.1f} {yb:.1f}"
+    perles = [courbe((k + 1) / (combien + 1), CX, ya, cxc, cyc, CX, yb)
+              for k in range(combien)]
+    return d, perles, courbe(0.5, CX, ya, cxc, cyc, CX, yb)
 
 
 def e(t):
     return html.escape(str(t or ""), quote=True)
 
 
-def dessin(d, forme):
-    """Le graphe. Les traits d'abord, les perles ensuite : en SVG,
-    l'ordre du document EST l'ordre d'empilement, et un trait tracé
-    après passerait par-dessus les perles qu'il relie."""
-    traits, perles = [], []
-    for i, b in enumerate(d["branches"]):
-        c = b["clef"]
-        x0, y0 = moyeu_de(forme)
-        #  LES PORTES NE PRENNENT PAS DE NUMÉRO D'ÉTAPE. Comptées dans
-        #  la suite, elles faisaient sauter un cran après chacune : la
-        #  quatrième étape s'annonçait cinquième, et la liste dessous
-        #  disait autre chose que le dessin.
-        numero = 0
-        for rang, etape in enumerate(b["etapes"]):
-            x, y = position(forme, i, rang)
-            traits.append(
-                f'      <line class="wm-paliers__trait" data-wm-maison="{e(c)}"'
-                f' x1="{x0:.1f}" y1="{y0:.1f}" x2="{x:.1f}" y2="{y:.1f}" />\n'
-            )
-            x0, y0 = x, y
-            porte = etape["genre"] == "palier"
-            if not porte:
-                numero += 1
-            perles.append(
-                f'      <g class="wm-paliers__perle" data-wm-maison="{e(c)}"'
-                f' data-wm-genre="{e(etape["genre"])}" data-wm-etape="{e(etape["clef"])}">\n'
-                f'        <circle cx="{x:.1f}" cy="{y:.1f}"'
-                f' r="{PORTE if porte else PERLE}" />\n'
-                f'        <text x="{x:.1f}" y="{y:.1f}">'
-                f'{e(etape["palier"] if porte else numero)}</text>\n'
-                "      </g>\n"
-            )
-    #  LE NOM DE LA MAISON EST AU BOUT DE SON RAYON, posé juste au-delà
-    #  de la dernière perle — un nom au milieu des perles les
-    #  traverserait.
-    noms = []
-    for i, b in enumerate(d["branches"]):
-        x, y = position(forme, i, len(b["etapes"]) - 1 + (0.9 if forme == "colonnes" else 1.15))
+def perle(x, y, texte, genre, clef, grosse=False):
+    return (
+        f'      <g class="wm-paliers__perle" data-wm-genre="{e(genre)}"'
+        f' data-wm-etape="{e(clef)}">\n'
+        f'        <circle cx="{x:.1f}" cy="{y:.1f}" r="{PORTE if grosse else PERLE}" />\n'
+        f'        <text x="{x:.1f}" y="{y:.1f}">{e(texte)}</text>\n'
+        "      </g>\n"
+    )
+
+
+def etage(d, palier, y0, y1, bord0):
+    """Un étage : le rayon des communs, les six rayons de maison, et la
+    porte au sommet."""
+    traits, perles, noms = [], [], []
+    communs = d["communs"][palier]
+    trace, points, _ = rayon(0, y0, y1, len(communs), bord0, PORTE)
+    traits.append(
+        f'      <path class="wm-paliers__trait wm-paliers__trait--commun"'
+        f' d="{trace}" />\n'
+    )
+    for (x, y), o in zip(points, communs):
+        perles.append(perle(x, y, "", "commun", o["clef"]))
+
+    for b, ecart in zip(d["branches"], ECARTS):
+        siens = b["paliers"][palier]
+        trace, points, (mx, my) = rayon(ecart, y0, y1, len(siens), bord0, PORTE)
+        traits.append(
+            f'      <path class="wm-paliers__trait" data-wm-maison="{e(b["clef"])}"'
+            f' d="{trace}" />\n'
+        )
+        for (x, y), o in zip(points, siens):
+            perles.append(perle(x, y, "", o["genre"], o["clef"]))
+        #  LE NOM DE LA MAISON EST AU VENTRE DE SON RAYON, décalé vers
+        #  l'extérieur : posé dessus, il recouvrirait une perle.
         noms.append(
             f'      <text class="wm-paliers__maison" data-wm-maison="{e(b["clef"])}"'
-            f' x="{x:.1f}" y="{y:.1f}">{e(b["nom"])}</text>\n'
+            f' x="{mx + (58 if ecart > 0 else -58):.1f}" y="{my:.1f}"'
+            f' text-anchor="{"start" if ecart > 0 else "end"}">{e(b["nom"])}</text>\n'
         )
-    #  LE MOYEU PASSE APRÈS LES ARÊTES. Dessiné avant, les six rayons
-    #  qui partent du centre exact lui passaient DESSUS et le barraient
-    #  d'une étoile. L'ordre du document est l'ordre d'empilement.
-    cx, cy = moyeu_de(forme)
+
+    porte = perle(CX, y1, palier, "palier", f"porte-{palier}", grosse=True)
+    return "".join(traits), "".join(perles) + porte, "".join(noms)
+
+
+def dessin(d):
+    bas = etage(d, "2", Y_PIED, Y_PORTE_2, RAYON_MOYEU)
+    haut = etage(d, "3", Y_PORTE_2, Y_PORTE_3, PORTE)
+    #  LE MOYEU PASSE APRÈS LES ARÊTES. Dessiné avant, les sept rayons
+    #  qui partent du pied le barraient d'une étoile.
     moyeu = (
-        f'      <circle class="wm-paliers__moyeu" cx="{cx:.1f}" cy="{cy:.1f}"'
+        f'      <circle class="wm-paliers__moyeu" cx="{CX}" cy="{Y_PIED}"'
         f' r="{RAYON_MOYEU}" />\n'
-        f'      <text class="wm-paliers__moyeu-texte" x="{cx:.1f}" y="{cy - 20:.1f}">'
+        f'      <text class="wm-paliers__moyeu-texte" x="{CX}" y="{Y_PIED - 16}">'
         "Palier</text>\n"
-        f'      <text class="wm-paliers__moyeu-chiffre" x="{cx:.1f}" y="{cy + 20:.1f}">'
+        f'      <text class="wm-paliers__moyeu-chiffre" x="{CX}" y="{Y_PIED + 16}">'
         "1</text>\n"
     )
-    return "".join(traits) + moyeu + "".join(perles) + "".join(noms)
+    return bas[0] + haut[0] + moyeu + bas[1] + haut[1] + bas[2] + haut[2]
 
 
-def liste(b):
-    lignes, numero = [], 0
-    for etape in b["etapes"]:
-        if etape["genre"] != "palier":
-            numero += 1
-        if etape["genre"] == "palier":
-            lignes.append(
-                f'          <li class="wm-paliers__etape" data-wm-genre="palier">\n'
-                f'            <span class="wm-paliers__rang">{e(etape["palier"])}</span>\n'
-                f'            <span class="wm-paliers__quoi"><strong>{e(etape["titre"])}'
-                f"</strong> — {e(etape['texte'])}</span>\n          </li>\n"
-            )
-        elif etape["genre"] == "a-ecrire":
-            lignes.append(
-                f'          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">\n'
-                f'            <span class="wm-paliers__rang">{numero}</span>\n'
-                '            <span class="wm-paliers__quoi">à écrire</span>\n'
-                "          </li>\n"
-            )
-        else:
-            lignes.append(
-                f'          <li class="wm-paliers__etape" data-wm-genre="{e(etape["genre"])}">\n'
-                f'            <span class="wm-paliers__rang">{numero}</span>\n'
-                f'            <span class="wm-paliers__quoi">{e(etape["titre"])}</span>\n'
-                "          </li>\n"
-            )
+ETIQUETTES = {
+    "commun": "commun",
+    "maison": "ta maison",
+    "mission": "mission",
+    "a-ecrire": "à écrire",
+}
+
+
+def ligne(o):
+    titre = o["titre"] if o["titre"] else "à écrire"
+    combien = (
+        f' <span class="wm-paliers__seuil">{e(o["mesure"])}</span>'
+        if o.get("mesure") else ""
+    )
+    return (
+        f'            <li class="wm-paliers__etape" data-wm-genre="{e(o["genre"])}">\n'
+        f'              <span class="wm-paliers__rang">{e(ETIQUETTES[o["genre"]])}</span>\n'
+        f'              <span class="wm-paliers__quoi">{e(titre)}{combien}</span>\n'
+        "            </li>\n"
+    )
+
+
+def liste(d, b):
+    blocs = []
+    for palier in ("2", "3"):
+        objectifs = list(d["communs"][palier]) + list(b["paliers"][palier])
+        blocs.append(
+            f'        <h3 class="wm-paliers__porte">Vers le palier {palier}</h3>\n'
+            f'        <ol class="wm-paliers__etapes">\n'
+            + "".join(ligne(o) for o in objectifs)
+            + "        </ol>\n"
+        )
     return (
         f'      <section class="wm-paliers__branche" data-wm-maison="{e(b["clef"])}">\n'
         f'        <h2 class="wm-paliers__titre">{e(b["nom"])} '
         f'<span class="wm-paliers__embleme">{e(b["embleme"])}</span></h2>\n'
-        f'        <ol class="wm-paliers__etapes">\n' + "".join(lignes)
-        + "        </ol>\n      </section>\n"
+        + "".join(blocs) + "      </section>\n"
     )
 
 
@@ -280,14 +281,14 @@ GABARIT = """<!-- ════════════════════�
 """
 
 CHAPO = (
-    "Chaque maison a sa branche, et sa branche est un chemin : on fait les étapes "
-    "dans l'ordre. {a2} étapes ouvrent le palier 2 et ses zones, {a3} de plus "
-    "ouvrent le palier 3. Ce ne sont pas des récompenses à collectionner — "
-    "c'est ce qu'il y a à faire."
+    "{n} objectifs ouvrent le palier 2 et ses zones, {n} de plus ouvrent le "
+    "palier 3. À chaque étage, six sont les mêmes pour tout le monde, deux "
+    "appartiennent à ta maison, et une est une mission à jouer. Ce ne sont pas "
+    "des récompenses à collectionner — c'est ce qu'il y a à faire."
 )
 
 
-def ecrire(source=None, sortie=None, forme="radiale"):
+def ecrire(source=None, sortie=None):
     source = source or (R / "data/arbre.json")
     sortie = sortie or SORTIE
     d = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
@@ -298,11 +299,11 @@ def ecrire(source=None, sortie=None, forme="radiale"):
         barre=BARRE,
         pied=PIED,
         pages=PAGES,
-        cadreL=CADRES[forme][0],
-        cadreH=CADRES[forme][1],
-        chapo=e(CHAPO.format(a2=d["avantLaPorte"]["2"], a3=d["avantLaPorte"]["3"])),
-        dessin=dessin(d, forme),
-        listes="".join(liste(b) for b in d["branches"]),
+        cadreL=CADRE_L,
+        cadreH=CADRE_H,
+        chapo=e(CHAPO.format(n=d["parPalier"])),
+        dessin=dessin(d),
+        listes="".join(liste(d, b) for b in d["branches"]),
     )
 
     #  MÊME GARDE QUE LES ANNEXES : l'éditeur de pages HTML de
@@ -315,20 +316,17 @@ def ecrire(source=None, sortie=None, forme="radiale"):
         )
 
     pathlib.Path(sortie).write_text(page, encoding="utf-8")
-    etapes = sum(len(b["etapes"]) for b in d["branches"])
-    a_ecrire = sum(
-        1 for b in d["branches"] for x in b["etapes"] if x["genre"] == "a-ecrire"
+    objectifs = sum(len(v) for v in d["communs"].values()) + sum(
+        len(x) for b in d["branches"] for x in b["paliers"].values()
     )
-    print(f"  {pathlib.Path(sortie).name} — {etapes} étape(s), {len(page)} caractères")
+    a_ecrire = sum(
+        1 for b in d["branches"] for x in b["paliers"].values() for o in x
+        if o["genre"] == "a-ecrire"
+    )
+    print(f"  {pathlib.Path(sortie).name} — {objectifs} objectif(s), {len(page)} caractères")
     if a_ecrire:
-        print(f"  ⚠ {a_ecrire} étape(s) restent à écrire")
+        print(f"  ⚠ {a_ecrire} mission(s) restent à écrire")
 
 
 if __name__ == "__main__":
-    #  SANS ARGUMENT, LA FORME RETENUE. Avec `--formes`, les trois,
-    #  chacune dans son fichier, pour les comparer côte à côte.
-    if "--formes" in sys.argv:
-        for f in FORMES:
-            ecrire(sortie=R / f"pages/arbre-des-paliers-{f}.html", forme=f)
-    else:
-        ecrire()
+    ecrire()
