@@ -53,3 +53,9 @@ planches/decoupage.png
 # python
 __pycache__/
 *.pyc
+
+#  LES TROIS FORMES DE COMPARAISON NE SE LIVRENT PAS. Seule la forme
+#  retenue est versionnée ; `python3 outils/arbre.py --formes` écrit les
+#  trois pour les regarder côte à côte, et ça ne regarde que la machine
+#  qui les a écrites.
+/pages/arbre-des-paliers-*.html

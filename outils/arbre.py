@@ -70,31 +70,92 @@ PERLE = 21
 PORTE = 29
 
 
-def position(branche, rang):
-    angle = math.radians(-90 + branche * 60)
-    r = RAYON_1 + rang * PAS
-    return CENTRE + r * math.cos(angle), CENTRE + r * math.sin(angle)
+#  ── TROIS FORMES POUR LE MÊME ARBRE ────────────────────────────────
+#
+#  « Fais-moi plusieurs propositions. » — 26 novembre. La donnée ne
+#  change pas d'une forme à l'autre : seules les coordonnées changent,
+#  et tout le reste — perles, portes, liste, harnais — est commun.
+#  C'est la raison d'être de ces trois fonctions : comparer des mises
+#  en page sans entretenir trois pages.
+#
+#   · `radiale`  — un moyeu, six rayons à soixante degrés. C'est la
+#     forme des captures de jeux : le personnage au centre, le monde
+#     autour. Elle occupe un carré, donc elle rétrécit vite dans une
+#     colonne de forum ;
+#   · `eventail` — le moyeu en bas, six branches qui montent en
+#     éventail sur cent soixante degrés. Un arbre qui pousse, et une
+#     page large plutôt que carrée : à largeur égale, les perles sont
+#     plus grosses ;
+#   · `colonnes` — six colonnes verticales côte à côte, le moyeu en
+#     barre au pied. La moins spectaculaire, et de loin la plus
+#     lisible : les six chemins se comparent rang par rang, à
+#     l'horizontale.
+
+FORMES = ("radiale", "eventail", "colonnes")
+
+#  Chaque forme donne son cadre : un carré pour la radiale, un paysage
+#  pour les deux autres. Écrire un cadre carré pour tout le monde
+#  laisserait la moitié du dessin vide dans deux cas sur trois.
+#  LES TROIS CADRES ONT ÉTÉ RÉGLÉS AU RENDU, pas au calcul : un nom de
+#  maison déborde de sa demi-largeur de texte, qu'aucun rayon ne dit.
+#  L'éventail touchait ses deux bords à 1600 de large, et les colonnes
+#  sortaient de 144 par le haut — huit perles montent plus haut qu'un
+#  cadre de mille.
+CADRES = {
+    "radiale": (1500, 1500),
+    "eventail": (1800, 1050),
+    "colonnes": (1200, 1300),
+}
+
+
+def moyeu_de(forme):
+    l, h = CADRES[forme]
+    if forme == "radiale":
+        return l / 2, h / 2
+    return l / 2, h - 90
+
+
+def position(forme, branche, rang, total=6):
+    l, h = CADRES[forme]
+    cx, cy = moyeu_de(forme)
+    if forme == "colonnes":
+        #  LES COLONNES PARTENT DU BAS ET MONTENT. Une colonne qui
+        #  descend se lit à l'envers d'un arbre, et l'œil cherche la
+        #  racine en haut.
+        pas = 118
+        x = (l / (total + 1)) * (branche + 1)
+        return x, cy - 110 - rang * pas
+    if forme == "eventail":
+        #  CENT SOIXANTE DEGRÉS ET PAS CENT QUATRE-VINGTS : les deux
+        #  branches extrêmes seraient horizontales, donc à ras du bord
+        #  bas, et leurs noms sortiraient du cadre.
+        angle = math.radians(-170 + branche * (160 / (total - 1)))
+        r = 150 + rang * 76
+    else:
+        angle = math.radians(-90 + branche * (360 / total))
+        r = RAYON_1 + rang * PAS
+    return cx + r * math.cos(angle), cy + r * math.sin(angle)
 
 
 def e(t):
     return html.escape(str(t or ""), quote=True)
 
 
-def dessin(d):
+def dessin(d, forme):
     """Le graphe. Les traits d'abord, les perles ensuite : en SVG,
     l'ordre du document EST l'ordre d'empilement, et un trait tracé
     après passerait par-dessus les perles qu'il relie."""
     traits, perles = [], []
     for i, b in enumerate(d["branches"]):
         c = b["clef"]
-        x0, y0 = CENTRE, CENTRE
+        x0, y0 = moyeu_de(forme)
         #  LES PORTES NE PRENNENT PAS DE NUMÉRO D'ÉTAPE. Comptées dans
         #  la suite, elles faisaient sauter un cran après chacune : la
         #  quatrième étape s'annonçait cinquième, et la liste dessous
         #  disait autre chose que le dessin.
         numero = 0
         for rang, etape in enumerate(b["etapes"]):
-            x, y = position(i, rang)
+            x, y = position(forme, i, rang)
             traits.append(
                 f'      <line class="wm-paliers__trait" data-wm-maison="{e(c)}"'
                 f' x1="{x0:.1f}" y1="{y0:.1f}" x2="{x:.1f}" y2="{y:.1f}" />\n'
@@ -117,7 +178,7 @@ def dessin(d):
     #  traverserait.
     noms = []
     for i, b in enumerate(d["branches"]):
-        x, y = position(i, len(b["etapes"]) - 1 + 1.15)
+        x, y = position(forme, i, len(b["etapes"]) - 1 + (0.9 if forme == "colonnes" else 1.15))
         noms.append(
             f'      <text class="wm-paliers__maison" data-wm-maison="{e(b["clef"])}"'
             f' x="{x:.1f}" y="{y:.1f}">{e(b["nom"])}</text>\n'
@@ -125,12 +186,13 @@ def dessin(d):
     #  LE MOYEU PASSE APRÈS LES ARÊTES. Dessiné avant, les six rayons
     #  qui partent du centre exact lui passaient DESSUS et le barraient
     #  d'une étoile. L'ordre du document est l'ordre d'empilement.
+    cx, cy = moyeu_de(forme)
     moyeu = (
-        f'      <circle class="wm-paliers__moyeu" cx="{CENTRE}" cy="{CENTRE}"'
+        f'      <circle class="wm-paliers__moyeu" cx="{cx:.1f}" cy="{cy:.1f}"'
         f' r="{RAYON_MOYEU}" />\n'
-        f'      <text class="wm-paliers__moyeu-texte" x="{CENTRE}" y="{CENTRE - 20}">'
+        f'      <text class="wm-paliers__moyeu-texte" x="{cx:.1f}" y="{cy - 20:.1f}">'
         "Palier</text>\n"
-        f'      <text class="wm-paliers__moyeu-chiffre" x="{CENTRE}" y="{CENTRE + 20}">'
+        f'      <text class="wm-paliers__moyeu-chiffre" x="{cx:.1f}" y="{cy + 20:.1f}">'
         "1</text>\n"
     )
     return "".join(traits) + moyeu + "".join(perles) + "".join(noms)
@@ -200,7 +262,7 @@ GABARIT = """<!-- ════════════════════�
       <p class="wm-annexe__chapo">{chapo}</p>
 
       <div class="wm-paliers" data-wm-paliers>
-        <svg class="wm-paliers__dessin" viewBox="0 0 {cadre} {cadre}"
+        <svg class="wm-paliers__dessin" viewBox="0 0 {cadreL} {cadreH}"
              role="presentation" aria-hidden="true" focusable="false">
 {dessin}        </svg>
 
@@ -225,7 +287,7 @@ CHAPO = (
 )
 
 
-def ecrire(source=None, sortie=None):
+def ecrire(source=None, sortie=None, forme="radiale"):
     source = source or (R / "data/arbre.json")
     sortie = sortie or SORTIE
     d = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
@@ -236,9 +298,10 @@ def ecrire(source=None, sortie=None):
         barre=BARRE,
         pied=PIED,
         pages=PAGES,
-        cadre=CADRE,
+        cadreL=CADRES[forme][0],
+        cadreH=CADRES[forme][1],
         chapo=e(CHAPO.format(a2=d["avantLaPorte"]["2"], a3=d["avantLaPorte"]["3"])),
-        dessin=dessin(d),
+        dessin=dessin(d, forme),
         listes="".join(liste(b) for b in d["branches"]),
     )
 
@@ -262,4 +325,10 @@ def ecrire(source=None, sortie=None):
 
 
 if __name__ == "__main__":
-    ecrire()
+    #  SANS ARGUMENT, LA FORME RETENUE. Avec `--formes`, les trois,
+    #  chacune dans son fichier, pour les comparer côte à côte.
+    if "--formes" in sys.argv:
+        for f in FORMES:
+            ecrire(sortie=R / f"pages/arbre-des-paliers-{f}.html", forme=f)
+    else:
+        ecrire()
