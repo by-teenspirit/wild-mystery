@@ -1,0 +1,533 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     Arbre des paliers — à coller dans une page HTML.
+
+     ÉCRITE PAR `outils/arbre.py` depuis `data/arbre.json`. Ne pas
+     corriger ce fichier à la main : la correction serait perdue à la
+     prochaine génération.
+
+     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
+     MODE AVANCÉ, et « Utiliser le header et le footer du forum » = NON.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Les paliers — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css" />
+</head>
+<body>
+<div id="modernbb">
+    <nav class="wm-retour" aria-label="Retour au forum">
+      <a class="wm-retour__nom" href="/">Wild Mystery</a>
+      <a class="wm-retour__lien" href="/search">Rechercher</a>
+      <a class="wm-retour__lien" href="/memberlist">Membres</a>
+      <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+    </nav>
+
+<div class="wm-annexe">
+  <div class="wm-annexe__corps">
+    <div class="wm-annexe__colonne wm-annexe__colonne--large">
+
+      <p class="wm-annexe__surtitre">La progression</p>
+      <h1 class="wm-annexe__titre">Les paliers</h1>
+      <p class="wm-annexe__chapo">Chaque maison a sa branche, et sa branche est un chemin : on fait les étapes dans l&#x27;ordre. 3 étapes ouvrent le palier 2 et ses zones, 3 de plus ouvrent le palier 3. Ce ne sont pas des récompenses à collectionner — c&#x27;est ce qu&#x27;il y a à faire.</p>
+
+      <div class="wm-paliers" data-wm-paliers>
+        <svg class="wm-paliers__dessin" viewBox="0 0 1500 1500"
+             role="presentation" aria-hidden="true" focusable="false">
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="750.0" x2="750.0" y2="610.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="610.0" x2="750.0" y2="544.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="544.0" x2="750.0" y2="478.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="478.0" x2="750.0" y2="412.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="412.0" x2="750.0" y2="346.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="346.0" x2="750.0" y2="280.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="280.0" x2="750.0" y2="214.0" />
+      <line class="wm-paliers__trait" data-wm-maison="hardi" x1="750.0" y1="214.0" x2="750.0" y2="148.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="750.0" y1="750.0" x2="871.2" y2="680.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="871.2" y1="680.0" x2="928.4" y2="647.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="928.4" y1="647.0" x2="985.6" y2="614.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="985.6" y1="614.0" x2="1042.7" y2="581.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="1042.7" y1="581.0" x2="1099.9" y2="548.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="1099.9" y1="548.0" x2="1157.0" y2="515.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="1157.0" y1="515.0" x2="1214.2" y2="482.0" />
+      <line class="wm-paliers__trait" data-wm-maison="serieux" x1="1214.2" y1="482.0" x2="1271.3" y2="449.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="750.0" y1="750.0" x2="871.2" y2="820.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="871.2" y1="820.0" x2="928.4" y2="853.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="928.4" y1="853.0" x2="985.6" y2="886.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="985.6" y1="886.0" x2="1042.7" y2="919.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="1042.7" y1="919.0" x2="1099.9" y2="952.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="1099.9" y1="952.0" x2="1157.0" y2="985.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="1157.0" y1="985.0" x2="1214.2" y2="1018.0" />
+      <line class="wm-paliers__trait" data-wm-maison="malin" x1="1214.2" y1="1018.0" x2="1271.3" y2="1051.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="750.0" x2="750.0" y2="890.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="890.0" x2="750.0" y2="956.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="956.0" x2="750.0" y2="1022.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="1022.0" x2="750.0" y2="1088.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="1088.0" x2="750.0" y2="1154.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="1154.0" x2="750.0" y2="1220.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="1220.0" x2="750.0" y2="1286.0" />
+      <line class="wm-paliers__trait" data-wm-maison="doux" x1="750.0" y1="1286.0" x2="750.0" y2="1352.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="750.0" y1="750.0" x2="628.8" y2="820.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="628.8" y1="820.0" x2="571.6" y2="853.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="571.6" y1="853.0" x2="514.4" y2="886.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="514.4" y1="886.0" x2="457.3" y2="919.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="457.3" y1="919.0" x2="400.1" y2="952.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="400.1" y1="952.0" x2="343.0" y2="985.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="343.0" y1="985.0" x2="285.8" y2="1018.0" />
+      <line class="wm-paliers__trait" data-wm-maison="brave" x1="285.8" y1="1018.0" x2="228.7" y2="1051.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="750.0" y1="750.0" x2="628.8" y2="680.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="628.8" y1="680.0" x2="571.6" y2="647.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="571.6" y1="647.0" x2="514.4" y2="614.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="514.4" y1="614.0" x2="457.3" y2="581.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="457.3" y1="581.0" x2="400.1" y2="548.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="400.1" y1="548.0" x2="343.0" y2="515.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="343.0" y1="515.0" x2="285.8" y2="482.0" />
+      <line class="wm-paliers__trait" data-wm-maison="jovial" x1="285.8" y1="482.0" x2="228.7" y2="449.0" />
+      <circle class="wm-paliers__moyeu" cx="750.0" cy="750.0" r="74" />
+      <text class="wm-paliers__moyeu-texte" x="750.0" y="730.0">Palier</text>
+      <text class="wm-paliers__moyeu-chiffre" x="750.0" y="770.0">1</text>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="mission" data-wm-etape="hardi-1">
+        <circle cx="750.0" cy="610.0" r="21" />
+        <text x="750.0" y="610.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="mission" data-wm-etape="hardi-2">
+        <circle cx="750.0" cy="544.0" r="21" />
+        <text x="750.0" y="544.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="mission" data-wm-etape="hardi-3">
+        <circle cx="750.0" cy="478.0" r="21" />
+        <text x="750.0" y="478.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="palier" data-wm-etape="hardi-palier-2">
+        <circle cx="750.0" cy="412.0" r="29" />
+        <text x="750.0" y="412.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="a-ecrire" data-wm-etape="hardi-4-a-ecrire">
+        <circle cx="750.0" cy="346.0" r="21" />
+        <text x="750.0" y="346.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="a-ecrire" data-wm-etape="hardi-5-a-ecrire">
+        <circle cx="750.0" cy="280.0" r="21" />
+        <text x="750.0" y="280.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="a-ecrire" data-wm-etape="hardi-6-a-ecrire">
+        <circle cx="750.0" cy="214.0" r="21" />
+        <text x="750.0" y="214.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="hardi" data-wm-genre="palier" data-wm-etape="hardi-palier-3">
+        <circle cx="750.0" cy="148.0" r="29" />
+        <text x="750.0" y="148.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="mission" data-wm-etape="serieux-1">
+        <circle cx="871.2" cy="680.0" r="21" />
+        <text x="871.2" y="680.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="a-ecrire" data-wm-etape="serieux-2-a-ecrire">
+        <circle cx="928.4" cy="647.0" r="21" />
+        <text x="928.4" y="647.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="a-ecrire" data-wm-etape="serieux-3-a-ecrire">
+        <circle cx="985.6" cy="614.0" r="21" />
+        <text x="985.6" y="614.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="palier" data-wm-etape="serieux-palier-2">
+        <circle cx="1042.7" cy="581.0" r="29" />
+        <text x="1042.7" y="581.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="a-ecrire" data-wm-etape="serieux-4-a-ecrire">
+        <circle cx="1099.9" cy="548.0" r="21" />
+        <text x="1099.9" y="548.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="a-ecrire" data-wm-etape="serieux-5-a-ecrire">
+        <circle cx="1157.0" cy="515.0" r="21" />
+        <text x="1157.0" y="515.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="a-ecrire" data-wm-etape="serieux-6-a-ecrire">
+        <circle cx="1214.2" cy="482.0" r="21" />
+        <text x="1214.2" y="482.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="serieux" data-wm-genre="palier" data-wm-etape="serieux-palier-3">
+        <circle cx="1271.3" cy="449.0" r="29" />
+        <text x="1271.3" y="449.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="mission" data-wm-etape="malin-1">
+        <circle cx="871.2" cy="820.0" r="21" />
+        <text x="871.2" y="820.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="a-ecrire" data-wm-etape="malin-2-a-ecrire">
+        <circle cx="928.4" cy="853.0" r="21" />
+        <text x="928.4" y="853.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="a-ecrire" data-wm-etape="malin-3-a-ecrire">
+        <circle cx="985.6" cy="886.0" r="21" />
+        <text x="985.6" y="886.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="palier" data-wm-etape="malin-palier-2">
+        <circle cx="1042.7" cy="919.0" r="29" />
+        <text x="1042.7" y="919.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="a-ecrire" data-wm-etape="malin-4-a-ecrire">
+        <circle cx="1099.9" cy="952.0" r="21" />
+        <text x="1099.9" y="952.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="a-ecrire" data-wm-etape="malin-5-a-ecrire">
+        <circle cx="1157.0" cy="985.0" r="21" />
+        <text x="1157.0" y="985.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="a-ecrire" data-wm-etape="malin-6-a-ecrire">
+        <circle cx="1214.2" cy="1018.0" r="21" />
+        <text x="1214.2" y="1018.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="malin" data-wm-genre="palier" data-wm-etape="malin-palier-3">
+        <circle cx="1271.3" cy="1051.0" r="29" />
+        <text x="1271.3" y="1051.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="mission" data-wm-etape="doux-1">
+        <circle cx="750.0" cy="890.0" r="21" />
+        <text x="750.0" y="890.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="mission" data-wm-etape="doux-2">
+        <circle cx="750.0" cy="956.0" r="21" />
+        <text x="750.0" y="956.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="a-ecrire" data-wm-etape="doux-3-a-ecrire">
+        <circle cx="750.0" cy="1022.0" r="21" />
+        <text x="750.0" y="1022.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="palier" data-wm-etape="doux-palier-2">
+        <circle cx="750.0" cy="1088.0" r="29" />
+        <text x="750.0" y="1088.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="a-ecrire" data-wm-etape="doux-4-a-ecrire">
+        <circle cx="750.0" cy="1154.0" r="21" />
+        <text x="750.0" y="1154.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="a-ecrire" data-wm-etape="doux-5-a-ecrire">
+        <circle cx="750.0" cy="1220.0" r="21" />
+        <text x="750.0" y="1220.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="a-ecrire" data-wm-etape="doux-6-a-ecrire">
+        <circle cx="750.0" cy="1286.0" r="21" />
+        <text x="750.0" y="1286.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="doux" data-wm-genre="palier" data-wm-etape="doux-palier-3">
+        <circle cx="750.0" cy="1352.0" r="29" />
+        <text x="750.0" y="1352.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="mission" data-wm-etape="brave-1">
+        <circle cx="628.8" cy="820.0" r="21" />
+        <text x="628.8" y="820.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="mission" data-wm-etape="brave-2">
+        <circle cx="571.6" cy="853.0" r="21" />
+        <text x="571.6" y="853.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="mission" data-wm-etape="brave-3">
+        <circle cx="514.4" cy="886.0" r="21" />
+        <text x="514.4" y="886.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="palier" data-wm-etape="brave-palier-2">
+        <circle cx="457.3" cy="919.0" r="29" />
+        <text x="457.3" y="919.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="mission" data-wm-etape="brave-4">
+        <circle cx="400.1" cy="952.0" r="21" />
+        <text x="400.1" y="952.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="a-ecrire" data-wm-etape="brave-5-a-ecrire">
+        <circle cx="343.0" cy="985.0" r="21" />
+        <text x="343.0" y="985.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="a-ecrire" data-wm-etape="brave-6-a-ecrire">
+        <circle cx="285.8" cy="1018.0" r="21" />
+        <text x="285.8" y="1018.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="brave" data-wm-genre="palier" data-wm-etape="brave-palier-3">
+        <circle cx="228.7" cy="1051.0" r="29" />
+        <text x="228.7" y="1051.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="mission" data-wm-etape="jovial-1">
+        <circle cx="628.8" cy="680.0" r="21" />
+        <text x="628.8" y="680.0">1</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="a-ecrire" data-wm-etape="jovial-2-a-ecrire">
+        <circle cx="571.6" cy="647.0" r="21" />
+        <text x="571.6" y="647.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="a-ecrire" data-wm-etape="jovial-3-a-ecrire">
+        <circle cx="514.4" cy="614.0" r="21" />
+        <text x="514.4" y="614.0">3</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="palier" data-wm-etape="jovial-palier-2">
+        <circle cx="457.3" cy="581.0" r="29" />
+        <text x="457.3" y="581.0">2</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="a-ecrire" data-wm-etape="jovial-4-a-ecrire">
+        <circle cx="400.1" cy="548.0" r="21" />
+        <text x="400.1" y="548.0">4</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="a-ecrire" data-wm-etape="jovial-5-a-ecrire">
+        <circle cx="343.0" cy="515.0" r="21" />
+        <text x="343.0" y="515.0">5</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="a-ecrire" data-wm-etape="jovial-6-a-ecrire">
+        <circle cx="285.8" cy="482.0" r="21" />
+        <text x="285.8" y="482.0">6</text>
+      </g>
+      <g class="wm-paliers__perle" data-wm-maison="jovial" data-wm-genre="palier" data-wm-etape="jovial-palier-3">
+        <circle cx="228.7" cy="449.0" r="29" />
+        <text x="228.7" y="449.0">3</text>
+      </g>
+      <text class="wm-paliers__maison" data-wm-maison="hardi" x="750.0" y="72.1">Hardi</text>
+      <text class="wm-paliers__maison" data-wm-maison="serieux" x="1337.1" y="411.1">Sérieux</text>
+      <text class="wm-paliers__maison" data-wm-maison="malin" x="1337.1" y="1088.9">Malin</text>
+      <text class="wm-paliers__maison" data-wm-maison="doux" x="750.0" y="1427.9">Doux</text>
+      <text class="wm-paliers__maison" data-wm-maison="brave" x="162.9" y="1088.9">Brave</text>
+      <text class="wm-paliers__maison" data-wm-maison="jovial" x="162.9" y="411.0">Jovial</text>
+        </svg>
+
+      <section class="wm-paliers__branche" data-wm-maison="hardi">
+        <h2 class="wm-paliers__titre">Hardi <span class="wm-paliers__embleme">Keldeo</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Faire gagner un LVL à son pokemon durant un rp.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">Capturer trois pokemon d&#x27;un même type dans un rp.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">Michael voit en vous un futur prodige des combats pokemon et a décidé de vous inviter à la Tour Pyrite pour vous aider à vous améliorer.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      <section class="wm-paliers__branche" data-wm-maison="serieux">
+        <h2 class="wm-paliers__titre">Sérieux <span class="wm-paliers__embleme">Créhelf</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Trouver un pokemon chromatique.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      <section class="wm-paliers__branche" data-wm-maison="malin">
+        <h2 class="wm-paliers__titre">Malin <span class="wm-paliers__embleme">Hoopa</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Voir son pokemon être mis KO par un pokemon sauvage durant un rp capture.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      <section class="wm-paliers__branche" data-wm-maison="doux">
+        <h2 class="wm-paliers__titre">Doux <span class="wm-paliers__embleme">Shaymin</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Trouver un pokemon femelle et mâle du même type pour un éleveur.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">Capturer un couple de Pokemon identique.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      <section class="wm-paliers__branche" data-wm-maison="brave">
+        <h2 class="wm-paliers__titre">Brave <span class="wm-paliers__embleme">Cresselia</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Combattre à deux contre un duo maléfique.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">Entraîner son équipe complète contre un PNJ.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">Participer à un défi de la rue contre un autre membre pour un combat.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">Capturer un Pokémon Obscur pour le Prof. Syrus</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      <section class="wm-paliers__branche" data-wm-maison="jovial">
+        <h2 class="wm-paliers__titre">Jovial <span class="wm-paliers__embleme">Celebi</span></h2>
+        <ol class="wm-paliers__etapes">
+          <li class="wm-paliers__etape" data-wm-genre="mission">
+            <span class="wm-paliers__rang">1</span>
+            <span class="wm-paliers__quoi">Aider une petite fille à retrouver son pokemon dans un rp.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">2</span>
+            <span class="wm-paliers__quoi"><strong>Palier 2</strong> — Les zones de palier 2 s&#x27;ouvrent.</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">4</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">5</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">
+            <span class="wm-paliers__rang">6</span>
+            <span class="wm-paliers__quoi">à écrire</span>
+          </li>
+          <li class="wm-paliers__etape" data-wm-genre="palier">
+            <span class="wm-paliers__rang">3</span>
+            <span class="wm-paliers__quoi"><strong>Palier 3</strong> — Les zones de palier 3 s&#x27;ouvrent.</span>
+          </li>
+        </ol>
+      </section>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <footer class="wm-pied-annexe">
+      Wild Mystery — forum créé avec
+      <a href="https://www.forumactif.com/">Forumactif</a>
+    </footer>
+</div>
+<script src="https://by-teenspirit.github.io/wild-mystery/js/annexes.js"></script>
+</body>
+</html>

@@ -1,195 +1,154 @@
 // ════════════════════════════════════════════════════════════════════
-//  L'arbre de compétences — quelles cases sont allumées, et à quel
-//  palier ça mène.
+//  L'arbre des paliers — où en est une joueuse sur sa branche.
 //
-//  « Est-ce que tu peux proposer un espèce d'arbre de compétences avec
-//  les missions et le coder ? » — 25 novembre.
+//  « On n'est pas sur des succès, on est vraiment sur des choses à
+//  faire pour atteindre le palier 2 puis le palier 3 et obtenir
+//  l'accès aux nouvelles zones. » — 26 novembre.
 //
-//  ── LES NŒUDS NE SONT PAS INVENTÉS ──────────────────────────────────
+//  ── CE QUE LA PREMIÈRE VERSION AVAIT COMPRIS DE TRAVERS ─────────────
 //
-//  Ce sont les médailles du sujet t1012 et les thèmes de missions du
-//  sujet t855, recopiés mot pour mot dans `data/arbre.json`. Ce
-//  fichier n'apporte que la lecture : qui est allumé, qui est à
-//  portée, qui attend autre chose.
+//  Elle lisait soixante-seize médailles — « posséder 5 pokémon »,
+//  « avoir posté 20 RP » — rangées en familles, avec des mesures que la
+//  base devait apprendre à compter. C'était un mur de SUCCÈS : ce
+//  qu'on a fait, constaté après coup. Une joueuse qui demande « que
+//  dois-je faire pour entrer dans les zones de palier 2 ? » n'y
+//  trouvait aucune réponse.
 //
-//  ── UNE CASE S'ALLUME, ELLE NE SE DÉSALLUME JAMAIS ──────────────────
+//  Une branche est maintenant un CHEMIN : des étapes dans l'ordre, et
+//  deux portes dessus. Les médailles restent ce qu'elles sont, des
+//  récompenses, et elles ne sont plus ici.
 //
-//  C'est la différence avec un total de points, et c'est tout
-//  l'intérêt. Une équipe de six pokémon de niveau 40 vendue le
-//  lendemain ne retire pas « Équipe de choc » : la médaille dit ce
-//  qu'on A FAIT, pas ce qu'on possède à l'instant. Côté base, cela
-//  veut dire qu'une ligne de `jalon` ne s'efface pas — et côté
-//  lecture, que `acquis` l'emporte sur toute mesure plus basse.
+//  ── UN CHEMIN SE PARCOURT DANS L'ORDRE ──────────────────────────────
 //
-//  ── TROIS GENRES, ET UN SEUL S'ALLUME TOUT SEUL ─────────────────────
+//  L'avancement d'une joueuse est UN NOMBRE : combien d'étapes de sa
+//  branche elle a franchies. Pas un ensemble de cases cochées dans le
+//  désordre — c'est ce qui permet de répondre « il t'en reste deux »
+//  sans rien calculer, et ce qui empêche de sauter la troisième pour
+//  faire la sixième.
 //
-//   · `mesure` — la base sait compter, la relève allume ;
-//   · `forum`  — la réponse est chez Forumactif (nombre de messages,
-//                délai de réponse). Personne ne la lit encore ;
-//   · `staff`  — un humain constate (un événement, un légendaire vu) ;
-//   · `mission`— le staff valide une mission jouée.
+//  ── LES PORTES NE SONT PAS DES ÉTAPES ───────────────────────────────
 //
-//  LES CASES QU'AUCUN SYSTÈME NE SAIT ALLUMER NE COMPTENT PAS DANS LE
-//  PALIER. Une condition que le jeu ne peut pas remplir bloquerait une
-//  montée sans que personne ne comprenne pourquoi — c'est exactement
-//  le cul-de-sac des badges qu'on est en train de défaire.
-//
-//  ── « À PORTÉE » EST UN ÉTAT, PAS UNE DÉCORATION ────────────────────
-//
-//  Un nœud dont les prérequis sont allumés se distingue d'un nœud
-//  qu'on ne peut pas encore tenter. C'est ce qui fait un arbre plutôt
-//  qu'une liste : on voit où aller ensuite.
+//  Elles sont posées SUR le chemin, aux mêmes rangs pour les six
+//  maisons, et elles ne se franchissent pas : elles s'ouvrent quand
+//  l'étape d'avant est faite. Une porte comptée comme une étape
+//  décalerait la numérotation de tout ce qui suit, et le dessin
+//  dirait autre chose que la liste.
 // ════════════════════════════════════════════════════════════════════
 
-/** Le genre d'un nœud — qui est capable de l'allumer. */
-export type Genre = "mesure" | "forum" | "staff" | "mission";
+/** Ce qui peut remplir une étape. */
+export type Genre = "mission" | "palier" | "a-ecrire";
 
-/** Un nœud de l'arbre : une médaille ou une mission. */
-export type Noeud = {
+export type Etape = {
   readonly clef: string;
   readonly titre: string;
-  readonly condition: string;
-  readonly recompense: string;
+  readonly texte: string;
   readonly genre: Genre;
-  /** Le nom de la mesure que la base devra savoir compter. */
-  readonly mesure?: string;
-  /** Le nombre à atteindre sur cette mesure. */
-  readonly seuil?: number;
-  /** Les clefs des nœuds à allumer avant celui-ci. */
-  readonly apres: readonly string[];
-};
-
-export type Famille = {
-  readonly clef: string;
-  readonly titre: string;
-  readonly note?: string;
-  readonly noeuds: readonly Noeud[];
+  /** Le palier que cette porte ouvre. Les portes seules en ont un. */
+  readonly palier?: 2 | 3;
 };
 
 export type Branche = {
   readonly clef: string;
   readonly nom: string;
   readonly embleme: string;
-  readonly noeuds: readonly Noeud[];
+  readonly etapes: readonly Etape[];
 };
 
-export type Seuils = { readonly cases: number; readonly deSaBranche: number };
-
 export type Arbre = {
-  readonly palier: { readonly "2": Seuils; readonly "3": Seuils };
-  readonly familles: readonly Famille[];
+  readonly avantLaPorte: { readonly "2": number; readonly "3": number };
   readonly branches: readonly Branche[];
 };
 
-/** Ce qu'on sait d'une joueuse au moment de dessiner son arbre. */
-export type Progres = {
-  /** Sa maison — la branche qui la concerne. `null` avant validation. */
-  readonly branche: string | null;
-  /** Les cases déjà allumées, par clef. Elles ne s'éteignent jamais. */
-  readonly acquis: ReadonlySet<string>;
-  /** Ce que la base sait compter aujourd'hui, par nom de mesure. */
-  readonly mesures: Readonly<Record<string, number>>;
-};
+/** L'état d'une étape pour une joueuse. */
+export type Etat = "faite" | "en-cours" | "a-venir" | "ouverte" | "fermee";
 
-/** L'état d'un nœud pour une joueuse donnée. */
-export type Etat = "acquis" | "a-portee" | "verrouille" | "hors-jeu";
-
-export type NoeudVu = {
-  readonly noeud: Noeud;
+export type EtapeVue = {
+  readonly etape: Etape;
+  /** Son rang dans la suite, portes exclues. `null` pour une porte. */
+  readonly numero: number | null;
   readonly etat: Etat;
-  /** Où elle en est sur la mesure du nœud, quand il y en a une. */
-  readonly ou: number | null;
 };
 
-/** LES GENRES QUE RIEN NE SAIT ENCORE ALLUMER. Ils s'affichent — la
- *  médaille existe, Callista l'a écrite — mais ils ne comptent pas, et
- *  l'arbre le dit plutôt que de les laisser croire accessibles. */
-const SANS_SYSTEME: ReadonlySet<Genre> = new Set<Genre>(["forum", "staff"]);
-
-function atteint(n: Noeud, p: Progres): boolean {
-  if (p.acquis.has(n.clef)) return true;
-  if (n.genre !== "mesure" || n.mesure === undefined || n.seuil === undefined) return false;
-  return (p.mesures[n.mesure] ?? 0) >= n.seuil;
-}
-
-/** L'état d'un nœud, prérequis compris. */
-export function etatDuNoeud(n: Noeud, p: Progres, tous: ReadonlyMap<string, Noeud>): Etat {
-  if (atteint(n, p)) return "acquis";
-  if (SANS_SYSTEME.has(n.genre)) return "hors-jeu";
-  //  UN PRÉREQUIS ABSENT NE VERROUILLE PAS. Une clef mal écrite dans
-  //  les données barrerait une branche entière sans un mot ; le
-  //  garde-fou des données est l'endroit pour le dire, pas l'écran
-  //  d'une joueuse.
-  const ouvert = n.apres.every((clef) => {
-    const prec = tous.get(clef);
-    return prec === undefined || atteint(prec, p);
+/** Les étapes d'une branche, numérotées, portes exclues. */
+export function numeroter(b: Branche): { etape: Etape; numero: number | null }[] {
+  let n = 0;
+  return b.etapes.map((etape) => {
+    if (etape.genre === "palier") return { etape, numero: null };
+    n += 1;
+    return { etape, numero: n };
   });
-  return ouvert ? "a-portee" : "verrouille";
 }
 
-function tousLesNoeuds(a: Arbre): Noeud[] {
-  return [
-    ...a.familles.flatMap((f) => [...f.noeuds]),
-    ...a.branches.flatMap((b) => [...b.noeuds]),
-  ];
+/** Combien d'étapes compte une branche, portes exclues. */
+export function combienDEtapes(b: Branche): number {
+  return b.etapes.filter((e) => e.genre !== "palier").length;
 }
 
-/** Tous les nœuds de l'arbre, avec leur état, dans l'ordre des
- *  données. La branche d'une autre maison n'y figure pas : un arbre
- *  qui montre six branches dont cinq inaccessibles n'est plus un
- *  arbre, c'est un catalogue. */
-export function lireLArbre(a: Arbre, p: Progres): NoeudVu[] {
-  const tous = new Map(tousLesNoeuds(a).map((n) => [n.clef, n]));
-  const retenus = [
-    ...a.familles.flatMap((f) => [...f.noeuds]),
-    ...a.branches.filter((b) => b.clef === p.branche).flatMap((b) => [...b.noeuds]),
-  ];
-  return retenus.map((noeud) => ({
-    noeud,
-    etat: etatDuNoeud(noeud, p, tous),
-    ou: noeud.mesure === undefined ? null : (p.mesures[noeud.mesure] ?? 0),
-  }));
+function brancheDe(a: Arbre, clef: string | null): Branche | null {
+  return a.branches.find((b) => b.clef === clef) ?? null;
 }
 
-/** Combien de cases sont allumées, en tout et dans sa branche. */
-export function compter(a: Arbre, p: Progres): { total: number; deSaBranche: number } {
-  const vus = lireLArbre(a, p);
-  const clefsDeLaBranche = new Set(
-    a.branches.filter((b) => b.clef === p.branche).flatMap((b) => b.noeuds.map((n) => n.clef)),
-  );
-  const allumes = vus.filter((v) => v.etat === "acquis");
-  return {
-    total: allumes.length,
-    deSaBranche: allumes.filter((v) => clefsDeLaBranche.has(v.noeud.clef)).length,
-  };
+/** Le chemin d'une joueuse, étape par étape.
+ *
+ *  `faites` est le NOMBRE d'étapes franchies, pas une liste : on ne
+ *  saute pas une étape, donc un nombre dit tout, et il ne peut pas se
+ *  contredire lui-même. */
+export function lireLaBranche(b: Branche, faites: number): EtapeVue[] {
+  return numeroter(b).map(({ etape, numero }) => {
+    if (numero === null) {
+      //  UNE PORTE S'OUVRE QUAND CE QUI LA PRÉCÈDE EST FAIT. Elle ne
+      //  se franchit pas elle-même.
+      const avant = b.etapes.indexOf(etape);
+      const requis = b.etapes.slice(0, avant).filter((e) => e.genre !== "palier").length;
+      return { etape, numero, etat: faites >= requis ? "ouverte" : "fermee" };
+    }
+    if (numero <= faites) return { etape, numero, etat: "faite" };
+    if (numero === faites + 1) return { etape, numero, etat: "en-cours" };
+    return { etape, numero, etat: "a-venir" };
+  });
 }
 
-/** Le palier que l'arbre donne. IL NE FAIT PAS FOI : le barème qui
+/** Le palier qu'une avancée donne. IL NE FAIT PAS FOI : le barème qui
  *  compte est en SQL (migration 0018), et cette fonction est là pour
- *  que l'écran dise la même chose que la base. Un contrat doit tenir
- *  les deux d'accord — deux barèmes qui divergent, c'est une joueuse
- *  à qui l'on promet une zone qui la refuse. */
-export function palierDe(a: Arbre, p: Progres): 1 | 2 | 3 {
-  const { total, deSaBranche } = compter(a, p);
-  const tient = (s: Seuils) => total >= s.cases && deSaBranche >= s.deSaBranche;
-  if (tient(a.palier["3"])) return 3;
-  if (tient(a.palier["2"])) return 2;
+ *  que l'écran dise la même chose que la base. Deux barèmes qui
+ *  divergent, c'est une joueuse à qui l'on promet une zone qui la
+ *  refuse. */
+export function palierDe(a: Arbre, faites: number): 1 | 2 | 3 {
+  if (faites >= a.avantLaPorte["2"] + a.avantLaPorte["3"]) return 3;
+  if (faites >= a.avantLaPorte["2"]) return 2;
   return 1;
 }
 
-/** Ce qu'il reste à faire pour le palier suivant. `null` au palier 3,
- *  où il n'y a plus rien à annoncer. */
-export function ilManque(
-  a: Arbre,
-  p: Progres,
-): { cases: number; deSaBranche: number } | null {
-  const palier = palierDe(a, p);
+/** Combien d'étapes séparent encore de la porte suivante. `null` au
+ *  palier 3, où il n'y a plus rien à annoncer. */
+export function ilManque(a: Arbre, faites: number): number | null {
+  const palier = palierDe(a, faites);
   if (palier === 3) return null;
-  const vise = a.palier[palier === 1 ? "2" : "3"];
-  const { total, deSaBranche } = compter(a, p);
+  const vise = palier === 1 ? a.avantLaPorte["2"] : a.avantLaPorte["2"] + a.avantLaPorte["3"];
+  return vise - faites;
+}
+
+/** L'étape à faire maintenant, s'il en reste une. */
+export function etapeDuJour(b: Branche, faites: number): Etape | null {
+  return lireLaBranche(b, faites).find((v) => v.etat === "en-cours")?.etape ?? null;
+}
+
+/** Ce que l'arbre d'une joueuse donne, en un appel. */
+export function ouEnEstElle(
+  a: Arbre,
+  maison: string | null,
+  faites: number,
+): { branche: Branche | null; chemin: EtapeVue[]; palier: 1 | 2 | 3; reste: number | null } {
+  const branche = brancheDe(a, maison);
   return {
-    cases: Math.max(0, vise.cases - total),
-    deSaBranche: Math.max(0, vise.deSaBranche - deSaBranche),
+    branche,
+    chemin: branche === null ? [] : lireLaBranche(branche, faites),
+    //  SANS MAISON, PAS DE BRANCHE, DONC PAS DE MONTÉE. Une joueuse
+    //  dont le personnage n'est pas encore validé n'a pas de chemin :
+    //  lui annoncer un palier 2 atteignable serait une promesse que
+    //  rien ne tient.
+    palier: branche === null ? 1 : palierDe(a, faites),
+    reste: branche === null ? null : ilManque(a, faites),
   };
 }
 
@@ -197,36 +156,30 @@ export function ilManque(
  *  c'est un contrôle de construction, pas un message de joueuse. */
 export function plaintes(a: Arbre): string[] {
   const dits: string[] = [];
-  const vus = new Set<string>();
-  const tous = tousLesNoeuds(a);
-  for (const n of tous) {
-    if (vus.has(n.clef)) dits.push(`deux nœuds portent la clef « ${n.clef} »`);
-    vus.add(n.clef);
-    if (n.genre === "mesure" && (n.mesure === undefined || n.seuil === undefined)) {
-      dits.push(`« ${n.clef} » est une mesure sans mesure ni seuil`);
-    }
-  }
-  for (const n of tous) {
-    for (const clef of n.apres) {
-      if (!vus.has(clef)) dits.push(`« ${n.clef} » attend « ${clef} », qui n'existe pas`);
-    }
-  }
-  //  UN CYCLE SE VOIT EN DESCENDANT. Deux nœuds qui s'attendent l'un
-  //  l'autre resteraient verrouillés pour toujours, et rien à l'écran
-  //  ne dirait pourquoi.
-  const par = new Map(tous.map((n) => [n.clef, n]));
-  for (const depart of tous) {
-    const vu = new Set<string>();
-    const pile = [...depart.apres];
-    while (pile.length > 0) {
-      const clef = pile.pop() as string;
-      if (clef === depart.clef) {
-        dits.push(`« ${depart.clef} » s'attend lui-même`);
-        break;
+  const vues = new Set<string>();
+  const attendu = combienDEtapes(a.branches[0] ?? { etapes: [] } as unknown as Branche);
+  for (const b of a.branches) {
+    for (const e of b.etapes) {
+      if (vues.has(e.clef)) dits.push(`deux étapes portent la clef « ${e.clef} »`);
+      vues.add(e.clef);
+      if (e.genre === "palier" && e.palier === undefined) {
+        dits.push(`la porte « ${e.clef} » ne dit pas quel palier elle ouvre`);
       }
-      if (vu.has(clef)) continue;
-      vu.add(clef);
-      pile.push(...(par.get(clef)?.apres ?? []));
+      if (e.genre === "mission" && e.titre.trim() === "") {
+        dits.push(`la mission « ${e.clef} » n'a pas de texte`);
+      }
+    }
+    //  LES SIX BRANCHES ONT LA MÊME LONGUEUR, et c'est une règle de
+    //  jeu, pas une coquetterie : une maison plus courte serait le
+    //  chemin rapide, et les cinq autres un détour.
+    if (combienDEtapes(b) !== attendu) {
+      dits.push(
+        `« ${b.clef} » a ${combienDEtapes(b)} étapes là où les autres en ont ${attendu}`,
+      );
+    }
+    const portes = b.etapes.filter((e) => e.genre === "palier").map((e) => e.palier);
+    if (portes.join(",") !== "2,3") {
+      dits.push(`« ${b.clef} » n'a pas ses deux portes dans l'ordre (${portes.join(",")})`);
     }
   }
   return dits;

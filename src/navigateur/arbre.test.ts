@@ -1,197 +1,164 @@
 import { assert, assertEquals } from "@std/assert";
 import {
   type Arbre,
-  compter,
+  type Branche,
+  combienDEtapes,
+  type Etape,
+  etapeDuJour,
   ilManque,
-  lireLArbre,
-  type Noeud,
+  lireLaBranche,
+  numeroter,
+  ouEnEstElle,
   palierDe,
   plaintes,
-  type Progres,
 } from "./arbre.ts";
 
-function noeud(clef: string, p: Partial<Noeud> = {}): Noeud {
+function etape(clef: string, p: Partial<Etape> = {}): Etape {
+  return { clef, titre: clef, texte: "", genre: "mission", ...p };
+}
+
+const PORTE_2 = etape("p2", { genre: "palier", palier: 2, titre: "Palier 2" });
+const PORTE_3 = etape("p3", { genre: "palier", palier: 3, titre: "Palier 3" });
+
+function branche(clef = "doux"): Branche {
   return {
     clef,
-    titre: clef,
-    condition: "",
-    recompense: "",
-    genre: "mesure",
-    mesure: clef,
-    seuil: 1,
-    apres: [],
-    ...p,
-  };
-}
-
-function arbre(p: Partial<Arbre> = {}): Arbre {
-  return {
-    palier: { "2": { cases: 2, deSaBranche: 1 }, "3": { cases: 4, deSaBranche: 2 } },
-    familles: [{ clef: "tronc", titre: "Tronc", noeuds: [noeud("a"), noeud("b"), noeud("c")] }],
-    branches: [
-      {
-        clef: "doux",
-        nom: "Doux",
-        embleme: "Shaymin",
-        noeuds: [noeud("d1", { genre: "mission" }), noeud("d2", { genre: "mission" })],
-      },
-      {
-        clef: "brave",
-        nom: "Brave",
-        embleme: "Cresselia",
-        noeuds: [noeud("b1", { genre: "mission" })],
-      },
+    nom: "Doux",
+    embleme: "Shaymin",
+    etapes: [
+      etape(`${clef}-1`),
+      etape(`${clef}-2`),
+      { ...PORTE_2, clef: `${clef}-p2` },
+      etape(`${clef}-3`),
+      etape(`${clef}-4`),
+      { ...PORTE_3, clef: `${clef}-p3` },
     ],
-    ...p,
   };
 }
 
-function progres(p: Partial<Progres> = {}): Progres {
-  return { branche: "doux", acquis: new Set(), mesures: {}, ...p };
+function arbre(): Arbre {
+  return {
+    avantLaPorte: { "2": 2, "3": 2 },
+    branches: [branche("doux"), branche("brave")],
+  };
 }
 
-Deno.test("une mesure atteinte allume la case", () => {
-  const vu = lireLArbre(arbre(), progres({ mesures: { a: 1 } }));
-  assertEquals(vu.find((v) => v.noeud.clef === "a")?.etat, "acquis");
-  assertEquals(vu.find((v) => v.noeud.clef === "b")?.etat, "a-portee");
+Deno.test("les portes ne prennent pas de numéro d'étape", () => {
+  //  Comptées dans la suite, elles décalaient tout ce qui suit : la
+  //  troisième étape s'annonçait quatrième, et le dessin disait autre
+  //  chose que la liste.
+  assertEquals(numeroter(branche()).map((x) => x.numero), [1, 2, null, 3, 4, null]);
 });
 
-Deno.test("une case allumée ne s'éteint jamais", () => {
-  //  Une équipe de six niveau 40 revendue le lendemain ne retire pas
-  //  « Équipe de choc » : la médaille dit ce qu'on A FAIT.
-  const vu = lireLArbre(arbre(), progres({ acquis: new Set(["a"]), mesures: { a: 0 } }));
-  assertEquals(vu.find((v) => v.noeud.clef === "a")?.etat, "acquis");
+Deno.test("combienDEtapes ne compte pas les portes", () => {
+  assertEquals(combienDEtapes(branche()), 4);
 });
 
-Deno.test("un prérequis non atteint verrouille", () => {
-  const a = arbre({
-    familles: [{ clef: "t", titre: "T", noeuds: [noeud("a"), noeud("b", { apres: ["a"] })] }],
-  });
-  const froid = lireLArbre(a, progres());
-  assertEquals(froid.find((v) => v.noeud.clef === "b")?.etat, "verrouille");
-  const chaud = lireLArbre(a, progres({ mesures: { a: 1 } }));
-  assertEquals(chaud.find((v) => v.noeud.clef === "b")?.etat, "a-portee");
+Deno.test("le chemin se parcourt dans l'ordre", () => {
+  const vu = lireLaBranche(branche(), 1).filter((v) => v.numero !== null);
+  assertEquals(vu.map((v) => v.etat), ["faite", "en-cours", "a-venir", "a-venir"]);
 });
 
-Deno.test("un prérequis qui n'existe pas ne verrouille rien", () => {
-  //  Une clef mal écrite barrerait une branche entière sans un mot.
-  //  C'est au garde-fou des données de crier, pas à l'écran.
-  const a = arbre({
-    familles: [{ clef: "t", titre: "T", noeuds: [noeud("b", { apres: ["fantome"] })] }],
-  });
-  assertEquals(lireLArbre(a, progres())[0].etat, "a-portee");
+Deno.test("rien de fait : la première est en cours", () => {
+  const vu = lireLaBranche(branche(), 0).filter((v) => v.numero !== null);
+  assertEquals(vu.map((v) => v.etat), ["en-cours", "a-venir", "a-venir", "a-venir"]);
 });
 
-Deno.test("les cases que rien ne sait allumer sont hors-jeu", () => {
-  const a = arbre({
-    familles: [{
-      clef: "t",
-      titre: "T",
-      noeuds: [noeud("m", { genre: "forum", mesure: undefined, seuil: undefined })],
-    }],
-  });
-  assertEquals(lireLArbre(a, progres())[0].etat, "hors-jeu");
+Deno.test("tout fait : plus rien n'est en cours", () => {
+  const vu = lireLaBranche(branche(), 4);
+  assertEquals(vu.filter((v) => v.etat === "en-cours").length, 0);
+  assertEquals(etapeDuJour(branche(), 4), null);
 });
 
-Deno.test("une case hors-jeu ne compte pas dans le palier", () => {
-  //  Une condition que le jeu ne peut pas remplir bloquerait une
-  //  montée sans que personne ne comprenne pourquoi — c'est le
-  //  cul-de-sac des badges, qu'on est en train de défaire.
-  const a = arbre({
-    familles: [{
-      clef: "t",
-      titre: "T",
-      noeuds: [
-        noeud("a"),
-        noeud("x", { genre: "staff", mesure: undefined, seuil: undefined }),
-        noeud("y", { genre: "forum", mesure: undefined, seuil: undefined }),
-      ],
-    }],
-  });
-  assertEquals(compter(a, progres({ mesures: { a: 1 } })).total, 1);
+Deno.test("une porte s'ouvre quand ce qui la précède est fait", () => {
+  const porte = (faites: number) =>
+    lireLaBranche(branche(), faites).filter((v) => v.numero === null).map((v) => v.etat);
+  assertEquals(porte(0), ["fermee", "fermee"]);
+  assertEquals(porte(1), ["fermee", "fermee"]);
+  assertEquals(porte(2), ["ouverte", "fermee"]);
+  assertEquals(porte(4), ["ouverte", "ouverte"]);
 });
 
-Deno.test("l'arbre ne montre que la branche de sa maison", () => {
-  const clefs = lireLArbre(arbre(), progres()).map((v) => v.noeud.clef);
-  assert(clefs.includes("d1"));
-  assert(!clefs.includes("b1"));
+Deno.test("l'étape du jour est la suivante, et une seule", () => {
+  assertEquals(etapeDuJour(branche(), 0)?.clef, "doux-1");
+  assertEquals(etapeDuJour(branche(), 2)?.clef, "doux-3");
 });
 
-Deno.test("sans maison, il ne reste que le tronc", () => {
-  const clefs = lireLArbre(arbre(), progres({ branche: null })).map((v) => v.noeud.clef);
-  assertEquals(clefs, ["a", "b", "c"]);
-});
-
-Deno.test("le palier demande des cases ET des cases de sa branche", () => {
+Deno.test("le palier suit l'avancée", () => {
   const a = arbre();
-  //  Trois cases du tronc, aucune de la branche : toujours palier 1.
-  assertEquals(palierDe(a, progres({ mesures: { a: 1, b: 1, c: 1 } })), 1);
-  //  Deux cases dont une de la branche : palier 2.
-  assertEquals(palierDe(a, progres({ mesures: { a: 1 }, acquis: new Set(["d1"]) })), 2);
-  //  Quatre dont deux de la branche : palier 3.
-  assertEquals(
-    palierDe(a, progres({ mesures: { a: 1, b: 1 }, acquis: new Set(["d1", "d2"]) })),
-    3,
-  );
+  assertEquals(palierDe(a, 0), 1);
+  assertEquals(palierDe(a, 1), 1);
+  assertEquals(palierDe(a, 2), 2);
+  assertEquals(palierDe(a, 3), 2);
+  assertEquals(palierDe(a, 4), 3);
+  //  AU-DELÀ DE LA FIN, ON RESTE AU 3. Un compteur en avance — une
+  //  étape ajoutée puis retirée — ne doit pas inventer un palier 4.
+  assertEquals(palierDe(a, 99), 3);
 });
 
-Deno.test("sans maison, on ne dépasse pas le palier 1", () => {
-  //  Le « dont » est ce qui fait exister les branches : trois cases
-  //  du tronc ne suffisent pas, et c'est voulu.
-  const sans = progres({ branche: null, mesures: { a: 1, b: 1, c: 1 } });
-  assertEquals(palierDe(arbre(), sans), 1);
-});
-
-Deno.test("il manque dit ce qu'il reste, des deux côtés", () => {
+Deno.test("il manque dit combien d'étapes séparent de la porte", () => {
   const a = arbre();
-  assertEquals(ilManque(a, progres()), { cases: 2, deSaBranche: 1 });
-  assertEquals(ilManque(a, progres({ mesures: { a: 1, b: 1, c: 1 } })), {
-    cases: 0,
-    deSaBranche: 1,
-  });
+  assertEquals(ilManque(a, 0), 2);
+  assertEquals(ilManque(a, 2), 2);
+  assertEquals(ilManque(a, 3), 1);
+  assertEquals(ilManque(a, 4), null);
 });
 
-Deno.test("au palier 3, il n'y a plus rien à annoncer", () => {
-  const p = progres({ mesures: { a: 1, b: 1 }, acquis: new Set(["d1", "d2"]) });
-  assertEquals(ilManque(arbre(), p), null);
+Deno.test("sans maison, pas de chemin et pas de montée", () => {
+  //  Une joueuse dont le personnage n'est pas validé n'a pas de
+  //  branche : lui annoncer un palier 2 atteignable serait une
+  //  promesse que rien ne tient.
+  const vu = ouEnEstElle(arbre(), null, 4);
+  assertEquals(vu.branche, null);
+  assertEquals(vu.chemin, []);
+  assertEquals(vu.palier, 1);
+  assertEquals(vu.reste, null);
+});
+
+Deno.test("une maison inconnue se comporte comme pas de maison", () => {
+  assertEquals(ouEnEstElle(arbre(), "pikachu", 4).palier, 1);
+});
+
+Deno.test("ouEnEstElle rend le chemin de la bonne branche", () => {
+  const vu = ouEnEstElle(arbre(), "brave", 1);
+  assertEquals(vu.branche?.clef, "brave");
+  assertEquals(vu.palier, 1);
+  assertEquals(vu.reste, 1);
 });
 
 Deno.test("les plaintes attrapent une clef en double", () => {
-  const a = arbre({
-    familles: [{ clef: "t", titre: "T", noeuds: [noeud("a"), noeud("a")] }],
-    branches: [],
-  });
-  assert(plaintes(a).some((p) => p.includes("deux nœuds")));
+  const b = branche();
+  const a: Arbre = {
+    avantLaPorte: { "2": 2, "3": 2 },
+    branches: [b, { ...b, clef: "autre" }],
+  };
+  assert(plaintes(a).some((p) => p.includes("deux étapes")));
 });
 
-Deno.test("les plaintes attrapent un prérequis fantôme", () => {
-  const a = arbre({
-    familles: [{ clef: "t", titre: "T", noeuds: [noeud("a", { apres: ["nulle-part"] })] }],
-    branches: [],
-  });
-  assert(plaintes(a).some((p) => p.includes("nulle-part")));
+Deno.test("les plaintes attrapent une branche plus courte", () => {
+  //  Une maison plus courte serait le chemin rapide, et les cinq
+  //  autres un détour.
+  const courte: Branche = { ...branche("brave"), etapes: [etape("x"), PORTE_2, PORTE_3] };
+  const a: Arbre = { avantLaPorte: { "2": 2, "3": 2 }, branches: [branche(), courte] };
+  assert(plaintes(a).some((p) => p.includes("étapes là où les autres")));
 });
 
-Deno.test("les plaintes attrapent un cycle", () => {
-  //  Deux nœuds qui s'attendent resteraient verrouillés pour
-  //  toujours, et rien à l'écran ne dirait pourquoi.
-  const a = arbre({
-    familles: [{
-      clef: "t",
-      titre: "T",
-      noeuds: [noeud("a", { apres: ["b"] }), noeud("b", { apres: ["a"] })],
-    }],
-    branches: [],
-  });
-  assert(plaintes(a).some((p) => p.includes("s'attend lui-même")));
+Deno.test("les plaintes attrapent des portes dans le désordre", () => {
+  const b: Branche = {
+    ...branche(),
+    etapes: [etape("a"), PORTE_3, etape("b"), PORTE_2],
+  };
+  const a: Arbre = { avantLaPorte: { "2": 2, "3": 2 }, branches: [b] };
+  assert(plaintes(a).some((p) => p.includes("deux portes dans l'ordre")));
 });
 
-Deno.test("les plaintes attrapent une mesure sans seuil", () => {
-  const a = arbre({
-    familles: [{ clef: "t", titre: "T", noeuds: [noeud("a", { mesure: undefined })] }],
-    branches: [],
-  });
-  assert(plaintes(a).some((p) => p.includes("sans mesure ni seuil")));
+Deno.test("les plaintes attrapent une mission sans texte", () => {
+  const b: Branche = {
+    ...branche(),
+    etapes: [etape("a", { titre: "  " }), etape("b"), PORTE_2, etape("c"), etape("d"), PORTE_3],
+  };
+  const a: Arbre = { avantLaPorte: { "2": 2, "3": 2 }, branches: [b] };
+  assert(plaintes(a).some((p) => p.includes("n'a pas de texte")));
 });
 
 Deno.test("l'arbre livré ne porte aucune plainte", async () => {
@@ -201,18 +168,37 @@ Deno.test("l'arbre livré ne porte aucune plainte", async () => {
   assertEquals(plaintes(a), []);
 });
 
-Deno.test("l'arbre livré porte les médailles et les missions de Callista", async () => {
+Deno.test("l'arbre livré a six branches, deux portes chacune", async () => {
   const a = JSON.parse(
     await Deno.readTextFile(new URL("../../data/arbre.json", import.meta.url)),
   ) as Arbre;
-  const tous = [
-    ...a.familles.flatMap((f) => f.noeuds),
-    ...a.branches.flatMap((b) => b.noeuds),
-  ];
-  //  Les titres sont ceux de t1012 et t855, recopiés mot pour mot. Si
-  //  l'un d'eux change ici sans changer là-bas, l'arbre ment.
-  assert(tous.some((n) => n.titre === "Petit collectionneur"));
-  assert(tous.some((n) => n.titre === "Champion de Rhode"));
-  assert(tous.some((n) => n.titre === "Capturer un Pokémon Obscur pour le Prof. Syrus"));
   assertEquals(a.branches.length, 6);
+  for (const b of a.branches) {
+    assertEquals(b.etapes.filter((e) => e.genre === "palier").length, 2, b.clef);
+    assertEquals(combienDEtapes(b), 6, b.clef);
+  }
+});
+
+Deno.test("l'arbre livré porte les missions de Callista, mot pour mot", async () => {
+  const a = JSON.parse(
+    await Deno.readTextFile(new URL("../../data/arbre.json", import.meta.url)),
+  ) as Arbre;
+  const titres = a.branches.flatMap((b) => b.etapes.map((e) => e.titre));
+  //  Relevées sur t855. Si l'une change ici sans changer là-bas,
+  //  l'arbre ment.
+  assert(titres.includes("Capturer un Pokémon Obscur pour le Prof. Syrus"));
+  assert(titres.includes("Trouver un pokemon chromatique."));
+  assert(titres.includes("Aider une petite fille à retrouver son pokemon dans un rp."));
+});
+
+Deno.test("les étapes à écrire sont vides, et nombreuses", async () => {
+  //  Vingt-quatre des quarante-huit. Les écrire à la place de
+  //  Callista serait pire que de montrer le trou — et ce test est là
+  //  pour que le nombre descende, pas pour qu'il se cache.
+  const a = JSON.parse(
+    await Deno.readTextFile(new URL("../../data/arbre.json", import.meta.url)),
+  ) as Arbre;
+  const vides = a.branches.flatMap((b) => b.etapes).filter((e) => e.genre === "a-ecrire");
+  assert(vides.every((e) => e.titre === ""));
+  assert(vides.length > 0);
 });

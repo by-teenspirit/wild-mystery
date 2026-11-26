@@ -1,41 +1,46 @@
 #!/usr/bin/env python3
 # ════════════════════════════════════════════════════════════════════
-#  outils/arbre.py — écrire la page de l'arbre de compétences
+#  outils/arbre.py — écrire la page de l'arbre des paliers
 #
 #  USAGE :  python3 outils/arbre.py
 #
-#  « Est-ce que tu peux proposer un espèce d'arbre de compétences avec
-#  les missions et le coder ? » — 25 novembre 2026.
+#  ── POURQUOI LA PREMIÈRE VERSION N'ÉTAIT PAS UN ARBRE ──────────────
 #
-#  ── LES NŒUDS SONT DE CALLISTA, LA STRUCTURE EST D'ICI ─────────────
+#  « Je trouve que ça ne ressemble pas à un arbre de compétences. On
+#  n'est pas sur des succès, on est vraiment sur des choses à faire
+#  pour atteindre le palier 2 puis le palier 3. » — 26 novembre, avec
+#  huit captures de jeux à l'appui.
 #
-#  Les soixante-seize cases viennent des sujets t1012 (les médailles)
-#  et t855 (les thèmes de missions), recopiées mot pour mot dans
-#  `data/arbre.json`. Cette page n'écrit pas une ligne de texte de jeu :
-#  elle range, elle relie, elle dit ce qui ouvre quoi.
+#  Elle rangeait soixante-seize médailles en cartes alignées. Deux
+#  choses manquaient, et les captures les montrent toutes les deux :
 #
-#  ── TOUT EST DANS LA PAGE, LE SCRIPT N'AJOUTE QUE L'ÉTAT ───────────
+#   · UN ARBRE A DES ARÊTES DESSINÉES. Des cartes côte à côte, même
+#     reliées par un filet de deux pixels, se lisent comme un tableau.
+#     Ce qui fait l'arbre est le TRAIT entre deux nœuds ;
+#   · UN ARBRE PART D'UN POINT. Les huit captures ont un moyeu — le
+#     personnage — d'où les branches rayonnent.
 #
-#  Même règle que le répertoire, et elle compte autant : le CONTENU de
-#  la page EST l'arbre. Sans JavaScript on lit les soixante-seize
-#  cases, leurs conditions et leurs récompenses ; avec, celles d'une
-#  joueuse connectée s'allument. Une page qui dessinerait ses cases en
-#  script serait blanche.
+#  D'où le SVG : un moyeu au centre, six branches à soixante degrés,
+#  les étapes en perles le long de chaque rayon, et les deux portes de
+#  palier en plus gros sur le chemin.
 #
-#  ── LES COLONNES DISENT LA PROFONDEUR ──────────────────────────────
+#  ── LE SVG EST DANS LA PAGE, PAS CALCULÉ PAR UN SCRIPT ─────────────
 #
-#  Une case qui en attend une autre est posée PLUS LOIN, dans la
-#  colonne suivante, avec un filet qui remonte. C'est ce qui fait un
-#  arbre plutôt qu'une liste : « posséder 50 pokémon » n'a de sens
-#  qu'après « 20 », et on le voit sans lire.
+#  Les positions sont trigonométriques et tiennent en vingt lignes de
+#  Python. Les faire calculer par du JavaScript au chargement donnerait
+#  une page blanche sans script, pour la même géométrie.
 #
-#  La profondeur se CALCULE depuis les prérequis — elle n'est pas
-#  écrite dans les données. Un `apres` ajouté déplace la case tout
-#  seul, et deux endroits à tenir d'accord, c'est un de trop.
+#  ── ET LA LISTE SOUS LE DESSIN N'EST PAS UN DOUBLON ────────────────
+#
+#  Un rayon de six perles ne porte pas six phrases : il porte six
+#  numéros. Le texte des étapes vit dans la liste dessous, numérotée
+#  pareil. C'est aussi la seule version lisible à 390 px et au lecteur
+#  d'écran — le SVG y est marqué décoratif.
 # ════════════════════════════════════════════════════════════════════
 
 import html
 import json
+import math
 import pathlib
 import sys
 
@@ -43,132 +48,135 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from annexes import BARRE, FEUILLES, METAS, PAGES, PIED  # noqa: E402
 
 R = pathlib.Path(__file__).resolve().parent.parent
-SORTIE = R / "pages/arbre-des-competences.html"
+SORTIE = R / "pages/arbre-des-paliers.html"
 
-#  ── CE QUE CHAQUE GENRE ANNONCE ────────────────────────────────────
+#  ── LA GÉOMÉTRIE ───────────────────────────────────────────────────
 #
-#  La page le DIT en mots, pas seulement par une couleur : « hors-jeu »
-#  sur fond pâle se confond avec « verrouillé », et une joueuse qui
-#  croit pouvoir allumer une case que rien ne sait allumer attend pour
-#  rien.
-GENRES = {
-    "mesure": ("compté", "La partie compte toute seule."),
-    "mission": ("mission", "Une mission à jouer, validée par le staff."),
-    "staff": ("à la main", "Constaté par le staff — rien ne le compte."),
-    "forum": ("pas encore", "La réponse est côté forum, et rien ne la lit encore."),
-}
+#  Six branches à soixante degrés, la première vers le haut. Le rayon
+#  de la première étape laisse la place au moyeu ; le pas entre deux
+#  étapes laisse la place aux deux perles et à leur trait.
+#  LE CADRE TIENT LE RAYON LE PLUS LONG, ÉTIQUETTE COMPRISE. Réglé à
+#  1000 au premier jet, il coupait la porte du palier 3 et les six noms
+#  de maison : 150 + 6 × 72 font 582, plus l'étiquette 634, contre 500
+#  de demi-cadre. Vu au rendu, deux fois — la seconde parce qu'un nom
+#  de maison déborde aussi de sa DEMI-LARGEUR de texte, que le rayon
+#  ne dit pas.
+CADRE = 1500
+CENTRE = CADRE / 2
+RAYON_MOYEU = 74
+RAYON_1 = 140
+PAS = 66
+PERLE = 21
+PORTE = 29
+
+
+def position(branche, rang):
+    angle = math.radians(-90 + branche * 60)
+    r = RAYON_1 + rang * PAS
+    return CENTRE + r * math.cos(angle), CENTRE + r * math.sin(angle)
 
 
 def e(t):
     return html.escape(str(t or ""), quote=True)
 
 
-def profondeur(noeuds):
-    """La colonne de chaque case, calculée depuis ses prérequis.
-
-    Une case sans prérequis est en colonne 0 ; une case qui en attend
-    une autre est une colonne plus loin que la plus profonde de celles
-    qu'elle attend. Les données sont garanties sans cycle par
-    `plaintes()`, côté TypeScript — ici on se protège quand même d'une
-    boucle, parce qu'un générateur qui tourne sans fin ne dit pas
-    pourquoi.
-    """
-    par = {n["clef"]: n for n in noeuds}
-    vu = {}
-
-    def de(clef, pile):
-        if clef in vu:
-            return vu[clef]
-        if clef in pile or clef not in par:
-            return 0
-        avant = par[clef].get("apres") or []
-        d = 0 if not avant else 1 + max(de(c, pile | {clef}) for c in avant)
-        vu[clef] = d
-        return d
-
-    return {n["clef"]: de(n["clef"], frozenset()) for n in noeuds}
-
-
-def case(n, colonne):
-    genre = n.get("genre", "mesure")
-    mot, pourquoi = GENRES.get(genre, GENRES["mesure"])
-    recompense = (
-        f'<p class="wm-arbre__gain">{e(n["recompense"])}</p>'
-        if n.get("recompense") else ""
-    )
-    #  LA CONDITION EST RÉPÉTÉE EN TITRE QUAND ELLE EST LE TITRE. Les
-    #  missions de t855 n'ont pas de nom : leur énoncé en tient lieu,
-    #  et l'écrire deux fois ferait un doublon visible.
-    condition = (
-        "" if n["condition"] == n["titre"]
-        else f'<p class="wm-arbre__quoi">{e(n["condition"])}</p>'
-    )
-    return (
-        f'        <li class="wm-arbre__case" data-wm-case="{e(n["clef"])}"'
-        f' data-wm-genre="{e(genre)}" data-wm-colonne="{colonne}"'
-        + (f' data-wm-apres="{e(" ".join(n["apres"]))}"' if n.get("apres") else "")
-        + (f' data-wm-mesure="{e(n["mesure"])}" data-wm-seuil="{e(n["seuil"])}"'
-           if n.get("mesure") else "")
-        + ">\n"
-        f'          <p class="wm-arbre__genre" title="{e(pourquoi)}">{e(mot)}</p>\n'
-        f'          <h3 class="wm-arbre__nom">{e(n["titre"])}</h3>\n'
-        f"{condition}{recompense}"
-        "        </li>\n"
-    )
-
-
-def bloc(titre, note, noeuds, classe=""):
-    """Une famille ou une branche : ses chaînes, puis ses cases libres.
-
-    LA SÉPARATION N'EST PAS DÉCORATIVE. Une colonne par profondeur a
-    du sens pour une chaîne — « posséder 50 » après « 20 » — et aucun
-    pour dix-huit médailles de type qui ne s'attendent pas entre
-    elles : toutes en profondeur zéro, elles faisaient dix-huit
-    rangées d'une seule case et une colonne de vide à côté. Mesuré au
-    premier rendu, et c'est ce qui a fait ajouter ce tri.
-
-    Est d'une chaîne un nœud qui attend quelqu'un, ou que quelqu'un
-    attend. Le reste flotte, et se range comme une liste.
-    """
-    cols = profondeur(noeuds)
-    attendus = {c for n in noeuds for c in (n.get("apres") or [])}
-    enchaine = [n for n in noeuds if n.get("apres") or n["clef"] in attendus]
-    libres = [n for n in noeuds if n not in enchaine]
-
-    morceaux = []
-    if enchaine:
-        large = max(cols[n["clef"]] for n in enchaine) + 1
-        morceaux.append(
-            f'      <ol class="wm-arbre__cases" style="--colonnes: {large}">\n'
-            + "".join(case(n, cols[n["clef"]]) for n in enchaine)
-            + "      </ol>\n"
+def dessin(d):
+    """Le graphe. Les traits d'abord, les perles ensuite : en SVG,
+    l'ordre du document EST l'ordre d'empilement, et un trait tracé
+    après passerait par-dessus les perles qu'il relie."""
+    traits, perles = [], []
+    for i, b in enumerate(d["branches"]):
+        c = b["clef"]
+        x0, y0 = CENTRE, CENTRE
+        #  LES PORTES NE PRENNENT PAS DE NUMÉRO D'ÉTAPE. Comptées dans
+        #  la suite, elles faisaient sauter un cran après chacune : la
+        #  quatrième étape s'annonçait cinquième, et la liste dessous
+        #  disait autre chose que le dessin.
+        numero = 0
+        for rang, etape in enumerate(b["etapes"]):
+            x, y = position(i, rang)
+            traits.append(
+                f'      <line class="wm-paliers__trait" data-wm-maison="{e(c)}"'
+                f' x1="{x0:.1f}" y1="{y0:.1f}" x2="{x:.1f}" y2="{y:.1f}" />\n'
+            )
+            x0, y0 = x, y
+            porte = etape["genre"] == "palier"
+            if not porte:
+                numero += 1
+            perles.append(
+                f'      <g class="wm-paliers__perle" data-wm-maison="{e(c)}"'
+                f' data-wm-genre="{e(etape["genre"])}" data-wm-etape="{e(etape["clef"])}">\n'
+                f'        <circle cx="{x:.1f}" cy="{y:.1f}"'
+                f' r="{PORTE if porte else PERLE}" />\n'
+                f'        <text x="{x:.1f}" y="{y:.1f}">'
+                f'{e(etape["palier"] if porte else numero)}</text>\n'
+                "      </g>\n"
+            )
+    #  LE NOM DE LA MAISON EST AU BOUT DE SON RAYON, posé juste au-delà
+    #  de la dernière perle — un nom au milieu des perles les
+    #  traverserait.
+    noms = []
+    for i, b in enumerate(d["branches"]):
+        x, y = position(i, len(b["etapes"]) - 1 + 1.15)
+        noms.append(
+            f'      <text class="wm-paliers__maison" data-wm-maison="{e(b["clef"])}"'
+            f' x="{x:.1f}" y="{y:.1f}">{e(b["nom"])}</text>\n'
         )
-    if libres:
-        morceaux.append(
-            '      <ul class="wm-arbre__libres">\n'
-            + "".join(case(n, 0) for n in libres)
-            + "      </ul>\n"
-        )
+    #  LE MOYEU PASSE APRÈS LES ARÊTES. Dessiné avant, les six rayons
+    #  qui partent du centre exact lui passaient DESSUS et le barraient
+    #  d'une étoile. L'ordre du document est l'ordre d'empilement.
+    moyeu = (
+        f'      <circle class="wm-paliers__moyeu" cx="{CENTRE}" cy="{CENTRE}"'
+        f' r="{RAYON_MOYEU}" />\n'
+        f'      <text class="wm-paliers__moyeu-texte" x="{CENTRE}" y="{CENTRE - 20}">'
+        "Palier</text>\n"
+        f'      <text class="wm-paliers__moyeu-chiffre" x="{CENTRE}" y="{CENTRE + 20}">'
+        "1</text>\n"
+    )
+    return "".join(traits) + moyeu + "".join(perles) + "".join(noms)
 
-    note_html = f'      <p class="wm-arbre__note">{e(note)}</p>\n' if note else ""
+
+def liste(b):
+    lignes, numero = [], 0
+    for etape in b["etapes"]:
+        if etape["genre"] != "palier":
+            numero += 1
+        if etape["genre"] == "palier":
+            lignes.append(
+                f'          <li class="wm-paliers__etape" data-wm-genre="palier">\n'
+                f'            <span class="wm-paliers__rang">{e(etape["palier"])}</span>\n'
+                f'            <span class="wm-paliers__quoi"><strong>{e(etape["titre"])}'
+                f"</strong> — {e(etape['texte'])}</span>\n          </li>\n"
+            )
+        elif etape["genre"] == "a-ecrire":
+            lignes.append(
+                f'          <li class="wm-paliers__etape" data-wm-genre="a-ecrire">\n'
+                f'            <span class="wm-paliers__rang">{numero}</span>\n'
+                '            <span class="wm-paliers__quoi">à écrire</span>\n'
+                "          </li>\n"
+            )
+        else:
+            lignes.append(
+                f'          <li class="wm-paliers__etape" data-wm-genre="{e(etape["genre"])}">\n'
+                f'            <span class="wm-paliers__rang">{numero}</span>\n'
+                f'            <span class="wm-paliers__quoi">{e(etape["titre"])}</span>\n'
+                "          </li>\n"
+            )
     return (
-        f'    <section class="wm-arbre__bloc{classe}">\n'
-        f'      <h2 class="wm-arbre__titre">{e(titre)}</h2>\n'
-        f"{note_html}"
-        + "".join(morceaux)
-        + "    </section>\n"
+        f'      <section class="wm-paliers__branche" data-wm-maison="{e(b["clef"])}">\n'
+        f'        <h2 class="wm-paliers__titre">{e(b["nom"])} '
+        f'<span class="wm-paliers__embleme">{e(b["embleme"])}</span></h2>\n'
+        f'        <ol class="wm-paliers__etapes">\n' + "".join(lignes)
+        + "        </ol>\n      </section>\n"
     )
 
 
 GABARIT = """<!-- ═══════════════════════════════════════════════════════════════════
-     Arbre de compétences — à coller dans une page HTML.
+     Arbre des paliers — à coller dans une page HTML.
 
      ÉCRITE PAR `outils/arbre.py` depuis `data/arbre.json`. Ne pas
      corriger ce fichier à la main : la correction serait perdue à la
      prochaine génération.
-
-     Les cases viennent des sujets t1012 (les médailles) et t855 (les
-     thèmes de missions) : on les range, on ne les réécrit pas.
 
      Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
      MODE AVANCÉ, et « Utiliser le header et le footer du forum » = NON.
@@ -188,12 +196,15 @@ GABARIT = """<!-- ════════════════════�
     <div class="wm-annexe__colonne wm-annexe__colonne--large">
 
       <p class="wm-annexe__surtitre">La progression</p>
-      <h1 class="wm-annexe__titre">Arbre de compétences</h1>
+      <h1 class="wm-annexe__titre">Les paliers</h1>
       <p class="wm-annexe__chapo">{chapo}</p>
 
-      <div class="wm-arbre" data-wm-arbre>
-{contenu}
-      </div>
+      <div class="wm-paliers" data-wm-paliers>
+        <svg class="wm-paliers__dessin" viewBox="0 0 {cadre} {cadre}"
+             role="presentation" aria-hidden="true" focusable="false">
+{dessin}        </svg>
+
+{listes}      </div>
 
     </div>
   </div>
@@ -207,9 +218,10 @@ GABARIT = """<!-- ════════════════════�
 """
 
 CHAPO = (
-    "Chaque case est une chose faite, cochée une fois pour toutes. Le tronc est "
-    "ouvert à tout le monde ; la branche est celle de ta maison. Il faut "
-    "{c2} cases dont {b2} de ta branche pour le palier 2, {c3} dont {b3} pour le 3."
+    "Chaque maison a sa branche, et sa branche est un chemin : on fait les étapes "
+    "dans l'ordre. {a2} étapes ouvrent le palier 2 et ses zones, {a3} de plus "
+    "ouvrent le palier 3. Ce ne sont pas des récompenses à collectionner — "
+    "c'est ce qu'il y a à faire."
 )
 
 
@@ -218,38 +230,21 @@ def ecrire(source=None, sortie=None):
     sortie = sortie or SORTIE
     d = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
 
-    blocs = [
-        bloc(f["titre"], f.get("note"), f["noeuds"]) for f in d["familles"]
-    ] + [
-        bloc(
-            f'{b["nom"]} · {b["embleme"]}',
-            #  UNE BRANCHE VIDE LE DIT. Trois des six groupes de t855
-            #  n'ont que « LES MISSIONS ICI » : montrer un cadre vide
-            #  est honnête, inventer des missions à la place de
-            #  Callista ne le serait pas.
-            None if b["noeuds"] else "Aucune mission écrite pour cette maison.",
-            b["noeuds"],
-            " wm-arbre__bloc--branche",
-        )
-        for b in d["branches"]
-    ]
-
     page = GABARIT.format(
-        tete=(METAS + "\n  <title>Arbre de compétences — Wild Mystery</title>\n"
+        tete=(METAS + "\n  <title>Les paliers — Wild Mystery</title>\n"
               + FEUILLES).format(pages=PAGES),
         barre=BARRE,
         pied=PIED,
         pages=PAGES,
-        chapo=e(CHAPO.format(
-            c2=d["palier"]["2"]["cases"], b2=d["palier"]["2"]["deSaBranche"],
-            c3=d["palier"]["3"]["cases"], b3=d["palier"]["3"]["deSaBranche"],
-        )),
-        contenu="".join(blocs),
+        cadre=CADRE,
+        chapo=e(CHAPO.format(a2=d["avantLaPorte"]["2"], a3=d["avantLaPorte"]["3"])),
+        dessin=dessin(d),
+        listes="".join(liste(b) for b in d["branches"]),
     )
 
     #  MÊME GARDE QUE LES ANNEXES : l'éditeur de pages HTML de
     #  Forumactif décode les entités en enregistrant, et un
-    #  `&lt;table&gt;` écrit dans un texte revient en VRAIE balise.
+    #  `&lt;table&gt;` écrit dans un texte revient en vraie balise.
     if "&lt;" in page or "&gt;" in page:
         raise SystemExit(
             "le texte contient une entité `&lt;` ou `&gt;`. Forumactif la "
@@ -257,13 +252,13 @@ def ecrire(source=None, sortie=None):
         )
 
     pathlib.Path(sortie).write_text(page, encoding="utf-8")
-    cases = sum(len(f["noeuds"]) for f in d["familles"]) + sum(
-        len(b["noeuds"]) for b in d["branches"]
+    etapes = sum(len(b["etapes"]) for b in d["branches"])
+    a_ecrire = sum(
+        1 for b in d["branches"] for x in b["etapes"] if x["genre"] == "a-ecrire"
     )
-    print(f"  {pathlib.Path(sortie).name} — {cases} case(s), {len(page)} caractères")
-    vides = [b["nom"] for b in d["branches"] if not b["noeuds"]]
-    for v in vides:
-        print(f"  ⚠ la branche {v} n'a aucune mission")
+    print(f"  {pathlib.Path(sortie).name} — {etapes} étape(s), {len(page)} caractères")
+    if a_ecrire:
+        print(f"  ⚠ {a_ecrire} étape(s) restent à écrire")
 
 
 if __name__ == "__main__":

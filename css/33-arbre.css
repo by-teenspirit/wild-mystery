@@ -1,47 +1,140 @@
 /*  ══════════════════════════════════════════════════════════════════
-    33 · L'ARBRE DE COMPÉTENCES
+    33 · L'ARBRE DES PALIERS
 
-    « Est-ce que tu peux proposer un espèce d'arbre de compétences avec
-    les missions et le coder ? » — 25 novembre 2026.
+    « Je trouve que ça ne ressemble pas à un arbre de compétences. On
+    n'est pas sur des succès, on est vraiment sur des choses à faire
+    pour atteindre le palier 2 puis le palier 3. » — 26 novembre.
 
-    ── CE QUI FAIT UN ARBRE PLUTÔT QU'UNE LISTE ──────────────────────
+    ── CE QUI MANQUAIT À LA PREMIÈRE VERSION ─────────────────────────
 
-    LA COLONNE. Une case qui en attend une autre est posée plus loin,
-    et le filet qui la relie part de la colonne d'avant. « Posséder 50
-    pokémon » n'a de sens qu'après « 20 » : on doit le voir sans lire.
+    Des cartes alignées, même reliées par un filet de deux pixels, se
+    lisent comme un tableau. CE QUI FAIT L'ARBRE EST LE TRAIT, et un
+    trait entre deux cases de grille est un bricolage : il ne sait pas
+    tourner, il ne sait pas partir d'un centre. Le dessin est donc un
+    SVG, où une arête est une arête.
 
-    La colonne est calculée par le générateur depuis les prérequis et
-    posée en attribut ; la feuille ne fait que la rendre. Une chaîne de
-    sept médailles donne sept colonnes, et c'est la grille qui défile,
-    pas la page.
+    ── LE DESSIN ET LA LISTE DISENT LA MÊME CHOSE ────────────────────
 
-    ── LES QUATRE ÉTATS ──────────────────────────────────────────────
-
-    `acquis` · `a-portee` · `verrouille` · `hors-jeu`. Ils sont posés
-    par le script sur une joueuse connectée. SANS SCRIPT, AUCUN N'EST
-    POSÉ et toutes les cases s'affichent pareil — c'est l'état par
-    défaut de la feuille, et c'est voulu : la page est d'abord une
-    liste à lire.
-
-    `hors-jeu` est le seul qui s'affiche sans joueuse, parce qu'il ne
-    dépend de personne : une médaille que rien ne sait compter est
-    hors-jeu pour tout le monde. Elle se lit quand même — Callista l'a
-    écrite — mais elle le dit.
+    Le SVG porte la forme — le chemin, l'ordre, les deux portes. La
+    liste porte le texte. Elle n'est pas un repli de secours : à 390 px
+    un rayon de sept perles est illisible, et le SVG est marqué
+    décoratif pour qu'un lecteur d'écran lise la liste et pas une
+    centaine de cercles.
     ══════════════════════════════════════════════════════════════════ */
 
-#modernbb .wm-arbre {
+#modernbb .wm-paliers {
   display: flex;
   flex-direction: column;
-  gap: var(--wm-espace-32, 32px);
+  gap: var(--wm-espace-24, 24px);
 }
 
-#modernbb .wm-arbre__bloc {
+/*  LE DESSIN SUIT LA LARGEUR DE LA COLONNE. Un `viewBox` carré et une
+    largeur en pour cent : il rétrécit sans jamais déborder, et sans
+    qu'aucun nombre de pixels soit écrit nulle part. */
+#modernbb .wm-paliers__dessin {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/*  ── LE MOYEU ──────────────────────────────────────────────────────
+    Le personnage, d'où tout part. Les huit captures de jeux en ont
+    un ; c'est lui qui fait qu'on lit un arbre et pas une constellation. */
+#modernbb .wm-paliers__moyeu {
+  fill: var(--wm-fond-nuit, #3a2a22);
+  stroke: var(--wm-accent-primaire, #275e7a);
+  stroke-width: 2;
+}
+
+#modernbb .wm-paliers__moyeu-texte,
+#modernbb .wm-paliers__moyeu-chiffre {
+  fill: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  text-anchor: middle;
+}
+
+#modernbb .wm-paliers__moyeu-texte {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-paliers__moyeu-chiffre {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+/*  ── LES ARÊTES ────────────────────────────────────────────────────
+    Elles sont tracées AVANT les perles dans le document : en SVG,
+    l'ordre du document est l'ordre d'empilement, et une arête tracée
+    après passerait par-dessus les perles qu'elle relie. */
+#modernbb .wm-paliers__trait {
+  stroke: var(--wm-bord-net, #d9c3b1);
+  stroke-width: 2;
+}
+
+#modernbb .wm-paliers__perle > circle {
+  fill: var(--wm-fond-surface, #fffbf7);
+  stroke: var(--wm-bord-net, #d9c3b1);
+  stroke-width: 2;
+}
+
+#modernbb .wm-paliers__perle > text {
+  fill: var(--wm-texte-doux, #6e5749);
+  dominant-baseline: central;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: 17px;
+  text-anchor: middle;
+}
+
+/*  UNE PORTE DE PALIER SE VOIT DE LOIN : plus grande, pleine, et son
+    chiffre est celui du palier, pas le rang de l'étape. C'est le seul
+    endroit du dessin où un nombre change de sens, et c'est pour ça
+    qu'il change aussi de couleur et de taille. */
+#modernbb .wm-paliers__perle[data-wm-genre="palier"] > circle {
+  fill: var(--wm-accent-primaire, #275e7a);
+  stroke: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-paliers__perle[data-wm-genre="palier"] > text {
+  fill: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/*  UNE ÉTAPE À ÉCRIRE EST EN POINTILLÉS, et vide. Vingt-quatre des
+    quarante-huit le sont : la page montre le trou plutôt que de le
+    combler avec du texte que Callista n'a pas écrit. */
+#modernbb .wm-paliers__perle[data-wm-genre="a-ecrire"] > circle {
+  fill: none;
+  stroke-dasharray: 4 4;
+}
+
+#modernbb .wm-paliers__perle[data-wm-genre="a-ecrire"] > text {
+  fill: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb .wm-paliers__maison {
+  fill: var(--wm-encre, #2e2018);
+  dominant-baseline: central;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 21px;
+  text-anchor: middle;
+}
+
+/*  ── LES SIX LISTES ────────────────────────────────────────────────
+    Deux colonnes tant que la place le permet. Une seule liste de
+    quarante-huit lignes ferait une page de défilement pour un contenu
+    qui tient en six paquets de huit. */
+#modernbb .wm-paliers > .wm-paliers__branche {
   display: flex;
   flex-direction: column;
-  gap: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-6, 6px);
 }
 
-#modernbb .wm-arbre__titre {
+#modernbb .wm-paliers__titre {
   margin: 0;
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
@@ -49,186 +142,73 @@
   font-weight: 600;
 }
 
-/*  LA BRANCHE SE DISTINGUE DU TRONC, et par un filet à gauche plutôt
-    que par une couleur : les six maisons ont déjà la leur, et deux
-    codes couleur sur la même page s'annulent. */
-#modernbb .wm-arbre__bloc--branche > .wm-arbre__titre::before {
-  display: inline-block;
-  width: 18px;
-  height: 2px;
-  margin-right: var(--wm-espace-8, 8px);
-  background: var(--wm-accent-primaire, #275e7a);
-  content: "";
-  vertical-align: middle;
-}
-
-#modernbb .wm-arbre__note {
-  margin: 0;
-  color: var(--wm-texte-doux, #6e5749);
+#modernbb .wm-paliers__embleme {
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-legende, 10.5px);
-  font-style: italic;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/*  ── LA GRILLE ─────────────────────────────────────────────────────
-
-    Une colonne par profondeur, et chaque case se place dans la sienne.
-    `grid-auto-flow: dense` serre les trous qu'une chaîne longue laisse
-    à côté d'une chaîne courte, sinon la famille des captures ferait
-    une diagonale de vide sur toute sa hauteur.
-
-    LA GRILLE DÉFILE, PAS LA PAGE : sept colonnes de 200 px ne tiennent
-    pas dans un forum de 760, et élargir la page pour une seule famille
-    casserait toutes les autres. */
-#modernbb .wm-arbre__cases {
-  display: grid;
-  grid-auto-flow: dense;
-  grid-template-columns: repeat(var(--colonnes, 1), minmax(190px, 1fr));
-  gap: var(--wm-espace-10, 10px);
-  margin: 0;
-  padding: 0 0 var(--wm-espace-6, 6px);
-  overflow-x: auto;
-  list-style: none;
-  scrollbar-color: var(--wm-bord-net, #d9c3b1) transparent;
-  scrollbar-width: thin;
-}
-
-/*  LES CASES LIBRES NE SONT PAS UNE CHAÎNE. Dix-huit médailles de type
-    qui ne s'attendent pas entre elles n'ont pas de profondeur : elles
-    se rangent comme une liste, autant par rangée que la largeur en
-    accepte. Mesuré au premier rendu, où elles faisaient dix-huit
-    rangées d'une seule case et une colonne de vide à côté. */
-#modernbb .wm-arbre__libres {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: var(--wm-espace-10, 10px);
+#modernbb .wm-paliers__etapes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-#modernbb .wm-arbre__case {
-  position: relative;
+#modernbb .wm-paliers__etape {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  box-sizing: border-box;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-}
-
-/*  LA COLONNE NE VAUT QUE DANS UNE CHAÎNE. Écrites sans le
-    `.wm-arbre__cases` devant, ces sept règles rangeaient AUSSI les
-    cases libres — toutes en profondeur zéro, donc toutes en colonne 1,
-    donc une colonne de dix-huit médailles de type et trois quarts de
-    page vides à côté. Vu au rendu, pas en relisant. */
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="0"] { grid-column: 1 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="1"] { grid-column: 2 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="2"] { grid-column: 3 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="3"] { grid-column: 4 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="4"] { grid-column: 5 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="5"] { grid-column: 6 }
-#modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne="6"] { grid-column: 7 }
-
-/*  LE FILET DE LIAISON part du bord gauche d'une case qui en attend
-    une autre et va chercher la colonne d'avant. Il est décoratif :
-    l'information est dans `data-wm-apres`, et un lecteur d'écran
-    n'annonce pas un trait. */
-#modernbb .wm-arbre__case[data-wm-apres]::before {
-  position: absolute;
-  top: 50%;
-  left: calc(-1 * var(--wm-espace-10, 10px) - 1px);
-  width: var(--wm-espace-10, 10px);
-  height: 1px;
-  background: var(--wm-bord-net, #d9c3b1);
-  content: "";
-}
-
-#modernbb .wm-arbre__genre {
-  margin: 0;
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-#modernbb .wm-arbre__nom {
-  margin: 0;
-  color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: 600;
-  line-height: var(--wm-interligne-normal, 1.65);
-}
-
-#modernbb .wm-arbre__quoi {
-  margin: 0;
+  gap: var(--wm-espace-10, 10px);
+  align-items: baseline;
   color: var(--wm-texte-corps, #4e3b30);
-  font-size: var(--wm-taille-legende, 10.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
-#modernbb .wm-arbre__gain {
-  margin: var(--wm-espace-4, 4px) 0 0;
-  color: var(--wm-accent-terre, #8b4725);
+/*  LE RANG EST UNE PASTILLE DE LARGEUR FIXE, et c'est ce qui aligne
+    les textes entre eux : un simple numéro suivi d'un point décale
+    chaque ligne de la largeur de son chiffre. */
+#modernbb .wm-paliers__rang {
+  flex: 0 0 22px;
+  box-sizing: border-box;
+  height: 22px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 50%;
+  color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 20px;
+  text-align: center;
 }
 
-/*  ── LES ÉTATS ─────────────────────────────────────────────────────
-
-    Posés par le script. AUCUNE DIFFÉRENCE N'EST PORTÉE PAR LA SEULE
-    COULEUR : l'acquis prend un fond plein ET une puce, le verrouillé
-    perd du contraste ET gagne un cadenas. Une page où le vert et le
-    gris disent tout est illisible pour qui ne distingue pas les deux. */
-#modernbb .wm-arbre__case[data-wm-etat="acquis"] {
+#modernbb .wm-paliers__etape[data-wm-genre="palier"] > .wm-paliers__rang {
   border-color: var(--wm-accent-primaire, #275e7a);
-  background: var(--wm-fond-terre, #f8eae1);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
-#modernbb .wm-arbre__case[data-wm-etat="acquis"] > .wm-arbre__genre::after {
-  margin-left: var(--wm-espace-6, 6px);
-  color: var(--wm-accent-primaire, #275e7a);
-  content: "✓ acquis";
+#modernbb .wm-paliers__etape[data-wm-genre="palier"] {
+  margin: var(--wm-espace-4, 4px) 0;
+  color: var(--wm-encre, #2e2018);
 }
 
-#modernbb .wm-arbre__case[data-wm-etat="a-portee"] {
-  border-color: var(--wm-bord-net, #d9c3b1);
+#modernbb .wm-paliers__etape[data-wm-genre="a-ecrire"] > .wm-paliers__rang {
   border-style: dashed;
 }
 
-#modernbb .wm-arbre__case[data-wm-etat="verrouille"],
-#modernbb .wm-arbre__case[data-wm-genre="forum"],
-#modernbb .wm-arbre__case[data-wm-genre="staff"] {
-  background: none;
-}
-
-#modernbb .wm-arbre__case[data-wm-etat="verrouille"] > .wm-arbre__nom,
-#modernbb .wm-arbre__case[data-wm-etat="verrouille"] > .wm-arbre__quoi {
+#modernbb .wm-paliers__etape[data-wm-genre="a-ecrire"] > .wm-paliers__quoi {
   color: var(--wm-texte-pale, #69564c);
+  font-style: italic;
 }
 
 /*  ── SOUS 760 PX ───────────────────────────────────────────────────
-
-    Une seule colonne, et le filet disparaît avec elle : un trait
-    horizontal vers une case qui est maintenant au-dessus désignerait
-    le vide. L'ordre de lecture, lui, reste celui des prérequis — le
-    générateur écrit déjà les cases dans cet ordre. */
+    Le dessin reste : il rétrécit proportionnellement et c'est lui qui
+    dit la forme. Les perles y deviennent petites, et c'est pour ça que
+    la liste existe. */
 @media (max-width: 760px) {
-  #modernbb .wm-arbre__cases {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /*  LE PARENT EST RÉPÉTÉ ICI, et ce n'est pas du zèle. Écrite
-      `#modernbb .wm-arbre__case[data-wm-colonne]`, cette règle est
-      MOINS spécifique que les sept d'au-dessus, qui portent
-      `.wm-arbre__cases >` en plus — et une requête de média ne change
-      rien à la spécificité. Les sept colonnes tenaient donc à 390 px.
-      Mesuré par le harnais, pas vu en relisant. */
-  #modernbb .wm-arbre__cases > .wm-arbre__case[data-wm-colonne] {
-    grid-column: 1;
-  }
-
-  #modernbb .wm-arbre__case[data-wm-apres]::before {
-    display: none;
+  #modernbb .wm-paliers__dessin {
+    max-width: 100%;
   }
 }
